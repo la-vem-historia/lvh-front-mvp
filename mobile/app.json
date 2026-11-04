@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Lá Vem História",
+    "slug": "la-vem-historia",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "lavemhistoria",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "br.com.lavemhistoria.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "br.com.lavemhistoria.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFEF2",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFEF2",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "O Lá Vem História usa o microfone para gravar suas respostas na sua voz."
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Lá Vem História usa suas fotos para ilustrar as respostas do livro.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-speech-recognition",
+        {
+          "speechRecognitionPermission": "O Lá Vem História transforma a sua fala em texto quando você usa Ditar.",
+          "microphonePermission": "O Lá Vem História usa o microfone para gravar a sua voz e para ditar as respostas."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
