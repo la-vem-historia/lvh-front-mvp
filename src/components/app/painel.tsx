@@ -100,7 +100,7 @@ const Painel = () => {
   }
 
   return (
-    <div className='mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-16 sm:px-6 lg:px-16 lg:py-24'>
+    <div className='mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 pt-8 pb-16 sm:px-6 lg:px-16 lg:pb-24'>
       <div className='grid gap-10 lg:grid-cols-12 lg:gap-8'>
         <PageHeading eyebrow='Minha história' title={`Olá, ${user.name}.`} className='lg:col-span-6'>
           Responda no seu tempo, na ordem que quiser. Cada resposta vira um trecho do seu livro.
