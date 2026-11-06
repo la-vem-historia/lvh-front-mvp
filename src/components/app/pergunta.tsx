@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import ColaboradoresPergunta from '@/components/app/colaboradores-pergunta'
 import Lightbox from '@/components/app/lightbox'
@@ -207,6 +208,14 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
   const [openPhoto, setOpenPhoto] = useState<string | null>(null)
   const [bookmarked, setBookmarked] = useState(false)
   const [peopleCount, setPeopleCount] = useState(0)
+  // Remover voz ou foto pede confirmação num modal: não dá para desfazer
+  const [confirmRemove, setConfirmRemove] = useState<{ kind: 'audio' } | { kind: 'photo'; index: number } | null>(null)
+  // Aberto à parte: o texto do modal não troca enquanto ele fecha
+  const [removeOpen, setRemoveOpen] = useState(false)
+  const askRemove = (target: NonNullable<typeof confirmRemove>) => {
+    setConfirmRemove(target)
+    setRemoveOpen(true)
+  }
   const closePhoto = useCallback(() => setOpenPhoto(null), [])
   const textRef = useRef('')
   const saveTimer = useRef<number | undefined>(undefined)
@@ -460,7 +469,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               vê o resultado na hora, sem precisar rolar a página */}
           {(audio || photos.length > 0) && (
             <div className='flex flex-wrap gap-2 px-4 sm:px-5'>
-              {audio && <VoiceNote audio={audio} onRemove={removeAudio} />}
+              {audio && <VoiceNote audio={audio} onRemove={() => askRemove({ kind: 'audio' })} />}
               {photos.map((photo, index) => (
                 <div
                   key={photo.slice(-32)}
@@ -500,7 +509,10 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
                     placeholder='Legenda da foto (opcional)'
                     className='placeholder:text-muted-foreground/70 min-w-0 flex-1 bg-transparent text-sm outline-none'
                   />
-                  <RemoveButton label={`Remover foto ${index + 1}`} onClick={() => removePhoto(index)} />
+                  <RemoveButton
+                    label={`Remover foto ${index + 1}`}
+                    onClick={() => askRemove({ kind: 'photo', index })}
+                  />
                 </div>
               ))}
             </div>
@@ -585,6 +597,45 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
           </div>
         </div>
       </div>
+
+      <Dialog open={removeOpen} onOpenChange={setRemoveOpen}>
+        <DialogContent
+          showCloseButton={false}
+          className='bg-cream flex flex-col gap-6 rounded-[1.5rem] p-6 sm:max-w-sm sm:p-8'
+        >
+          <div className='flex flex-col gap-2'>
+            <DialogTitle className='font-heading text-2xl'>
+              {confirmRemove?.kind === 'audio' ? 'Remover a gravação?' : 'Remover a foto?'}
+            </DialogTitle>
+            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+              {confirmRemove?.kind === 'audio'
+                ? 'A sua voz sai desta resposta e do livro. Não dá para desfazer.'
+                : 'A foto e a legenda saem desta resposta e do livro. Não dá para desfazer.'}
+            </DialogDescription>
+          </div>
+          <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-end'>
+            <Button
+              type='button'
+              variant='ghost'
+              className='hover:bg-sand h-11 px-5'
+              onClick={() => setRemoveOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type='button'
+              className='bg-destructive hover:bg-destructive/90 h-11 px-5 text-white'
+              onClick={() => {
+                if (confirmRemove?.kind === 'audio') removeAudio()
+                if (confirmRemove?.kind === 'photo') removePhoto(confirmRemove.index)
+                setRemoveOpen(false)
+              }}
+            >
+              {confirmRemove?.kind === 'audio' ? 'Remover gravação' : 'Remover foto'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {openPhoto && <Lightbox src={openPhoto} alt={question.text} onClose={closePhoto} />}
 

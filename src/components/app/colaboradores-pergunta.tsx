@@ -153,8 +153,9 @@ const ColaboradoresPergunta = ({
   return (
     <>
       <Dialog open={inviting} onOpenChange={open => !open && closeInvite()}>
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-xl sm:p-8'>
-          <div className='flex flex-col gap-2 pr-8'>
+        {/* Título e botões ficam parados; só o meio rola, com uma barra fina que não encosta nos cantos */}
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-[1.5rem] p-0 sm:max-w-xl'>
+          <div className='flex flex-col gap-2 px-6 pt-6 pr-14 pb-2 sm:px-8 sm:pt-8 sm:pr-14'>
             <DialogTitle className='font-heading text-2xl'>
               {people.length > 0 ? 'Outras lembranças' : 'Convidar para responder'}
             </DialogTitle>
@@ -163,214 +164,220 @@ const ColaboradoresPergunta = ({
               nunca vê a sua resposta.
             </DialogDescription>
           </div>
-          {people.length > 0 && (
-            <ul className='flex flex-col gap-4'>
-              {people.map(collaborator => {
-                const contribution = contributions.find(item => item.collaboratorId === collaborator.id)
-                const hasAccess = collaborator.questionIds.includes(questionId)
-                const hasText = Boolean(contribution?.text.trim())
-                const status = !hasAccess
-                  ? 'Sem acesso a esta pergunta'
-                  : !hasText
-                    ? 'Aguardando resposta'
-                    : contribution?.approved
-                      ? 'No livro'
-                      : 'Aguardando a sua aprovação'
 
-                return (
-                  <li key={collaborator.id} className='border-border flex flex-col gap-3 rounded-2xl border p-5'>
-                    <div className='flex flex-wrap items-baseline justify-between gap-2'>
-                      <span className='font-medium'>{collaborator.name}</span>
-                      <span
-                        className={cn(
-                          'text-xs',
-                          contribution?.approved && hasText ? 'font-medium' : 'text-muted-foreground'
+          <div className='flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-4 [scrollbar-color:var(--color-stone)_transparent] [scrollbar-width:thin] sm:px-8'>
+            {people.length > 0 && (
+              <ul className='flex flex-col gap-4'>
+                {people.map(collaborator => {
+                  const contribution = contributions.find(item => item.collaboratorId === collaborator.id)
+                  const hasAccess = collaborator.questionIds.includes(questionId)
+                  const hasText = Boolean(contribution?.text.trim())
+                  const status = !hasAccess
+                    ? 'Sem acesso a esta pergunta'
+                    : !hasText
+                      ? 'Aguardando resposta'
+                      : contribution?.approved
+                        ? 'No livro'
+                        : 'Aguardando a sua aprovação'
+
+                  return (
+                    <li key={collaborator.id} className='border-border flex flex-col gap-3 rounded-2xl border p-5'>
+                      <div className='flex flex-wrap items-baseline justify-between gap-2'>
+                        <span className='font-medium'>{collaborator.name}</span>
+                        <span
+                          className={cn(
+                            'text-xs',
+                            contribution?.approved && hasText ? 'font-medium' : 'text-muted-foreground'
+                          )}
+                        >
+                          {status}
+                        </span>
+                      </div>
+
+                      {hasText && (
+                        <p className='font-heading bg-sand rounded-xl p-4 text-base leading-relaxed whitespace-pre-line'>
+                          {contribution?.text}
+                        </p>
+                      )}
+
+                      <div className='text-muted-foreground flex flex-wrap items-center gap-x-5 gap-y-2 text-xs'>
+                        {contribution && hasText && !contribution.approved && (
+                          <Button
+                            type='button'
+                            variant='honey'
+                            className='h-9 px-4 text-xs'
+                            onClick={() => setContributionApproval(contribution.id, true).then(load)}
+                          >
+                            Aprovar e incluir no livro
+                          </Button>
                         )}
-                      >
-                        {status}
-                      </span>
-                    </div>
+                        {contribution?.approved && hasText && (
+                          <button
+                            type='button'
+                            onClick={() => setContributionApproval(contribution.id, false).then(load)}
+                            className={actionClassName}
+                          >
+                            Tirar do livro
+                          </button>
+                        )}
+                        {hasAccess && (
+                          <button type='button' onClick={() => copy(collaborator)} className={actionClassName}>
+                            {copied === collaborator.id ? 'Copiado!' : 'Copiar link'}
+                          </button>
+                        )}
+                        {contribution && (
+                          <button
+                            type='button'
+                            onClick={() =>
+                              confirmThen(`apagar-${contribution.id}`, () => deleteContribution(contribution.id))
+                            }
+                            className={`${actionClassName} hover:text-destructive`}
+                          >
+                            {confirming === `apagar-${contribution.id}`
+                              ? 'Clique de novo para apagar'
+                              : 'Apagar resposta'}
+                          </button>
+                        )}
+                        {hasAccess && (
+                          <button
+                            type='button'
+                            onClick={() =>
+                              confirmThen(`remover-${collaborator.id}`, () =>
+                                removeCollaboratorFromQuestion(collaborator.id, questionId)
+                              )
+                            }
+                            className={`${actionClassName} hover:text-destructive`}
+                          >
+                            {confirming === `remover-${collaborator.id}`
+                              ? 'Clique de novo para remover'
+                              : 'Remover desta pergunta'}
+                          </button>
+                        )}
+                      </div>
 
-                    {hasText && (
-                      <p className='font-heading bg-sand rounded-xl p-4 text-base leading-relaxed whitespace-pre-line'>
-                        {contribution?.text}
-                      </p>
-                    )}
+                      {visibleLink === collaborator.id && (
+                        <input
+                          readOnly
+                          value={collaboratorLink(collaborator)}
+                          aria-label={`Link de ${collaborator.name}`}
+                          onFocus={event => event.currentTarget.select()}
+                          className='border-border bg-sand h-9 w-full rounded-full border px-4 text-xs'
+                        />
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
 
-                    <div className='text-muted-foreground flex flex-wrap items-center gap-x-5 gap-y-2 text-xs'>
-                      {contribution && hasText && !contribution.approved && (
-                        <Button
-                          type='button'
-                          variant='honey'
-                          className='h-9 px-4 text-xs'
-                          onClick={() => setContributionApproval(contribution.id, true).then(load)}
-                        >
-                          Aprovar e incluir no livro
-                        </Button>
-                      )}
-                      {contribution?.approved && hasText && (
-                        <button
-                          type='button'
-                          onClick={() => setContributionApproval(contribution.id, false).then(load)}
-                          className={actionClassName}
-                        >
-                          Tirar do livro
-                        </button>
-                      )}
-                      {hasAccess && (
-                        <button type='button' onClick={() => copy(collaborator)} className={actionClassName}>
-                          {copied === collaborator.id ? 'Copiado!' : 'Copiar link'}
-                        </button>
-                      )}
-                      {contribution && (
-                        <button
-                          type='button'
-                          onClick={() =>
-                            confirmThen(`apagar-${contribution.id}`, () => deleteContribution(contribution.id))
-                          }
-                          className={`${actionClassName} hover:text-destructive`}
-                        >
-                          {confirming === `apagar-${contribution.id}`
-                            ? 'Clique de novo para apagar'
-                            : 'Apagar resposta'}
-                        </button>
-                      )}
-                      {hasAccess && (
-                        <button
-                          type='button'
-                          onClick={() =>
-                            confirmThen(`remover-${collaborator.id}`, () =>
-                              removeCollaboratorFromQuestion(collaborator.id, questionId)
-                            )
-                          }
-                          className={`${actionClassName} hover:text-destructive`}
-                        >
-                          {confirming === `remover-${collaborator.id}`
-                            ? 'Clique de novo para remover'
-                            : 'Remover desta pergunta'}
-                        </button>
-                      )}
-                    </div>
+            {sent && (
+              <p role='status' className='text-muted-foreground text-sm'>
+                Convite enviado para {sent.name}.{' '}
+                {sent.copied
+                  ? 'O link também foi copiado, caso queira mandar por mensagem.'
+                  : 'Se quiser mandar por mensagem, copie o link no card acima.'}
+              </p>
+            )}
 
-                    {visibleLink === collaborator.id && (
-                      <input
-                        readOnly
-                        value={collaboratorLink(collaborator)}
-                        aria-label={`Link de ${collaborator.name}`}
-                        onFocus={event => event.currentTarget.select()}
-                        className='border-border bg-sand h-9 w-full rounded-full border px-4 text-xs'
-                      />
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          )}
+            {people.length > 0 && (
+              <h3 className='border-border border-t pt-6 text-base font-medium'>Convidar mais alguém</h3>
+            )}
+            {others.length > 0 && (
+              <div className='flex flex-col gap-2'>
+                <span className='text-sm font-medium'>Quem já colabora com você</span>
+                <div className='flex flex-wrap gap-2'>
+                  {others.map(collaborator => (
+                    <button
+                      key={collaborator.id}
+                      type='button'
+                      onClick={() => {
+                        setGuestName(collaborator.name)
+                        setGuestEmail(collaborator.email)
+                      }}
+                      className='border-border hover:border-foreground/40 cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors'
+                    >
+                      + {collaborator.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {sent && (
-            <p role='status' className='text-muted-foreground text-sm'>
-              Convite enviado para {sent.name}.{' '}
-              {sent.copied
-                ? 'O link também foi copiado, caso queira mandar por mensagem.'
-                : 'Se quiser mandar por mensagem, copie o link no card acima.'}
+            <form id={`convite-${questionId}`} onSubmit={handleSubmit} className='flex flex-col gap-4'>
+              {others.length > 0 && <span className='text-sm font-medium'>Ou convide uma pessoa nova</span>}
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label htmlFor={`colaborador-nome-${questionId}`}>Nome</Label>
+                  <Input
+                    id={`colaborador-nome-${questionId}`}
+                    value={guestName}
+                    onChange={event => setGuestName(event.target.value)}
+                    required
+                    className={fieldClassName}
+                  />
+                </div>
+                <div className='flex flex-col gap-2'>
+                  <Label htmlFor={`colaborador-email-${questionId}`}>E-mail</Label>
+                  <Input
+                    id={`colaborador-email-${questionId}`}
+                    type='email'
+                    value={guestEmail}
+                    onChange={event => setGuestEmail(event.target.value)}
+                    required
+                    className={fieldClassName}
+                  />
+                </div>
+              </div>
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-baseline justify-between gap-4'>
+                  <Label htmlFor={`colaborador-mensagem-${questionId}`}>Mensagem</Label>
+                  {customMessage !== null && (
+                    <button
+                      type='button'
+                      onClick={() => setCustomMessage(null)}
+                      className='text-muted-foreground cursor-pointer text-xs underline underline-offset-4'
+                    >
+                      Voltar à mensagem padrão
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  id={`colaborador-mensagem-${questionId}`}
+                  value={message}
+                  onChange={event => setCustomMessage(event.target.value)}
+                  required
+                  className='border-border bg-background focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
+                />
+                <p className='text-muted-foreground text-xs'>
+                  Já escrevemos uma mensagem para você. Mude o que quiser.
+                </p>
+              </div>
+              {error && <p className='text-destructive text-sm'>{error}</p>}
+            </form>
+            {/* Convite simulado: o e-mail não é enviado e o link só abre neste navegador */}
+            <p className='text-muted-foreground text-xs'>
+              Protótipo: nenhum e-mail é enviado, e o link só abre neste navegador.
             </p>
-          )}
+          </div>
 
-          {people.length > 0 && (
-            <h3 className='border-border border-t pt-6 text-base font-medium'>Convidar mais alguém</h3>
-          )}
-          {others.length > 0 && (
-            <div className='flex flex-col gap-2'>
-              <span className='text-sm font-medium'>Quem já colabora com você</span>
-              <div className='flex flex-wrap gap-2'>
-                {others.map(collaborator => (
-                  <button
-                    key={collaborator.id}
-                    type='button'
-                    onClick={() => {
-                      setGuestName(collaborator.name)
-                      setGuestEmail(collaborator.email)
-                    }}
-                    className='border-border hover:border-foreground/40 cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors'
-                  >
-                    + {collaborator.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-            {others.length > 0 && <span className='text-sm font-medium'>Ou convide uma pessoa nova</span>}
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor={`colaborador-nome-${questionId}`}>Nome</Label>
-                <Input
-                  id={`colaborador-nome-${questionId}`}
-                  value={guestName}
-                  onChange={event => setGuestName(event.target.value)}
-                  required
-                  className={fieldClassName}
-                />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <Label htmlFor={`colaborador-email-${questionId}`}>E-mail</Label>
-                <Input
-                  id={`colaborador-email-${questionId}`}
-                  type='email'
-                  value={guestEmail}
-                  onChange={event => setGuestEmail(event.target.value)}
-                  required
-                  className={fieldClassName}
-                />
-              </div>
-            </div>
-            <div className='flex flex-col gap-2'>
-              <div className='flex items-baseline justify-between gap-4'>
-                <Label htmlFor={`colaborador-mensagem-${questionId}`}>Mensagem</Label>
-                {customMessage !== null && (
-                  <button
-                    type='button'
-                    onClick={() => setCustomMessage(null)}
-                    className='text-muted-foreground cursor-pointer text-xs underline underline-offset-4'
-                  >
-                    Voltar à mensagem padrão
-                  </button>
-                )}
-              </div>
-              <textarea
-                id={`colaborador-mensagem-${questionId}`}
-                value={message}
-                onChange={event => setCustomMessage(event.target.value)}
-                required
-                className='border-border bg-background focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
-              />
-              <p className='text-muted-foreground text-xs'>Já escrevemos uma mensagem para você. Mude o que quiser.</p>
-            </div>
-            {error && <p className='text-destructive text-sm'>{error}</p>}
-            <div className='flex items-center gap-4'>
-              <Button
-                id='convite-enviar'
-                type='submit'
-                variant='honey'
-                disabled={!guestName.trim() || !isValidEmail(guestEmail)}
-                className='h-10 px-5'
-              >
-                Enviar convite
-              </Button>
-              <button
-                type='button'
-                onClick={closeInvite}
-                className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-          {/* Convite simulado: o e-mail não é enviado e o link só abre neste navegador */}
-          <p className='text-muted-foreground text-xs'>
-            Protótipo: nenhum e-mail é enviado, e o link só abre neste navegador.
-          </p>
+          <div className='border-border/60 flex items-center gap-4 border-t px-6 py-4 sm:px-8'>
+            <Button
+              type='submit'
+              form={`convite-${questionId}`}
+              variant='honey'
+              disabled={!guestName.trim() || !isValidEmail(guestEmail)}
+              className='h-10 px-5'
+            >
+              Enviar convite
+            </Button>
+            <button
+              type='button'
+              onClick={closeInvite}
+              className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+            >
+              {people.length > 0 ? 'Fechar' : 'Cancelar'}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
