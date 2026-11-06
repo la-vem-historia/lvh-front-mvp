@@ -1,6 +1,11 @@
+import { CheckIcon, MinusIcon } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+
+import { FOUNDER_SPOTS, PLAN_PRICES, formatPrice, founderPrice } from '@/lib/lvh/fundadores'
+import { cn } from '@/lib/utils'
 
 const reveal = {
   fade: true,
@@ -8,26 +13,42 @@ const reveal = {
   transition: { duration: 0.6, ease: 'easeOut' as const }
 }
 
-// Os três planos ainda repetem preço, descrição e benefícios: os dados finais chegam depois.
-// Cada plano tem a sua cor; o Individual é claro, com texto e botão escuros
-const features = [
-  'Perguntas guiadas sobre toda a sua vida',
-  'Livro digital fechado, só para quem você convidar',
-  'Convidados ilimitados, com acesso que você pode remover',
-  'Upload ilimitado de fotos e áudios'
-]
-
+// O Essencial é só texto; o Completo libera fotos, voz e ditado. Os itens fora do plano aparecem riscados
 const plans = [
-  { name: 'Individual', card: 'bg-lilac text-ink', line: 'border-ink', button: 'default' as const },
-  { name: 'Duo', card: 'bg-olive text-cream', line: 'border-cream', button: 'inverse' as const },
-  { name: 'Família', card: 'bg-umber text-cream', line: 'border-cream', button: 'inverse' as const }
-].map(plan => ({
-  ...plan,
-  description: 'Tudo para contar a sua história e dividi-la com quem você ama.',
-  price: 'R$ 29,90',
-  period: '/ mês',
-  features
-}))
+  {
+    name: 'Essencial',
+    description: 'Para quem quer contar a história só escrevendo.',
+    price: PLAN_PRICES.essencial,
+    card: 'bg-lilac text-ink',
+    line: 'border-ink/20',
+    button: 'default' as const,
+    features: [
+      { label: 'Todas as perguntas guiadas', included: true },
+      { label: 'Livro digital com capa, sumário e capítulos', included: true },
+      { label: 'Leitura só para quem você convidar', included: true },
+      { label: 'Fotos nas respostas', included: false },
+      { label: 'Gravação de voz', included: false },
+      { label: 'Ditado: fale e o texto aparece', included: false }
+    ]
+  },
+  {
+    name: 'Completo',
+    description: 'Tudo para contar do seu jeito, com imagem e voz.',
+    price: PLAN_PRICES.completo,
+    card: 'bg-olive text-cream',
+    line: 'border-cream/25',
+    button: 'inverse' as const,
+    badge: 'Recomendado',
+    features: [
+      { label: 'Tudo do Essencial', included: true },
+      { label: 'Fotos ilimitadas ao lado das histórias', included: true },
+      { label: 'Gravação de voz que toca dentro do livro', included: true },
+      { label: 'Ditado: fale e o texto aparece', included: true },
+      { label: 'Convide a família para responder junto', included: true },
+      { label: 'PDF pronto para imprimir', included: true }
+    ]
+  }
+]
 
 const Planos = () => {
   return (
@@ -42,12 +63,12 @@ const Planos = () => {
               className='font-heading text-display text-balance'
             />
           </div>
-          <p className='text-muted-foreground text-base text-pretty'>
-            Uma assinatura só, com tudo incluído: escrever, gravar, montar o livro e compartilhar com a família.
+          <p className='text-muted-foreground max-w-xl text-base text-pretty'>
+            Dois planos, sem fidelidade. Os {FOUNDER_SPOTS} primeiros da lista pagam metade no primeiro ano.
           </p>
         </MotionPreset>
 
-        <div className='grid gap-8 lg:grid-cols-3'>
+        <div className='mx-auto grid w-full max-w-4xl gap-8 md:grid-cols-2'>
           {plans.map((plan, index) => (
             <MotionPreset
               key={plan.name}
@@ -56,29 +77,56 @@ const Planos = () => {
               className={`${plan.card} flex flex-col gap-8 rounded-[1.5rem] p-8 transition-[translate,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgb(34_34_34/0.6)] sm:p-10`}
             >
               <div className='flex flex-col gap-2'>
-                <h3 className='font-heading text-display'>{plan.name}</h3>
+                <div className='flex items-center justify-between gap-4'>
+                  <h3 className='font-heading text-display'>{plan.name}</h3>
+                  {plan.badge && (
+                    <span className='bg-cream text-ink rounded-full px-3 py-1 text-xs font-medium'>{plan.badge}</span>
+                  )}
+                </div>
                 <p className='text-base'>{plan.description}</p>
               </div>
 
-              <p className='flex items-baseline gap-2'>
-                <span className='font-heading text-display-lg'>{plan.price}</span>
-                <span className='text-sm'>{plan.period}</span>
-              </p>
+              {/* Preço de fundador em destaque, com o preço cheio riscado ao lado */}
+              <div className='flex flex-col gap-1'>
+                <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
+                  <span className='font-heading text-display-lg'>{formatPrice(founderPrice(plan.price))}</span>
+                  <span className='text-sm'>/ mês</span>
+                  <s className='text-sm opacity-70'>{formatPrice(plan.price)}</s>
+                </p>
+                <p className='text-sm opacity-80'>
+                  Preço de fundador no primeiro ano. Depois, {formatPrice(plan.price)} por mês.
+                </p>
+              </div>
 
               <ul className='flex flex-1 flex-col'>
                 {plan.features.map(feature => (
-                  <li key={feature} className={`${plan.line} border-t py-3 text-sm`}>
-                    {feature}
+                  <li
+                    key={feature.label}
+                    className={cn(
+                      plan.line,
+                      'flex items-center gap-3 border-t py-3 text-sm',
+                      !feature.included && 'opacity-55'
+                    )}
+                  >
+                    {feature.included ? (
+                      <CheckIcon aria-hidden='true' className='size-4 shrink-0' />
+                    ) : (
+                      <MinusIcon aria-hidden='true' className='size-4 shrink-0' />
+                    )}
+                    <span className={cn(!feature.included && 'line-through')}>
+                      {feature.label}
+                      {!feature.included && <span className='sr-only'> (não incluso)</span>}
+                    </span>
                   </li>
                 ))}
               </ul>
 
               <Button
-                render={<a href='#lista-de-espera' />}
+                render={<a href='#fundadores' />}
                 nativeButton={false}
                 variant={plan.button}
                 size='cta'
-                // O botão escuro do Individual usa a mesma sombra dos botões claros dos outros cards,
+                // O botão escuro do Essencial usa a mesma sombra do botão claro do Completo,
                 // para a elevação no hover aparecer junto com a do card
                 className={
                   plan.button === 'default'
@@ -86,7 +134,7 @@ const Planos = () => {
                     : undefined
                 }
               >
-                Assinar e começar agora
+                Garantir preço de fundador
               </Button>
             </MotionPreset>
           ))}

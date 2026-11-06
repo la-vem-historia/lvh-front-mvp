@@ -5,7 +5,12 @@ import type { NextRequest } from 'next/server'
 
 const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow' }
 
+// A landing e a lista de interessados ficam abertas para captar leads; o app continua fechado
+const PUBLIC_PATHS = ['/', '/api/leads']
+
 export function proxy(request: NextRequest) {
+  if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) return NextResponse.next()
+
   const user = process.env.SITE_USER
   const password = process.env.SITE_PASSWORD
 
