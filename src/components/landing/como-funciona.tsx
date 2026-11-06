@@ -1,18 +1,23 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 
 import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
-import { LockIcon } from 'lucide-react'
+import { ChevronDownIcon, LockIcon } from 'lucide-react'
 
 import { MotionPreset } from '@/components/ui/motion-preset'
-import { DrawLine, WordsReveal } from '@/components/landing/motion'
+import { WordsReveal } from '@/components/landing/motion'
 
 import compartilharImage from '@/assets/landing/produto/compartilhar.png'
 import fotosEVozImage from '@/assets/landing/produto/fotos-e-voz.png'
 import responderImage from '@/assets/landing/produto/responder.png'
+import jovemImage from '@/assets/landing/leitores/jovem.jpg'
+import maeImage from '@/assets/landing/leitores/mae.jpg'
+import paiImage from '@/assets/landing/leitores/pai.jpg'
+import voImage from '@/assets/landing/leitores/vo.jpg'
+import vovoImage from '@/assets/landing/leitores/vovo.jpg'
 
 import { cn } from '@/lib/utils'
 
@@ -47,9 +52,45 @@ const steps: { title: string; text: string; image: StaticImageData; alt: string;
   }
 ]
 
+// Leitores do livro que aparecem flutuando em volta da janela no passo de compartilhar.
+// Posição em % do painel verde, para acompanhar qualquer largura
+const readers = [
+  { image: voImage, position: 'left-[2%] top-[68%]', delay: '0s' },
+  { image: vovoImage, position: 'left-[9%] top-[84%]', delay: '1.2s' },
+  { image: maeImage, position: 'left-[21%] top-[76%]', delay: '0.6s' },
+  { image: jovemImage, position: 'right-[12%] top-[84%]', delay: '1.8s' },
+  { image: paiImage, position: 'right-[3%] top-[70%]', delay: '0.9s' }
+]
+
+// O passo em que os leitores aparecem
+const SHARE_STEP = 2
+
 const ComoFunciona = () => {
   const [active, setActive] = useState(0)
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
+  const section = useRef<HTMLElement>(null)
+  // Os passos avançam sozinhos só com a seção na tela. O mouse em cima pausa a contagem; depois de um clique,
+  // quem manda é a pessoa e eles param de avançar
+  const [inView, setInView] = useState(false)
+  const [hovering, setHovering] = useState(false)
+  const [chosen, setChosen] = useState(false)
+
+  useEffect(() => {
+    const element = section.current
+
+    if (!element) return
+
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.4 })
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [])
+
+  const choose = (index: number) => {
+    setActive(index)
+    setChosen(true)
+  }
 
   // Setas mudam de passo, como numa lista de abas
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -61,12 +102,12 @@ const ComoFunciona = () => {
     event.preventDefault()
     const next = (active + move + steps.length) % steps.length
 
-    setActive(next)
+    choose(next)
     tabs.current[next]?.focus()
   }
 
   return (
-    <section id='como-funciona' className='scroll-mt-24'>
+    <section ref={section} id='como-funciona' className='scroll-mt-24'>
       <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-12 lg:px-16 lg:py-32'>
         <MotionPreset {...reveal} className='flex flex-col gap-4 lg:col-span-5'>
           <p className='text-sm font-medium uppercase'>Como funciona</p>
@@ -87,8 +128,8 @@ const ComoFunciona = () => {
           delay={0.15}
           className='lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1 lg:self-center'
         >
-          <div className='bg-blush rounded-[1.5rem] p-5 sm:p-10 lg:p-12 [perspective:2000px]'>
-            <div className='bg-cream overflow-hidden rounded-xl shadow-[0_40px_70px_-35px_rgb(50_38_24/0.55)] ring-1 ring-black/5 transition-transform duration-700 ease-out lg:[transform:rotateY(-6deg)] lg:hover:[transform:rotateY(0deg)]'>
+          <div className='bg-moss relative rounded-[1.5rem] p-5 sm:p-10 lg:p-12 [perspective:2000px]'>
+            <div className='bg-cream overflow-hidden rounded-xl shadow-[0_40px_70px_-30px_rgb(0_0_0/0.55)] ring-1 ring-black/10 transition-transform duration-700 ease-out lg:[transform:rotateY(-6deg)] lg:hover:[transform:rotateY(0deg)]'>
               {/* Barra do navegador, de enfeite, para a imagem ler como uma tela e não como botões */}
               <div aria-hidden='true' className='bg-stone/70 flex items-center gap-4 px-4 py-2.5'>
                 <span className='flex gap-1.5'>
@@ -124,23 +165,51 @@ const ComoFunciona = () => {
                 ))}
               </div>
             </div>
+
+            {/* Quem lê o livro: entram um a um quando o passo de compartilhar está aberto e ficam flutuando */}
+            {readers.map((reader, index) => (
+              <span
+                key={reader.position}
+                aria-hidden='true'
+                style={{ transitionDelay: active === SHARE_STEP ? `${index * 90}ms` : '0ms' }}
+                className={cn(
+                  'pointer-events-none absolute z-10 transition-[opacity,scale] duration-500 ease-out',
+                  reader.position,
+                  active === SHARE_STEP ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+                )}
+              >
+                <span
+                  style={{ animationDelay: reader.delay }}
+                  className='animate-float block motion-reduce:animate-none'
+                >
+                  <Image
+                    src={reader.image}
+                    alt=''
+                    sizes='72px'
+                    className='border-cream size-12 rounded-full border-[1.5px] object-cover shadow-[0_14px_28px_-12px_rgb(0_0_0/0.6)] sm:size-16 lg:size-[4.5rem]'
+                  />
+                </span>
+              </span>
+            ))}
           </div>
         </MotionPreset>
 
-        {/* Os passos são abas: clicar mostra a tela correspondente no celular */}
+        {/* Os passos são abas em forma de cartão: o escolhido abre o texto e mostra a tela na janela ao lado.
+            Os outros ficam fechados, com seta, e ganham fundo no hover, para ficar claro que dá para clicar */}
         <div
           role='tablist'
           aria-label='Passos do Lá Vem História'
           aria-orientation='vertical'
           onKeyDown={handleKeyDown}
-          className='flex flex-col lg:col-span-5'
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}
+          className='flex flex-col gap-2 lg:col-span-5'
         >
           {steps.map((step, index) => {
             const selected = index === active
 
             return (
-              <MotionPreset key={step.title} {...reveal} delay={0.1 * (index + 1)} className='relative'>
-                <DrawLine className='bg-foreground absolute inset-x-0 top-0' delay={0.12 * index} />
+              <MotionPreset key={step.title} {...reveal} delay={0.1 * (index + 1)}>
                 <button
                   ref={element => {
                     tabs.current[index] = element
@@ -151,19 +220,71 @@ const ComoFunciona = () => {
                   aria-selected={selected}
                   aria-controls='como-funciona-tela'
                   tabIndex={selected ? 0 : -1}
-                  onClick={() => setActive(index)}
+                  onClick={() => choose(index)}
                   className={cn(
-                    'group flex w-full cursor-pointer flex-col gap-3 py-7 text-left transition-opacity duration-300',
-                    selected ? 'opacity-100' : 'opacity-45 hover:opacity-80'
+                    'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border px-5 py-4 text-left transition-colors duration-300',
+                    selected
+                      ? 'bg-paper border-border shadow-[0_18px_40px_-28px_rgb(60_45_30/0.45)]'
+                      : 'hover:bg-sand border-transparent'
                   )}
                 >
-                  <span className='flex items-baseline gap-4'>
-                    <span className='text-clay text-sm font-bold tabular-nums' aria-hidden='true'>
-                      {String(index + 1).padStart(2, '0')}
+                  <span className='flex items-center gap-4'>
+                    <span
+                      aria-hidden='true'
+                      className={cn(
+                        'flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums transition-colors',
+                        selected ? 'bg-moss text-cream' : 'border-border text-muted-foreground border'
+                      )}
+                    >
+                      {index + 1}
                     </span>
-                    <span className='text-sm font-bold uppercase'>{step.title}</span>
+                    <span
+                      className={cn(
+                        'font-heading flex-1 text-xl transition-colors',
+                        selected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
+                      )}
+                    >
+                      {step.title}
+                    </span>
+                    <ChevronDownIcon
+                      aria-hidden='true'
+                      className={cn(
+                        'text-muted-foreground size-5 shrink-0 transition-transform duration-300',
+                        selected && 'rotate-180 opacity-0'
+                      )}
+                    />
                   </span>
-                  <span className='text-muted-foreground pl-9 text-base leading-relaxed'>{step.text}</span>
+
+                  {/* Texto abre e fecha animando a altura */}
+                  <span
+                    className={cn(
+                      'grid transition-[grid-template-rows] duration-500 ease-out',
+                      selected ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                    )}
+                  >
+                    <span className='overflow-hidden'>
+                      <span className='text-muted-foreground block pt-3 pl-12 text-base leading-relaxed'>
+                        {step.text}
+                      </span>
+                    </span>
+                  </span>
+
+                  {/* Contagem até o próximo passo; some para quem prefere menos movimento */}
+                  {selected && !chosen && (
+                    <span
+                      aria-hidden='true'
+                      className='bg-border/50 absolute inset-x-5 bottom-0 h-0.5 motion-reduce:hidden'
+                    >
+                      <span
+                        key={active}
+                        onAnimationEnd={() => setActive(current => (current + 1) % steps.length)}
+                        className={cn(
+                          'bg-moss animate-step-progress block h-full origin-left',
+                          (!inView || hovering) && '[animation-play-state:paused]'
+                        )}
+                      />
+                    </span>
+                  )}
                 </button>
               </MotionPreset>
             )
