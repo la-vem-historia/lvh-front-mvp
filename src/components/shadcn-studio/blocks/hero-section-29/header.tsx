@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+import Link from 'next/link'
+
 import { Button } from '@/components/ui/button'
 import type { Navigation } from '@/components/shadcn-studio/blocks/hero-navigation-02'
 
@@ -55,28 +57,39 @@ const Header = ({ navigationData, className }: HeaderProps) => {
             {/* Navigation: os links já têm 12px de respiro, então o espaço até os botões fica em 30px */}
             <HeroNavigation02 navigationData={navigationData} className='max-lg:hidden' />
 
-            {/* Por enquanto a landing só capta interessados: o botão leva à lista de fundadores */}
-            <Button
-              variant='honey'
-              size='cta'
-              className='min-w-0 max-lg:hidden'
-              render={<a href='#fundadores' />}
-              nativeButton={false}
-            >
-              Quero ser fundador
-            </Button>
+            {/* Entrar e criar conta */}
+            <div className='flex items-center gap-4 max-lg:hidden'>
+              <Button
+                variant='outline'
+                size='cta'
+                className='min-w-0'
+                render={<Link href='/entrar' />}
+                nativeButton={false}
+              >
+                Entrar
+              </Button>
+              <Button
+                variant='honey'
+                size='cta'
+                className='min-w-0'
+                render={<Link href='/entrar?modo=criar' />}
+                nativeButton={false}
+              >
+                Cadastre-se grátis
+              </Button>
+            </div>
           </div>
 
           {/* Navigation for small screens */}
           <div className='flex gap-2 lg:hidden'>
             <Button
-              variant='honey'
+              variant='outline'
               size='cta'
-              className='min-w-0 max-sm:hidden'
-              render={<a href='#fundadores' />}
+              className='min-w-0'
+              render={<Link href='/entrar' />}
               nativeButton={false}
             >
-              Quero ser fundador
+              Entrar
             </Button>
 
             <HeroNavigation02SmallScreen

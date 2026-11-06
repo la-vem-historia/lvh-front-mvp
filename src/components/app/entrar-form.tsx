@@ -1,7 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode
+} from 'react'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
@@ -13,6 +22,7 @@ import { AppleIcon, FacebookIcon, GoogleIcon } from '@/components/app/social-ico
 
 import { sendLoginCode, signInWithProvider, updateUser, verifyLoginCode, type LoginProvider } from '@/lib/lvh/api'
 import { CADASTRO_EMAIL_KEY } from '@/lib/lvh/cadastro'
+import { isTeam, type LeadResult } from '@/lib/lvh/pre-abertura'
 
 const fieldClassName = 'bg-background h-12 px-5 text-base'
 
@@ -23,11 +33,15 @@ const reveal = {
   transition: { duration: 0.6, ease: 'easeOut' as const }
 }
 
+// O cookie da equipe não muda enquanto a página está aberta
+const subscribeToNothing = () => () => {}
+
 // Tempo até poder pedir outro código
 const RESEND_SECONDS = 30
 
 type Mode = 'entrar' | 'criar'
-type Step = 'email' | 'codigo' | 'nome'
+// aviso: antes da abertura, quem não é da equipe deixa o e-mail e fica sabendo que avisaremos
+type Step = 'email' | 'codigo' | 'nome' | 'aviso'
 
 const Heading = ({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) => (
   <div className='flex flex-col gap-4'>
@@ -59,6 +73,22 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
   const [pending, setPending] = useState<'email' | 'codigo' | 'nome' | LoginProvider | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [resendIn, setResendIn] = useState(0)
+  // Só a equipe (quem passou pela senha do site) cria conta e entra de verdade por enquanto
+  // O cookie só existe no navegador: no servidor a página sai como para o público
+  const team = useSyncExternalStore(subscribeToNothing, isTeam, () => false)
+
+  // Guarda o e-mail na lista de interessados e mostra o aviso da reforma final
+  const joinWaitlist = async (address: string) => {
+    const response = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: address })
+    })
+
+    if (!response.ok) throw new Error('Não conseguimos guardar o seu e-mail agora. Tente de novo em instantes.')
+
+    return (await response.json()) as LeadResult
+  }
 
   // E-mail digitado no cadastro da landing: preenche o campo uma vez e é descartado
   useEffect(() => {
@@ -98,6 +128,20 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
     const address = String(new FormData(event.currentTarget).get('email') ?? '').trim()
 
     setPending('email')
+
+    if (!team) {
+      try {
+        await joinWaitlist(address)
+        setEmail(address)
+        setError(null)
+        setStep('aviso')
+      } catch (reason) {
+        setError((reason as Error).message)
+      }
+      setPending(null)
+      return
+    }
+
     await requestCode(address)
     setEmail(address)
     setCode('')
@@ -129,6 +173,13 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
   }
 
   const handleProvider = async (provider: LoginProvider) => {
+    // Antes da abertura, Google, Apple e Facebook levam ao aviso, que pede o e-mail para avisarmos
+    if (!team) {
+      setEmail('')
+      setError(null)
+      return setStep('aviso')
+    }
+
     setPending(provider)
 
     // A conta do Google, Apple ou Facebook já traz o nome, então não passa pela etapa do nome;
@@ -142,6 +193,48 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
     setPending('nome')
     await updateUser({ name: String(new FormData(event.currentTarget).get('name') ?? '').trim() })
     router.push('/app')
+  }
+
+  if (step === 'aviso') {
+    return (
+      <MotionPreset key='aviso' {...reveal} className='flex w-full max-w-md flex-col gap-10'>
+        <Heading eyebrow='Quase lá' title='Estamos dando os últimos retoques.'>
+          O Lá Vem História está passando pela reforma final antes de abrir para o público.{' '}
+          {email ? (
+            <>
+              Guardamos o seu e-mail, <span className='text-foreground font-medium'>{email}</span>, e avisamos assim que
+              estiver pronto.
+            </>
+          ) : (
+            'Deixe o seu e-mail e avisamos assim que estiver pronto.'
+          )}
+        </Heading>
+
+        {!email && (
+          <form onSubmit={handleEmail} className='flex flex-col gap-5'>
+            <div className='flex flex-col gap-2'>
+              <Label htmlFor='aviso-email'>E-mail</Label>
+              <Input
+                id='aviso-email'
+                name='email'
+                type='email'
+                autoComplete='email'
+                required
+                className={fieldClassName}
+              />
+            </div>
+            {error && <p className='text-destructive text-sm'>{error}</p>}
+            <Button type='submit' variant='honey' size='cta' disabled={pending !== null} className='w-full'>
+              Quero ser avisado
+            </Button>
+          </form>
+        )}
+
+        <Button render={<Link href='/' />} nativeButton={false} variant='outline' size='cta' className='w-fit'>
+          Voltar para o início
+        </Button>
+      </MotionPreset>
+    )
   }
 
   if (step === 'codigo') {
@@ -292,6 +385,7 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
               className={fieldClassName}
             />
           </div>
+          {error && <p className='text-destructive text-sm'>{error}</p>}
           <Button type='submit' variant='honey' size='cta' disabled={pending !== null} className='w-full'>
             Continuar com e-mail
           </Button>
@@ -302,9 +396,11 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
         <p className='text-muted-foreground text-pretty'>
           Sem senha: mandamos um código para o seu e-mail. Se ainda não tiver conta, criamos uma para você.
         </p>
-        <PrototypeNote>
-          Protótipo: nada sai do seu navegador, e Google, Apple e Facebook entram com uma conta de exemplo.
-        </PrototypeNote>
+        {team && (
+          <PrototypeNote>
+            Protótipo: nada sai do seu navegador, e Google, Apple e Facebook entram com uma conta de exemplo.
+          </PrototypeNote>
+        )}
       </div>
     </MotionPreset>
   )

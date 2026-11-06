@@ -1,9 +1,8 @@
-// Lista de interessados da landing. Guarda o e-mail no Postgres (Neon) apontado por DATABASE_URL
+// Lista de interessados: quem tenta criar conta antes da abertura. Guarda o e-mail no Postgres (Neon) apontado por DATABASE_URL
 import { neon } from '@neondatabase/serverless'
 import type { NeonQueryFunction } from '@neondatabase/serverless'
 
-import { FOUNDER_SPOTS } from '@/lib/lvh/fundadores'
-import type { LeadResult, LeadsCount } from '@/lib/lvh/fundadores'
+import type { LeadResult } from '@/lib/lvh/pre-abertura'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,23 +34,12 @@ const missingDatabase = () =>
     ? Response.json({ error: 'A lista ainda não está ligada a um banco de dados.' }, { status: 503 })
     : null
 
-export async function GET() {
-  const db = getDatabase()
-
-  if (!db) return missingDatabase() ?? Response.json({ taken: 0 } satisfies LeadsCount)
-
-  await db.ready
-  const [row] = await db.sql`SELECT count(*)::int AS taken FROM leads`
-
-  return Response.json({ taken: row.taken } satisfies LeadsCount)
-}
-
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''
 
   // Campo escondido que só robôs preenchem: finge que deu certo e não guarda nada
-  if (body?.site) return Response.json({ position: FOUNDER_SPOTS + 1, founder: false, already: false })
+  if (body?.site) return Response.json({ already: false } satisfies LeadResult)
 
   if (!EMAIL_PATTERN.test(email) || email.length > 254) {
     return Response.json({ error: 'Confira o e-mail.' }, { status: 400 })
@@ -60,21 +48,16 @@ export async function POST(request: Request) {
   const db = getDatabase()
 
   if (!db) {
-    return missingDatabase() ?? Response.json({ position: 1, founder: true, already: false } satisfies LeadResult)
+    return missingDatabase() ?? Response.json({ already: false } satisfies LeadResult)
   }
 
   await db.ready
 
-  // Quem se inscreve de novo mantém o lugar na fila
+  // Quem se cadastra de novo mantém o primeiro registro
   const [lead] = await db.sql`
     INSERT INTO leads (email) VALUES (${email})
     ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
-    RETURNING id, (xmax = 0) AS inserted`
-  const [row] = await db.sql`SELECT count(*)::int AS position FROM leads WHERE id <= ${lead.id}`
+    RETURNING (xmax = 0) AS inserted`
 
-  return Response.json({
-    position: row.position,
-    founder: row.position <= FOUNDER_SPOTS,
-    already: !lead.inserted
-  } satisfies LeadResult)
+  return Response.json({ already: !lead.inserted } satisfies LeadResult)
 }

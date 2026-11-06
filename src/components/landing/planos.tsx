@@ -1,10 +1,11 @@
 import { CheckIcon, MinusIcon } from 'lucide-react'
 
+import Link from 'next/link'
+
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
 
-import { FOUNDER_SPOTS, PLAN_PRICES, formatPrice, founderPrice } from '@/lib/lvh/fundadores'
 import { cn } from '@/lib/utils'
 
 const reveal = {
@@ -13,12 +14,15 @@ const reveal = {
   transition: { duration: 0.6, ease: 'easeOut' as const }
 }
 
+const formatPrice = (value: number) =>
+  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 })
+
 // O Essencial é só texto; o Completo libera fotos, voz e ditado. Os itens fora do plano aparecem riscados
 const plans = [
   {
     name: 'Essencial',
     description: 'Para quem quer contar a história só escrevendo.',
-    price: PLAN_PRICES.essencial,
+    price: 9.9,
     card: 'bg-lilac text-ink',
     line: 'border-ink/20',
     button: 'default' as const,
@@ -34,7 +38,7 @@ const plans = [
   {
     name: 'Completo',
     description: 'Tudo para contar do seu jeito, com imagem e voz.',
-    price: PLAN_PRICES.completo,
+    price: 29.9,
     card: 'bg-olive text-cream',
     line: 'border-cream/25',
     button: 'inverse' as const,
@@ -64,7 +68,7 @@ const Planos = () => {
             />
           </div>
           <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-            Dois planos, sem fidelidade. Os {FOUNDER_SPOTS} primeiros da lista pagam metade no primeiro ano.
+            Dois planos, sem fidelidade. Você cria a conta grátis e escolhe o plano quando quiser.
           </p>
         </MotionPreset>
 
@@ -86,17 +90,10 @@ const Planos = () => {
                 <p className='text-base'>{plan.description}</p>
               </div>
 
-              {/* Preço de fundador em destaque, com o preço cheio riscado ao lado */}
-              <div className='flex flex-col gap-1'>
-                <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
-                  <span className='font-heading text-display-lg'>{formatPrice(founderPrice(plan.price))}</span>
-                  <span className='text-sm'>/ mês</span>
-                  <s className='text-sm opacity-70'>{formatPrice(plan.price)}</s>
-                </p>
-                <p className='text-sm opacity-80'>
-                  Preço de fundador no primeiro ano. Depois, {formatPrice(plan.price)} por mês.
-                </p>
-              </div>
+              <p className='flex items-baseline gap-2'>
+                <span className='font-heading text-display-lg'>{formatPrice(plan.price)}</span>
+                <span className='text-sm'>/ mês</span>
+              </p>
 
               <ul className='flex flex-1 flex-col'>
                 {plan.features.map(feature => (
@@ -122,7 +119,7 @@ const Planos = () => {
               </ul>
 
               <Button
-                render={<a href='#fundadores' />}
+                render={<Link href='/entrar?modo=criar' />}
                 nativeButton={false}
                 variant={plan.button}
                 size='cta'
@@ -134,7 +131,7 @@ const Planos = () => {
                     : undefined
                 }
               >
-                Garantir preço de fundador
+                Cadastre-se grátis
               </Button>
             </MotionPreset>
           ))}

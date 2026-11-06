@@ -3,10 +3,19 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+import { TEAM_COOKIE } from '@/lib/lvh/pre-abertura'
+
 const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow' }
 
-// A landing e a lista de interessados ficam abertas para captar leads; o app continua fechado
-const PUBLIC_PATHS = ['/', '/api/leads']
+// A landing, a tela de criar conta e a lista de interessados ficam abertas: quem cria conta antes da abertura
+// deixa o e-mail na lista. O app continua fechado
+const PUBLIC_PATHS = ['/', '/entrar', '/api/leads']
+
+// Quem passou pela senha é da equipe: o cookie libera criar conta e entrar no app de verdade
+const asTeam = (response: NextResponse) => {
+  response.cookies.set(TEAM_COOKIE, '1', { path: '/', maxAge: 60 * 60 * 24 * 30, sameSite: 'lax' })
+  return response
+}
 
 export function proxy(request: NextRequest) {
   if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) return NextResponse.next()
@@ -16,7 +25,7 @@ export function proxy(request: NextRequest) {
 
   if (!user || !password) {
     // No computador, sem senha configurada, o site abre normalmente. Publicado, ele nunca fica aberto por engano
-    if (process.env.NODE_ENV !== 'production') return NextResponse.next()
+    if (process.env.NODE_ENV !== 'production') return asTeam(NextResponse.next())
     return new NextResponse('Acesso restrito: falta configurar SITE_USER e SITE_PASSWORD.', {
       status: 503,
       headers: NOINDEX
@@ -32,7 +41,7 @@ export function proxy(request: NextRequest) {
     if (decoded.slice(0, separator) === user && decoded.slice(separator + 1) === password) {
       const response = NextResponse.next()
       response.headers.set('X-Robots-Tag', NOINDEX['X-Robots-Tag'])
-      return response
+      return asTeam(response)
     }
   }
 

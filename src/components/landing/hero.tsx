@@ -1,6 +1,6 @@
 import { MotionPreset } from '@/components/ui/motion-preset'
+import CadastroEmail from '@/components/landing/cadastro-email'
 import HeroLivro from '@/components/landing/hero-livro'
-import ListaFundadores from '@/components/landing/lista-fundadores'
 import { WordsReveal } from '@/components/landing/motion'
 
 const reveal = {
@@ -42,14 +42,11 @@ const Hero = () => {
           <MotionPreset
             {...reveal}
             delay={0.7}
-            motionProps={{ id: 'lista-de-espera' }}
+            motionProps={{ id: 'cadastro' }}
             className='flex scroll-mt-24 flex-col gap-3'
           >
-            <ListaFundadores id='hero' />
-            <p className='text-muted-foreground text-sm'>
-              Estamos finalizando o site. Os 100 primeiros da lista viram membros fundadores, com 50% de desconto no
-              primeiro ano. Sem spam.
-            </p>
+            <CadastroEmail />
+            <p className='text-muted-foreground text-sm'>Comece em menos de um minuto, só com o seu e-mail.</p>
           </MotionPreset>
         </div>
       </div>
