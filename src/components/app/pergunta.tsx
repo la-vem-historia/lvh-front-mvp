@@ -399,6 +399,26 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
     )
   }
 
+  // Livro concluído não recebe mudanças: para editar, a pessoa reabre em Meus livros
+  if (user.activeBook?.status === 'concluido') {
+    return (
+      <div className='mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-24 sm:px-6'>
+        <h1 className={pageTitleClassName}>Este livro está concluído.</h1>
+        <p className='text-muted-foreground text-base text-pretty'>
+          Ele está pronto e continua online para quem lê. Para mudar uma resposta, reabra o livro em Meus livros.
+        </p>
+        <div className='flex flex-wrap items-center gap-3'>
+          <Button render={<Link href='/app/livros' />} nativeButton={false} variant='honey' size='cta' className='w-fit'>
+            Ir para Meus livros
+          </Button>
+          <Button render={<Link href='/app/livro' />} nativeButton={false} variant='outline' size='cta' className='w-fit'>
+            Ler o livro
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const { question, chapter, position, previous, next, nextChapter } = context
   const modifier = isMac() ? '⌘' : 'Ctrl'
 

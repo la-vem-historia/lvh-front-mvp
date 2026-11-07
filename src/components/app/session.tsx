@@ -12,6 +12,8 @@ const ONBOARDING_PATH = '/app/boas-vindas'
 type Session = {
   user: User
   update: (changes: UserChanges) => Promise<User>
+  // Relê a conta depois de criar, abrir ou excluir um livro
+  refresh: () => Promise<User | null>
 }
 
 const SessionContext = createContext<Session | null>(null)
@@ -52,7 +54,15 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     return next
   }
 
-  return <SessionContext value={{ user, update }}>{children}</SessionContext>
+  const refresh = async () => {
+    const next = await getCurrentUser()
+
+    if (next) setUser(next)
+
+    return next
+  }
+
+  return <SessionContext value={{ user, update, refresh }}>{children}</SessionContext>
 }
 
 const useSession = () => {
@@ -66,3 +76,5 @@ const useSession = () => {
 export const useUser = () => useSession().user
 
 export const useUpdateUser = () => useSession().update
+
+export const useRefreshUser = () => useSession().refresh

@@ -3,6 +3,69 @@ export type Question = {
   text: string
   // Perguntas só para um perfil (ex.: 'Pai'); sem perfil valem para todos
   profile?: string
+  // Pergunta sobre a relação com quem vai receber o livro ("quando eu nasci"). Ao aproveitar
+  // respostas de outro livro, estas ficam em branco
+  aboutRecipient?: boolean
+}
+
+// Papel de quem escreve. É de cada livro: a avó é mãe no livro do filho e avó no livro do neto
+export type Role = 'Mãe' | 'Pai' | 'Avó' | 'Avô'
+
+export type RecipientGender = 'menino' | 'menina'
+
+export type PlanId = 'essencial' | 'completo'
+
+// Um livro é sempre de uma pessoa para outra: de Moreno, o pai, para o Tom
+export type UserBook = {
+  id: string
+  role: Role
+  recipientName: string
+  recipientGender: RecipientGender
+  // Só nos livros de avós: quem recebe é filho ou filha do seu filho ou da sua filha
+  childOf?: 'filho' | 'filha'
+  bookName?: string
+  dedication?: string
+  coverColor?: CoverColor
+  coverPhoto?: string
+  createdAt: string
+  // Em andamento ocupa uma vaga da assinatura. Concluído fica pronto, online e sem custo
+  status?: BookStatus
+  concludedAt?: string
+}
+
+export type BookStatus = 'em-andamento' | 'concluido'
+
+export type NewBookInput = Pick<UserBook, 'role' | 'recipientName' | 'recipientGender' | 'childOf'> & {
+  // Livro de onde copiar as respostas que não são sobre quem recebe
+  copyFrom?: string
+}
+
+export type UserBookChanges = Partial<
+  Pick<
+    UserBook,
+    | 'role'
+    | 'recipientName'
+    | 'recipientGender'
+    | 'childOf'
+    | 'bookName'
+    | 'dedication'
+    | 'coverColor'
+    | 'coverPhoto'
+    | 'status'
+    | 'concludedAt'
+  >
+>
+
+// Cobrança mensal: o plano dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
+// Livros concluídos não ocupam vaga
+export type Billing = {
+  plan: PlanId
+  base: number
+  extraSlots: number
+  extraPrice: number
+  total: number
+  slots: number
+  inProgress: number
 }
 
 export type Chapter = {
@@ -14,11 +77,18 @@ export type Chapter = {
 export type User = {
   name: string
   email: string
-  // Preenchidos no onboarding
+  // Livro aberto agora. Os campos abaixo, até coverPhoto, vêm dele: getCurrentUser os preenche
+  // a partir do livro ativo e updateUser os grava de volta nele
+  activeBookId?: string
+  activeBook?: UserBook
   profile?: string
   bookName?: string
   dedication?: string
+  // Tem pelo menos um livro criado
   onboarded?: boolean
+  plan?: PlanId
+  // Vagas pagas além da que vem no plano, para escrever mais de um livro ao mesmo tempo
+  extraSlots?: number
   // A pessoa fechou o card de primeiros passos da home
   checklistHidden?: boolean
   // Foto de perfil: enviada pela pessoa ou, no futuro, vinda da conta Google
@@ -52,6 +122,8 @@ export type UserChanges = Partial<
     | 'coverPhoto'
     | 'providers'
     | 'emailReminder'
+    | 'plan'
+    | 'extraSlots'
   >
 >
 

@@ -14,6 +14,49 @@ import Personalizar from '@/components/livro/personalizar'
 import { getBook } from '@/lib/lvh/api'
 import type { Book } from '@/lib/lvh/types'
 
+// A pasta do livro: página que abre sem internet, fotos e áudios com os códigos impressos no livro
+const BaixarZip = ({ book }: { book: Book }) => {
+  const user = useUser()
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const download = async () => {
+    if (!user.activeBook) return
+
+    setPending(true)
+    setError(null)
+
+    try {
+      const { buildBookZip } = await import('@/lib/lvh/zip')
+      const { blob, filename } = await buildBookZip(book, user.activeBook)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+
+      link.href = url
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      setError('Não deu para montar o ZIP. Tente de novo.')
+    }
+
+    setPending(false)
+  }
+
+  return (
+    <>
+      <Button type='button' variant='outline' size='cta' className='min-w-0' disabled={pending} onClick={download}>
+        {pending ? 'Preparando…' : 'Baixar tudo (ZIP)'}
+      </Button>
+      {error && (
+        <span role='alert' className='text-destructive text-sm'>
+          {error}
+        </span>
+      )}
+    </>
+  )
+}
+
 const Livro = () => {
   const user = useUser()
   const [book, setBook] = useState<Book | null>(null)
@@ -52,6 +95,7 @@ const Livro = () => {
             >
               Baixar PDF
             </Button>
+            <BaixarZip book={book} />
             <Compartilhar />
           </div>
         )}

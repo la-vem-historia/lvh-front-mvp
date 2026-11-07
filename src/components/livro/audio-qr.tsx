@@ -37,7 +37,7 @@ const QrSvg = ({ value, size }: { value: string; size: number }) => {
 }
 
 // Voz no livro impresso: no lugar do player, um QR code que abre o áudio no celular
-const AudioQr = ({ audio, author, url }: { audio: AudioRecording; author: string; url: string }) => (
+const AudioQr = ({ audio, author, url, code }: { audio: AudioRecording; author: string; url: string; code: string }) => (
   <div className='flex h-full items-center gap-3.5 border-y border-[#e5dccb] px-1'>
     <QrSvg value={url} size={60} />
     <div className='flex min-w-0 flex-col gap-1'>
@@ -47,6 +47,8 @@ const AudioQr = ({ audio, author, url }: { audio: AudioRecording; author: string
       <span className='text-[8.5px] leading-[1.45] text-[#8a7f72]'>
         Aponte a câmera do celular para o código e ouça esta resposta contada por quem viveu.
       </span>
+      {/* O mesmo nome do arquivo de áudio no ZIP do livro, para quem tiver só a pasta */}
+      <span className='text-[8.5px] tracking-wide text-[#8a7f72]'>Arquivo de áudio {code}</span>
     </div>
   </div>
 )

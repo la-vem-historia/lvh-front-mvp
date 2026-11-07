@@ -12,12 +12,15 @@ import Avatar from '@/components/app/avatar'
 import { useUser } from '@/components/app/session'
 
 import { getAnswers, getChapters, isAnswered } from '@/lib/lvh/api'
+import { bookTitle } from '@/lib/lvh/livros'
 import { cn } from '@/lib/utils'
 
 // Cor da etiqueta do papel: a mesma do card escolhido no onboarding
 const roleTagClassName: Record<string, string> = {
   Pai: 'bg-olive text-cream',
-  Mãe: 'bg-lilac text-ink'
+  Mãe: 'bg-lilac text-ink',
+  Avô: 'bg-moss text-cream',
+  Avó: 'bg-clay text-cream'
 }
 
 const iconButtonClassName =
@@ -110,6 +113,19 @@ const AppHeader = () => {
           <span />
         ) : (
           <div className='flex items-center justify-end gap-2'>
+            {/* O livro aberto: leva à lista de livros, onde se troca de livro ou cria outro */}
+            {user.activeBook && (
+              <Link
+                href='/app/livros'
+                aria-current={pathname.startsWith('/app/livros') ? 'page' : undefined}
+                className={cn(
+                  'flex h-10 items-center rounded-full px-4 text-sm font-medium transition-colors duration-200 max-sm:hidden',
+                  pathname.startsWith('/app/livros') ? 'bg-moss text-cream' : 'bg-sand hover:bg-stone'
+                )}
+              >
+                {bookTitle(user.activeBook)}
+              </Link>
+            )}
             <IconButton
               label='Configurações'
               active={pathname === '/app/configuracoes'}

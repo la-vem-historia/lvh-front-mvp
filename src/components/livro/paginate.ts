@@ -3,6 +3,7 @@
 
 import type { AudioRecording, Book } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
+import { mediaCode } from '@/lib/lvh/livros'
 
 // Página lógica; na tela ela é escalada para caber. No celular usamos um formato de
 // bolso, mais estreito, para o texto continuar legível sem precisar de zoom
@@ -34,8 +35,8 @@ export type FlowBlock =
   | { type: 'question'; text: string }
   | { type: 'contributor'; name: string }
   | { type: 'paragraph'; text: string; lead?: boolean; continued?: boolean }
-  | { type: 'photo'; src: string; caption: string; alt: string; tilt: number }
-  | { type: 'audio'; audio: AudioRecording; questionId: number }
+  | { type: 'photo'; src: string; caption: string; alt: string; tilt: number; code: string }
+  | { type: 'audio'; audio: AudioRecording; questionId: number; code: string }
   | { type: 'rule'; lines: number }
 
 export type Page =
@@ -215,9 +216,18 @@ export function paginate(
           // Sem legenda, a foto entra no livro sem texto embaixo; a pergunta fica só como texto alternativo
           const caption = answer.photoCaptions?.[photoIndex]?.trim() ?? ''
 
-          place({ type: 'photo', src, caption, alt: caption || question.text, tilt })
+          place({
+            type: 'photo',
+            src,
+            caption,
+            alt: caption || question.text,
+            tilt,
+            code: mediaCode(question.id, 'foto', photoIndex)
+          })
         })
-        if (answer.audio) place({ type: 'audio', audio: answer.audio, questionId: question.id })
+        if (answer.audio) {
+          place({ type: 'audio', audio: answer.audio, questionId: question.id, code: mediaCode(question.id, 'audio') })
+        }
       }
 
       // Lembranças de quem foi convidado a responder junto

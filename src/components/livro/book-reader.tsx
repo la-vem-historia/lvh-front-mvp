@@ -72,7 +72,7 @@ const PhotoPrint = ({
         aria-label={`Ampliar a foto: ${block.alt}`}
         className={cn(
           'inline-flex cursor-zoom-in flex-col disabled:cursor-default disabled:hover:scale-100 rounded-[2.5px] bg-[#fdfbf6] p-[7px] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)] transition-transform hover:scale-[1.02]',
-          block.caption ? 'pb-2' : 'pb-[7px]'
+          block.caption || still ? 'pb-2' : 'pb-[7px]'
         )}
         style={{ transform: `rotate(${block.tilt * 1.2}deg)` }}
       >
@@ -83,8 +83,11 @@ const PhotoPrint = ({
           className='h-auto w-auto rounded-[1.5px]'
           style={{ maxWidth, maxHeight }}
         />
-        {block.caption && (
+        {/* Impresso, a foto leva o código do arquivo no ZIP: P047-F1 */}
+        {(block.caption || still) && (
           <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+            {still && <span className='font-sans not-italic tracking-wide'>{block.code}</span>}
+            {still && block.caption && ' · '}
             {block.caption}
           </span>
         )}
@@ -123,11 +126,10 @@ export const PhotoSlot = ({
         )}
       </div>
     </div>
-    {block.caption && (
-      <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
-        {block.caption}
-      </span>
-    )}
+    <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+      <span className='font-sans not-italic tracking-wide'>{block.code}</span>
+      {block.caption && ` · ${block.caption}`}
+    </span>
   </div>
 )
 
@@ -176,7 +178,7 @@ const FlowBlockView = ({
       return (
         <div className={className} style={{ height }}>
           {audioLinks ? (
-            <AudioQr audio={block.audio} author={author} url={audioLinks[block.questionId]} />
+            <AudioQr audio={block.audio} author={author} url={audioLinks[block.questionId]} code={block.code} />
           ) : (
             <AudioMark audio={block.audio} author={author} />
           )}
