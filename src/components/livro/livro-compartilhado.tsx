@@ -44,7 +44,7 @@ const LivroCompartilhado = ({ token }: { token: string }) => {
           <>
             <div className='flex flex-col gap-3'>
               <p className={eyebrowClassName}>Um livro de {shared.book.author}</p>
-              <h1 className={pageTitleClassName}>{shared.book.author}, a minha história.</h1>
+              <h1 className={pageTitleClassName}>Escrito para a família.</h1>
             </div>
             <BookReader book={shared.book} />
           </>

@@ -25,7 +25,7 @@ const Hero = () => {
             </MotionPreset>
             {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto */}
             <WordsReveal
-              text={'Histórias de família se perdem.\nAté que você decide guardá-las.'}
+              text={'Tem coisas que só você sabe.\nConte antes que se percam.'}
               delay={0.15}
               lineClassName='lg:whitespace-nowrap'
               className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] sm:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
@@ -36,8 +36,8 @@ const Hero = () => {
               delay={0.55}
               className='text-muted-foreground max-w-xl text-base text-pretty'
             >
-              Responda perguntas guiadas sobre a sua vida e transforme suas respostas em um livro para as próximas
-              gerações.
+              A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só você
+              pode contar, na sua voz.
             </MotionPreset>
           </div>
 

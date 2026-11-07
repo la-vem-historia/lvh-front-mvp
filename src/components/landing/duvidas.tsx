@@ -191,7 +191,7 @@ const Duvidas = () => {
             className='font-heading text-display text-balance'
           />
           <p className='text-muted-foreground text-base text-pretty'>
-            Reunimos o que mais perguntam antes de começar a contar a própria história.
+            Reunimos o que mais perguntam antes de começar o livro para os filhos ou netos.
           </p>
         </MotionPreset>
 

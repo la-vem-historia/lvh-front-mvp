@@ -19,7 +19,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "Lá Vem História",
-  description: "Conte a sua história e transforme suas memórias em livro.",
+  description: "Responda perguntas sobre a sua vida e deixe um livro para seus filhos e netos, com fotos e a sua voz.",
   // Fora dos buscadores até o lançamento
   robots: { index: false, follow: false },
 };

@@ -33,7 +33,7 @@ const Livro = () => {
       <div className='flex flex-wrap items-end justify-between gap-6'>
         <div className='flex flex-col gap-3'>
           <p className={eyebrowClassName}>O livro</p>
-          <h1 className={pageTitleClassName}>A sua história, até aqui.</h1>
+          <h1 className={pageTitleClassName}>O seu livro, até aqui.</h1>
           <p className='text-muted-foreground text-base'>
             O livro cresce a cada resposta. Hoje ele tem {answered} {answered === 1 ? 'resposta' : 'respostas'}.
           </p>

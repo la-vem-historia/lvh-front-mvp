@@ -288,7 +288,7 @@ export const PageView = ({
           <div className='flex flex-1 flex-col items-center justify-center gap-4'>
             <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.author}</span>
             <span aria-hidden='true' className='bg-earth h-px w-8' />
-            <span className='font-heading text-[15px] text-[#6b6156] italic'>a minha história</span>
+            <span className='font-heading text-[15px] text-[#6b6156] italic'>para a minha família</span>
           </div>
           <span className='text-[7.5px] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>
             Lá Vem História · {book.year}

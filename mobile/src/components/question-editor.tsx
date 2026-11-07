@@ -401,7 +401,7 @@ export function QuestionEditor({ questionId, onGo, onClose }: Props) {
             <TextInput
               multiline
               accessibilityLabel='Sua resposta'
-              placeholder='Escreva aqui, do seu jeito. Não precisa ser perfeito.'
+              placeholder='Conte para a sua família, do seu jeito. Não precisa ser perfeito.'
               placeholderTextColor='rgba(102, 102, 102, 0.7)'
               textAlignVertical='top'
               scrollEnabled={false}

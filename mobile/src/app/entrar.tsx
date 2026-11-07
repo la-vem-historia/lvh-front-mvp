@@ -112,7 +112,7 @@ export default function Entrar() {
 
           {step === 'email' ? (
             <View style={styles.block}>
-              <PageHeading eyebrow='Bem-vindo de volta' title='Entre para continuar a sua história.' />
+              <PageHeading eyebrow='Bem-vindo de volta' title='Entre para continuar o livro.' />
 
               <View style={styles.form}>
                 <View style={styles.social}>

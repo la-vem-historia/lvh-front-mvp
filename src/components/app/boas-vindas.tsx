@@ -57,7 +57,7 @@ const BoasVindas = () => {
         <fieldset aria-labelledby='perfil-titulo' className='flex flex-col gap-6'>
           <div className='flex flex-col gap-3'>
             <h1 id='perfil-titulo' className={pageTitleClassName}>
-              Você vai contar a sua história como…
+              Você vai escrever este livro como…
             </h1>
             <p className='text-muted-foreground text-base'>As perguntas se adaptam a quem está contando.</p>
           </div>
@@ -107,7 +107,7 @@ const BoasVindas = () => {
         <AvisePapeis />
 
         <Button type='submit' variant='honey' size='cta' disabled={pending || !profile} className='w-fit'>
-          Começar a minha história
+          Começar o livro
         </Button>
       </form>
     </div>

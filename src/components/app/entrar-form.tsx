@@ -342,7 +342,7 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
     <MotionPreset key='email' {...reveal} className='flex w-full max-w-md flex-col gap-10'>
       <Heading
         eyebrow={isCreating ? 'Comece agora' : 'Bem-vindo de volta'}
-        title={isCreating ? 'Crie a sua conta e comece a contar.' : 'Entre para continuar a sua história.'}
+        title={isCreating ? 'Crie a sua conta e comece o livro.' : 'Entre para continuar o livro.'}
       />
 
       <div className='flex flex-col gap-6'>

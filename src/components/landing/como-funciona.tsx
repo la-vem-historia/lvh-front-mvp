@@ -30,8 +30,8 @@ const reveal = {
 // Cada passo mostra a tela de verdade, com a conta de exemplo da Maria preenchida
 const steps: { title: string; text: string; image: StaticImageData; alt: string; url: string }[] = [
   {
-    title: 'Responda perguntas guiadas',
-    text: 'Toda semana chega uma pergunta sobre a sua vida: a infância, os amores, o trabalho, as viradas. Você responde no seu tempo, sem precisar saber escrever bem.',
+    title: 'Responda pensando em quem vai ler',
+    text: 'Toda semana chega uma pergunta que a sua neta talvez nunca tenha feito: como era a sua infância, como você conheceu o amor da sua vida, o que aprendeu no trabalho. Você responde no seu tempo, como se estivesse contando para ela.',
     image: responderImage,
     alt: 'A pergunta “Como era o lugar onde você morava quando era criança?” respondida no computador, com os botões Ditar, Gravar sua voz e Adicionar foto',
     url: 'lavemhistoria.com.br/app/pergunta/2'
@@ -44,7 +44,7 @@ const steps: { title: string; text: string; image: StaticImageData; alt: string;
     url: 'lavemhistoria.com.br/app/pergunta/4'
   },
   {
-    title: 'Compartilhe com quem você ama',
+    title: 'Entregue o livro para quem você escreveu',
     text: 'Suas histórias viram um livro digital. Só lê quem você convidar, e você pode tirar o acesso de qualquer pessoa quando quiser.',
     image: compartilharImage,
     alt: 'O livro “A vida de Maria” aberto em duas páginas, com a foto do triciclo, a voz da Maria e as respostas da infância',
@@ -117,7 +117,7 @@ const ComoFunciona = () => {
             className='font-heading text-display text-balance'
           />
           <p className='text-muted-foreground text-base text-pretty'>
-            Três passos simples. Você só precisa de alguns minutos por semana e de vontade de lembrar.
+            Três passos simples. Alguns minutos por semana, pensando em quem vai ler.
           </p>
         </MotionPreset>
 

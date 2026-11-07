@@ -29,7 +29,7 @@ const actionClassName = 'cursor-pointer underline underline-offset-4'
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
 
 const defaultMessage = (guest: string, owner: string, question: string) =>
-  `Oi, ${guest.trim() || '[nome]'}! Estou escrevendo a minha história no Lá Vem História e queria muito a sua versão de uma lembrança: “${question}”
+  `Oi, ${guest.trim() || '[nome]'}! Estou escrevendo um livro de histórias da família no Lá Vem História e queria muito a sua versão de uma lembrança: “${question}”
 
 É só abrir o link e responder do seu jeito, sem pressa. Você não vê a minha resposta, então pode contar tudo como você lembra.
 
