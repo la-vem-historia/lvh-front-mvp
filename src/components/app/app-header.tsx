@@ -46,7 +46,7 @@ const IconButton = ({
       aria-current={active ? 'page' : undefined}
       className={cn(
         iconButtonClassName,
-        active ? 'bg-ink text-cream' : 'bg-sand text-foreground hover:bg-stone',
+        active ? 'bg-moss text-cream' : 'bg-sand text-foreground hover:bg-stone',
         disabled && 'text-muted-foreground hover:bg-sand cursor-default',
         className
       )}
@@ -75,14 +75,20 @@ const AppHeader = () => {
 
   const firstName = user.name.trim().split(/\s+/)[0]
   const isAccount = pathname === '/app/conta'
+  // Escrevendo, o cabeçalho vira modo foco: só as abas, sem logo nem conta
+  const focus = pathname.startsWith('/app/pergunta')
 
   return (
     // Mesma barra da landing: 80px, creme translúcido com desfoque e logo grande
     <header className='bg-background/85 sticky top-0 z-50 backdrop-blur print:hidden'>
       <div className='mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:px-8'>
-        <Link href='/app' className='w-fit'>
-          <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
-        </Link>
+        {focus ? (
+          <span />
+        ) : (
+          <Link href='/app' className='w-fit'>
+            <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
+          </Link>
+        )}
 
         <nav aria-label='Principal' className='flex items-center gap-2'>
           <IconButton label='Início' active={pathname === '/app'} render={<Link href='/app' />}>
@@ -100,39 +106,43 @@ const AppHeader = () => {
           </IconButton>
         </nav>
 
-        <div className='flex items-center justify-end gap-2'>
-          <IconButton
-            label='Configurações'
-            active={pathname === '/app/configuracoes'}
-            render={<Link href='/app/configuracoes' />}
-          >
-            <SettingsIcon />
-          </IconButton>
+        {focus ? (
+          <span />
+        ) : (
+          <div className='flex items-center justify-end gap-2'>
+            <IconButton
+              label='Configurações'
+              active={pathname === '/app/configuracoes'}
+              render={<Link href='/app/configuracoes' />}
+            >
+              <SettingsIcon />
+            </IconButton>
 
-          {/* Avatar com o primeiro nome e o papel escolhido; leva à conta */}
-          <Link
-            href='/app/conta'
-            aria-label={`Minha conta, ${user.name}`}
-            aria-current={isAccount ? 'page' : undefined}
-            className={cn(
-              'flex h-10 items-center gap-2 rounded-full p-1 transition-colors duration-200 sm:pr-3',
-              isAccount ? 'bg-ink text-cream' : 'bg-sand hover:bg-stone'
-            )}
-          >
-            <Avatar user={user} className='bg-stone size-8' />
-            <span className='text-sm font-medium max-sm:hidden'>{firstName}</span>
-            {user.profile && (
-              <span
-                className={cn(
-                  'rounded-full px-2 py-0.5 text-xs font-medium max-sm:hidden',
-                  roleTagClassName[user.profile] ?? 'bg-stone text-foreground'
-                )}
-              >
-                {user.profile}
-              </span>
-            )}
-          </Link>
-        </div>
+            {/* Avatar com o primeiro nome e o papel escolhido; leva à conta */}
+            <Link
+              href='/app/conta'
+              aria-label={`Minha conta, ${user.name}`}
+              aria-current={isAccount ? 'page' : undefined}
+              className={cn(
+                'flex h-10 items-center gap-2 rounded-full p-1 transition-colors duration-200 sm:pr-3',
+                isAccount ? 'bg-moss text-cream' : 'bg-sand hover:bg-stone'
+              )}
+            >
+              <Avatar user={user} className='bg-stone size-8' />
+              <span className='text-sm font-medium max-sm:hidden'>{firstName}</span>
+              {user.profile && (
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs font-medium max-sm:hidden',
+                    roleTagClassName[user.profile] ?? 'bg-stone text-foreground'
+                  )}
+                >
+                  {user.profile}
+                </span>
+              )}
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   )

@@ -88,6 +88,27 @@
     transform: translateY(calc(-100% - var(--marquee-gap)));
     }
   }
+  /* Leitores flutuando em volta da janela do Como funciona */
+  --animate-float: float 6s ease-in-out infinite;
+  @keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+    }
+  50% {
+    transform: translateY(-8px);
+    }
+  }
+  /* Barra que enche enquanto um passo do Como funciona fica na tela; ao terminar, passa para o próximo */
+  --animate-step-progress: step-progress 7s linear forwards;
+  @keyframes step-progress {
+  from {
+    transform: scaleX(0);
+    }
+  to {
+    transform: scaleX(1);
+    }
+  }
 }
 
 /* Fundos da Faculty Dept, cores de texto e botões da Aesop */

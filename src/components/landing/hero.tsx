@@ -1,5 +1,7 @@
+import Link from 'next/link'
+
+import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
-import CadastroEmail from '@/components/landing/cadastro-email'
 import HeroLivro from '@/components/landing/hero-livro'
 import { WordsReveal } from '@/components/landing/motion'
 
@@ -39,16 +41,14 @@ const Hero = () => {
             </MotionPreset>
           </div>
 
-          <MotionPreset
-            {...reveal}
-            delay={0.7}
-            motionProps={{ id: 'lista-de-espera' }}
-            className='flex scroll-mt-24 flex-col gap-3'
-          >
-            <CadastroEmail />
-            <p className='text-muted-foreground text-sm'>
-              Sem spam! Os primeiros membros terão acesso antecipado e desconto especial e limitado.
-            </p>
+          {/* Dois caminhos: criar a conta agora ou descer para entender como funciona */}
+          <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3 sm:flex-row'>
+            <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
+              Cadastre-se grátis
+            </Button>
+            <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
+              Como funciona
+            </Button>
           </MotionPreset>
         </div>
       </div>
