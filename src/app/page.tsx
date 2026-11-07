@@ -2,6 +2,7 @@ import Header from '@/components/shadcn-studio/blocks/hero-section-29/header'
 import type { Navigation } from '@/components/shadcn-studio/blocks/hero-navigation-02'
 
 import ComoFunciona from '@/components/landing/como-funciona'
+import Duvidas from '@/components/landing/duvidas'
 import Hero from '@/components/landing/hero'
 import OLivro from '@/components/landing/o-livro'
 import Planos from '@/components/landing/planos'
@@ -11,7 +12,8 @@ import { MotionRoot } from '@/components/landing/motion'
 const navigationData: Navigation[] = [
   { title: 'Como funciona', href: '#como-funciona' },
   { title: 'O livro', href: '#o-livro' },
-  { title: 'Planos', href: '#planos' }
+  { title: 'Planos', href: '#planos' },
+  { title: 'Dúvidas', href: '#duvidas' }
 ]
 
 export default function Home() {
@@ -24,6 +26,7 @@ export default function Home() {
           <ComoFunciona />
           <OLivro />
           <Planos />
+          <Duvidas />
         </main>
         <Rodape />
       </div>

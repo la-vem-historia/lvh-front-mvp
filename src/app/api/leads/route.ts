@@ -1,38 +1,8 @@
-// Lista de interessados: quem tenta criar conta antes da abertura. Guarda o e-mail no Postgres (Neon) apontado por DATABASE_URL
-import { neon } from '@neondatabase/serverless'
-import type { NeonQueryFunction } from '@neondatabase/serverless'
-
+// Lista de interessados: quem tenta criar conta antes da abertura deixa o e-mail aqui
+import { EMAIL_PATTERN, getDatabase, missingDatabase } from '@/lib/server/db'
 import type { LeadResult } from '@/lib/lvh/pre-abertura'
 
 export const dynamic = 'force-dynamic'
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-let database: { sql: NeonQueryFunction<false, false>; ready: Promise<unknown> } | null = null
-
-// Uma conexão por instância; a tabela é criada na primeira chamada
-const getDatabase = () => {
-  if (!process.env.DATABASE_URL) return null
-
-  if (!database) {
-    const sql = neon(process.env.DATABASE_URL)
-    const ready = sql`
-      CREATE TABLE IF NOT EXISTS leads (
-        id serial PRIMARY KEY,
-        email text NOT NULL UNIQUE,
-        created_at timestamptz NOT NULL DEFAULT now()
-      )`
-    database = { sql, ready }
-  }
-
-  return database
-}
-
-// No computador, sem banco configurado, a lista funciona de mentira. Publicada, ela nunca perde um e-mail calada
-const missingDatabase = () =>
-  process.env.NODE_ENV === 'production'
-    ? Response.json({ error: 'A lista ainda não está ligada a um banco de dados.' }, { status: 503 })
-    : null
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null)
@@ -47,9 +17,7 @@ export async function POST(request: Request) {
 
   const db = getDatabase()
 
-  if (!db) {
-    return missingDatabase() ?? Response.json({ already: false } satisfies LeadResult)
-  }
+  if (!db) return missingDatabase() ?? Response.json({ already: false } satisfies LeadResult)
 
   await db.ready
 

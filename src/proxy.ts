@@ -7,9 +7,9 @@ import { TEAM_COOKIE } from '@/lib/lvh/pre-abertura'
 
 const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow' }
 
-// A landing, a tela de criar conta e a lista de interessados ficam abertas: quem cria conta antes da abertura
-// deixa o e-mail na lista. O app continua fechado
-const PUBLIC_PATHS = ['/', '/entrar', '/api/leads']
+// A landing, a tela de criar conta, a lista de interessados e o formulário de dúvidas ficam abertos: quem cria
+// conta antes da abertura deixa o e-mail na lista. O app continua fechado
+const PUBLIC_PATHS = ['/', '/entrar', '/api/leads', '/api/contato']
 
 // Quem passou pela senha é da equipe: o cookie libera criar conta e entrar no app de verdade
 const asTeam = (response: NextResponse) => {
