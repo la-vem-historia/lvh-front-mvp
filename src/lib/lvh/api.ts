@@ -1,7 +1,7 @@
 // Camada de dados do app. Por enquanto tudo é simulado e fica no localStorage do
 // navegador; quando o backend existir, só o miolo destas funções muda.
 
-import { chapters as allChapters } from './perguntas'
+import { chaptersFor } from './perguntas'
 import type {
   Answer,
   AudioRecording,
@@ -220,11 +220,13 @@ export async function signInWithProvider(provider: LoginProvider): Promise<Login
 
 export type { LoginProvider }
 
+// Todas as perguntas de um papel, na ordem do livro
+const questionsFor = (role: string | undefined) => chaptersFor(role).flatMap(chapter => chapter.questions)
+
 // Respostas que só existem para um papel (ex.: perguntas de pai). Trocar de papel apaga essas respostas
 const profileOnlyAnswered = (profile: string | undefined, answers: Record<number, Answer>) =>
-  allChapters
-    .flatMap(chapter => chapter.questions)
-    .filter(question => question.profile && question.profile === profile && isAnswered(answers[question.id]))
+  questionsFor(profile)
+    .filter(question => question.profile && isAnswered(answers[question.id]))
     .map(question => question.id)
 
 export async function countProfileOnlyAnswers(profile: string | undefined): Promise<number> {
@@ -304,8 +306,6 @@ const saveBooks = (books: UserBook[]) => {
   if (!write(BOOKS_KEY, books)) throw new Error('Não foi possível salvar o livro.')
 }
 
-const questionsFor = (role: string | undefined) =>
-  allChapters.flatMap(chapter => chapter.questions).filter(question => !question.profile || question.profile === role)
 
 // Respostas de outro livro que valem para o livro novo: as que existem para o papel novo e
 // não falam de quem recebe o livro
@@ -475,12 +475,7 @@ export async function reopenBook(id: string): Promise<UserBook> {
 
 
 export async function getChapters(user: User): Promise<Chapter[]> {
-  return allChapters
-    .map(chapter => ({
-      ...chapter,
-      questions: chapter.questions.filter(question => !question.profile || question.profile === user.profile)
-    }))
-    .filter(chapter => chapter.questions.length > 0)
+  return chaptersFor(user.profile, user.activeBook?.recipientGender)
 }
 
 export async function getQuestionContext(user: User, questionId: number): Promise<QuestionContext | null> {
@@ -804,7 +799,7 @@ export async function getCollaboratorView(token: string): Promise<CollaboratorVi
 
   const collaborator = found.item
 
-  const questions = allChapters
+  const questions = (await getChapters(owner))
     .flatMap(chapter => chapter.questions)
     .filter(question => collaborator.questionIds.includes(question.id))
 
