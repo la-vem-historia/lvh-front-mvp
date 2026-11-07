@@ -1,7 +1,7 @@
 # Banco de perguntas por papel
 
-> Status: **Mãe (307), Pai (312) e Avó (314) no site** (2026-11-07). Avô ainda não foi adaptado.
-> Fonte única: `src/lib/lvh/perguntas.ts`. Os docs [perguntas-mae.md](perguntas-mae.md), [perguntas-pai.md](perguntas-pai.md) e [perguntas-avo.md](perguntas-avo.md) são a versão legível.
+> Status: **os 4 papéis no site** (2026-11-07): Mãe 307, Pai 312, Avó 314 e Avô 318.
+> Fonte única: `src/lib/lvh/perguntas.ts`. Os docs [perguntas-mae.md](perguntas-mae.md), [perguntas-pai.md](perguntas-pai.md), [perguntas-avó.md](perguntas-avó.md) e [perguntas-avô.md](perguntas-avô.md) são a versão legível.
 > Referência: **Mãe**. Ela deve ser a principal usuária, então cada capítulo é desenhado primeiro para ela e depois adaptado para Pai, Avó e Avô.
 
 ## Decisões
@@ -15,7 +15,7 @@
    | Mãe | 307 |
    | Pai | 312 |
    | Avó | 314 |
-   | Avô | 230 (só a base comum, até ser adaptado) |
+   | Avô | 318 |
 4. **Base comum + perguntas do papel.** A base comum é a vida da pessoa e vale para os 4 papéis, com variação de gênero no texto. As perguntas do papel são o que só uma mãe, um pai, uma avó ou um avô pode contar.
 
 ## Capítulos (com a Mãe como referência)
@@ -91,5 +91,5 @@ Como a pergunta comum tem o mesmo id em todos os papéis, ao começar um livro n
 
 - O total é o que a pessoa responde no livro, ou um banco de onde saem as perguntas da semana? Com uma pergunta por semana, 307 perguntas levam quase 6 anos.
 - O app hoje faz as perguntas na voz do app ("Onde você nasceu?"). Com a voz do filho, a tela da pergunta pode mostrar quem está perguntando ("A Lia pergunta:").
-- Próximo passo: adaptar o banco para o Avô (as perguntas da Avó já usam marcações de gênero, então boa parte vale para ele).
+- Próximo passo: revisar os 4 bancos com uso real, e criar o jeito de esconder ou trocar as perguntas [P] e [G].
 - Num livro de avó, as respostas do capítulo 7 falam do filho ou da filha. Se ela começar um livro para um neto do outro lado da família e aproveitar as respostas, essas vão junto e precisam ser revisadas.
