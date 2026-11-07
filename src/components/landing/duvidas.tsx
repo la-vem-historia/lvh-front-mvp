@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
-import { CircleCheckIcon, PlusIcon } from 'lucide-react'
+import { ArrowRightIcon, CircleCheckIcon, PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
@@ -176,10 +177,13 @@ const Contato = () => {
 }
 
 const Duvidas = () => {
+  // O formulário só aparece num modal, depois das perguntas: assim quem tem dúvida lê as respostas antes
+  const [contactOpen, setContactOpen] = useState(false)
+
   return (
     <section id='duvidas' className='bg-paper scroll-mt-24'>
-      <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-12 lg:px-16 lg:py-32'>
-        <MotionPreset {...reveal} className='flex flex-col gap-4 lg:col-span-5'>
+      <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-16 lg:py-32'>
+        <MotionPreset {...reveal} className='flex flex-col gap-4 lg:sticky lg:top-28 lg:col-span-5 lg:self-start'>
           <p className='text-sm font-medium uppercase'>Dúvidas frequentes</p>
           <WordsReveal
             as='h2'
@@ -187,16 +191,12 @@ const Duvidas = () => {
             className='font-heading text-display text-balance'
           />
           <p className='text-muted-foreground text-base text-pretty'>
-            Se a sua não estiver aqui, mande pelo formulário. Uma pessoa da equipe responde no seu e-mail.
+            Reunimos o que mais perguntam antes de começar a contar a própria história.
           </p>
         </MotionPreset>
 
         {/* Lista de perguntas: cada uma abre e fecha sozinha, e o + vira × quando está aberta */}
-        <MotionPreset
-          {...reveal}
-          delay={0.1}
-          className='border-foreground border-b lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1'
-        >
+        <MotionPreset {...reveal} delay={0.1} className='flex flex-col lg:col-span-7 lg:col-start-6'>
           {questions.map(item => (
             <Collapsible key={item.question} className='border-foreground border-t'>
               <CollapsibleTrigger className='group hover:text-earth flex w-full cursor-pointer items-center justify-between gap-6 py-6 text-left transition-colors'>
@@ -213,24 +213,40 @@ const Duvidas = () => {
               </CollapsibleContent>
             </Collapsible>
           ))}
-        </MotionPreset>
 
-        <MotionPreset {...reveal} delay={0.2} className='lg:col-span-5 lg:self-start'>
-          <div id='contato' className='bg-cream flex scroll-mt-28 flex-col gap-6 rounded-[1.5rem] p-6 sm:p-8'>
-            <div className='flex flex-col gap-2'>
-              <h3 className='font-heading text-2xl'>Ainda com dúvida?</h3>
-              <p className='text-muted-foreground text-sm text-pretty'>
-                Escreva para a gente. Se preferir, mande um e-mail para{' '}
-                <a href={`mailto:${CONTACT_EMAIL}`} className='text-foreground underline underline-offset-4'>
-                  {CONTACT_EMAIL}
-                </a>
-                .
-              </p>
-            </div>
-            <Contato />
+          {/* Link discreto depois da última pergunta: abre o formulário de contato */}
+          <div className='border-foreground border-t pt-6'>
+            <button
+              type='button'
+              onClick={() => setContactOpen(true)}
+              className='group text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-2 text-base transition-colors'
+            >
+              Ainda com dúvida?
+              <span className='text-foreground underline underline-offset-4'>Fale com a gente</span>
+              <ArrowRightIcon
+                aria-hidden='true'
+                className='size-4 transition-transform duration-200 group-hover:translate-x-0.5'
+              />
+            </button>
           </div>
         </MotionPreset>
       </div>
+
+      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
+          <div className='flex flex-col gap-2 pr-8'>
+            <DialogTitle className='font-heading text-2xl'>Ainda com dúvida?</DialogTitle>
+            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+              Escreva para a gente e respondemos no seu e-mail. Se preferir, mande para{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`} className='text-foreground underline underline-offset-4'>
+                {CONTACT_EMAIL}
+              </a>
+              .
+            </DialogDescription>
+          </div>
+          <Contato />
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }
