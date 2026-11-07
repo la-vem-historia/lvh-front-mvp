@@ -22,7 +22,7 @@ import { chaptersFor } from '@/lib/lvh/perguntas'
 import type { Collaborator, Contribution, Share, User } from '@/lib/lvh/types'
 
 const questionText = (user: User, id: number) =>
-  chaptersFor(user.profile, user.activeBook?.recipientGender)
+  chaptersFor(user.profile, user.activeBook ?? {})
     .flatMap(chapter => chapter.questions)
     .find(question => question.id === id)?.text ?? `Pergunta ${id}`
 

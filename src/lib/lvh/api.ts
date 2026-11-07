@@ -475,7 +475,7 @@ export async function reopenBook(id: string): Promise<UserBook> {
 
 
 export async function getChapters(user: User): Promise<Chapter[]> {
-  return chaptersFor(user.profile, user.activeBook?.recipientGender)
+  return chaptersFor(user.profile, user.activeBook ?? {})
 }
 
 export async function getQuestionContext(user: User, questionId: number): Promise<QuestionContext | null> {

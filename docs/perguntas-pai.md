@@ -4,7 +4,7 @@
 >
 > Quem pergunta é o filho ou a filha que vai receber o livro. Aqui o texto aparece como se fosse para um filho; para uma filha, "pequeno" vira "pequena".
 >
-> - **[P]**: cita "minha mãe". Se o pai não divide a vida com a mãe do filho, o app troca o texto ou esconde a pergunta.
+> - **[P]**: cita "minha mãe". O app vai trocar o texto ou esconder a pergunta quando não se aplicar.
 > - **[G]**: só faz sentido quando o filho veio de uma gravidez.
 > - *(opcional)*: tema difícil, e o app deixa claro que dá para pular.
 > - *(só do pai)*: pergunta que a Mãe não tem. *(adaptada)*: o texto mudou além do gênero.

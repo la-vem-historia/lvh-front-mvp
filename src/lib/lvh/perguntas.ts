@@ -4,8 +4,9 @@
 // Marcações no texto, resolvidas por chaptersFor:
 // - [a:feminino|masculino] muda com quem escreve: Mãe e Avó | Pai e Avô
 // - [r:menino|menina] muda com quem recebe o livro
+// - [c:filho|filha] nos livros de avós: quem recebe é neto pelo filho ou pela filha (o meu pai | a minha mãe)
 
-import type { Chapter, RecipientGender, Role } from './types'
+import type { Chapter, RecipientGender, Role, UserBook } from './types'
 
 export type BankQuestion = {
   id: number
@@ -26,6 +27,7 @@ export type BankQuestion = {
 export type BankChapter = {
   id: string
   title: string
+  titleFor?: Partial<Record<Role, string>>
   questions: BankQuestion[]
 }
 
@@ -181,17 +183,17 @@ export const bank: BankChapter[] = [
       { id: 1120, text: 'Quem foi o seu primeiro namorado ou namorada?' },
       { id: 1121, text: 'Você namorou muito antes de se acertar com alguém?' },
       { id: 1122, text: 'Teve alguma decepção amorosa que doeu muito?' },
-      { id: 1123, text: 'Como você conheceu [a:o meu pai|a minha mãe]?', roles: ['Mãe', 'Pai'], needs: 'parceiro' },
-      { id: 1124, text: 'O que fez você se apaixonar [a:por ele|por ela]?', roles: ['Mãe', 'Pai'], needs: 'parceiro' },
+      { id: 1123, text: 'Como você conheceu [a:o meu pai|a minha mãe]?', textFor: { Avó: 'Como você conheceu o meu avô?' }, roles: ['Mãe', 'Pai', 'Avó'], needs: 'parceiro' },
+      { id: 1124, text: 'O que fez você se apaixonar [a:por ele|por ela]?', roles: ['Mãe', 'Pai', 'Avó'], needs: 'parceiro' },
       { id: 1125, text: 'Como foi o primeiro encontro de vocês?' },
       { id: 1126, text: 'Quando você soube que era sério?' },
-      { id: 1127, text: 'Como seus pais reagiram quando você [a:o|a] apresentou?', roles: ['Mãe', 'Pai'], needs: 'parceiro' },
+      { id: 1127, text: 'Como seus pais reagiram quando você [a:o|a] apresentou?', roles: ['Mãe', 'Pai', 'Avó'], needs: 'parceiro' },
       { id: 1128, text: 'Como foi o pedido, o casamento ou a decisão de morar juntos?' },
       { id: 1129, text: 'Como vocês dividiram as tarefas quando começaram a vida juntos?' },
       { id: 1130, text: 'Qual a lembrança mais bonita que vocês têm juntos?' },
       { id: 1131, text: 'Vocês passaram por uma fase difícil? Como atravessaram?' },
       { id: 1132, text: 'Que coisa vocês fazem que ninguém mais entende?' },
-      { id: 1133, text: 'O que você mais admira [a:no meu pai|na minha mãe] até hoje?', roles: ['Mãe', 'Pai'], needs: 'parceiro' },
+      { id: 1133, text: 'O que você mais admira [a:no meu pai|na minha mãe] até hoje?', textFor: { Avó: 'O que você mais admira no meu avô até hoje?' }, roles: ['Mãe', 'Pai', 'Avó'], needs: 'parceiro' },
       { id: 1134, text: 'O que o amor te ensinou que você não sabia aos 20?' },
       { id: 1135, text: 'Já fez alguma loucura por amor?' },
       { id: 1136, text: 'Na sua opinião, o que faz um relacionamento durar?' },
@@ -204,6 +206,7 @@ export const bank: BankChapter[] = [
   {
     id: 'virar-mae',
     title: 'Quando você virou [a:mãe|pai]',
+    titleFor: { Avó: 'Quando você virou [a:avó|avô]' },
     questions: [
       { id: 1141, text: 'Você sempre quis ser [a:mãe|pai]?', roles: ['Mãe', 'Pai'] },
       { id: 1142, text: 'Antes de ser [a:mãe|pai], como você imaginava que seria?', roles: ['Mãe', 'Pai'] },
@@ -227,17 +230,52 @@ export const bank: BankChapter[] = [
       { id: 1159, text: 'Como a sua vida mudou depois que você virou [a:mãe|pai]?', roles: ['Mãe', 'Pai'] },
       { id: 1160, text: 'Teve alguma perda ou espera difícil no caminho até ser [a:mãe|pai]?', roles: ['Mãe', 'Pai'], optional: true },
       { id: 1161, text: 'Em que momento você se sentiu [a:mãe|pai] de verdade?', roles: ['Mãe', 'Pai'] },
+      { id: 1316, text: 'Como você ficou sabendo que ia ser [a:avó|avô] pela primeira vez?', roles: ['Avó'] },
+      { id: 1317, text: 'Qual foi a sua primeira reação?', roles: ['Avó'] },
+      { id: 1318, text: 'Antes de ser [a:avó|avô], como você imaginava que seria?', roles: ['Avó'] },
+      { id: 1319, text: 'Como foi conhecer o seu primeiro neto ou neta?', roles: ['Avó'] },
+      { id: 1320, text: 'O que você sentiu ao ver um filho seu com um bebê no colo?', roles: ['Avó'] },
+      { id: 1321, text: 'Como os netos te chamam, e quem inventou esse nome?', roles: ['Avó'] },
+      { id: 1322, text: 'Em que ser [a:avó|avô] é diferente de ser [a:mãe|pai]?', roles: ['Avó'] },
+      { id: 1323, text: 'O que você faz como [a:avó|avô] que não fazia como [a:mãe|pai]?', roles: ['Avó'] },
+      { id: 1324, text: 'Que regra você deixa os netos quebrarem?', roles: ['Avó'] },
+      { id: 1325, text: 'Qual é a melhor parte de ser [a:avó|avô]?', roles: ['Avó'] },
+      { id: 1326, text: 'E a parte mais difícil?', roles: ['Avó'] },
+      { id: 1327, text: 'O que mudou na sua vida depois que os netos chegaram?', roles: ['Avó'] },
+      { id: 1328, text: 'Me conta um pouco de cada neto.', roles: ['Avó'] },
+      { id: 1329, text: 'Que tradição você criou com os netos?', roles: ['Avó'] },
+      { id: 1330, text: 'O que você faz questão de ensinar para os netos?', roles: ['Avó'] },
+      { id: 1331, text: 'O que você repete [a:da sua própria avó|do seu próprio avô]?', roles: ['Avó'] },
+      { id: 1332, text: 'O que você aprendeu com os netos?', roles: ['Avó'] },
     ]
   },
   {
     id: 'criacao',
     title: 'Os anos de me criar',
+    titleFor: { Avó: 'Quando [c:o meu pai|a minha mãe] era [c:pequeno|pequena]' },
     questions: [
+      { id: 1333, text: 'Como foi descobrir que [c:o meu pai|a minha mãe] estava a caminho?', roles: ['Avó'] },
+      { id: 1334, text: 'Por que você escolheu o nome [c:dele|dela]?', roles: ['Avó'] },
+      { id: 1335, text: 'Como foi o dia em que [c:ele|ela] nasceu ou chegou?', roles: ['Avó'] },
+      { id: 1336, text: 'Com quem [c:ele|ela] parecia quando era bebê?', roles: ['Avó'] },
+      { id: 1337, text: 'Qual foi a primeira palavra [c:dele|dela]?', roles: ['Avó'] },
+      { id: 1338, text: 'Que apelidos [c:ele|ela] teve?', roles: ['Avó'] },
+      { id: 1339, text: 'Como [c:ele|ela] era quando criança?', roles: ['Avó'] },
+      { id: 1340, text: 'Que mania [c:ele|ela] tinha?', roles: ['Avó'] },
+      { id: 1341, text: 'Qual era a comida favorita [c:dele|dela]?', roles: ['Avó'] },
+      { id: 1342, text: 'Do que [c:ele|ela] tinha medo?', roles: ['Avó'] },
+      { id: 1343, text: 'Que coisa engraçada [c:ele|ela] dizia?', roles: ['Avó'] },
+      { id: 1344, text: 'Qual foi a maior travessura [c:dele|dela]?', roles: ['Avó'] },
+      { id: 1345, text: 'Que música você cantava para [c:ele|ela] dormir?', roles: ['Avó'] },
+      { id: 1346, text: 'Qual era a bronca que você mais dava [c:nele|nela]?', roles: ['Avó'] },
+      { id: 1347, text: 'Como [c:ele|ela] era na escola?', roles: ['Avó'] },
+      { id: 1348, text: 'O que [c:ele|ela] dizia que queria ser quando crescesse?', roles: ['Avó'] },
+      { id: 1349, text: 'Como [c:ele|ela] era na adolescência?', roles: ['Avó'] },
       { id: 1162, text: 'Como era um dia comum quando eu era [r:pequeno|pequena]?', roles: ['Mãe', 'Pai'] },
       { id: 1163, text: 'Qual era a parte mais difícil da rotina?', roles: ['Mãe', 'Pai'] },
       { id: 1164, text: 'E a parte que você mais gostava?', roles: ['Mãe', 'Pai'] },
-      { id: 1165, text: 'O que você fazia quando estava [a:exausta|exausto]?', roles: ['Mãe', 'Pai'] },
-      { id: 1166, text: 'Quem era a sua rede de apoio?', roles: ['Mãe', 'Pai'] },
+      { id: 1165, text: 'O que você fazia quando estava [a:exausta|exausto]?', roles: ['Mãe', 'Pai', 'Avó'] },
+      { id: 1166, text: 'Quem era a sua rede de apoio?', roles: ['Mãe', 'Pai', 'Avó'] },
       { id: 1310, text: 'Como você e a minha mãe dividiam os cuidados comigo?', roles: ['Pai'], needs: 'parceiro' },
       { id: 1167, text: 'Que regras da casa eram inegociáveis?', roles: ['Mãe', 'Pai'] },
       { id: 1168, text: 'Qual era a bronca que você mais me dava?', roles: ['Mãe', 'Pai'] },
@@ -247,56 +285,65 @@ export const bank: BankChapter[] = [
       { id: 1171, text: 'Qual foi o maior susto que você passou como [a:mãe|pai]?', roles: ['Mãe', 'Pai'] },
       { id: 1309, text: 'Qual foi o momento mais emocionante de ser pai?', roles: ['Pai'] },
       { id: 1172, text: 'Teve alguma noite no hospital que você nunca esqueceu?', roles: ['Mãe', 'Pai'], optional: true },
-      { id: 1173, text: 'Que tipo de [a:mãe|pai] você queria ser? E conseguiu?', roles: ['Mãe', 'Pai'] },
+      { id: 1173, text: 'Que tipo de [a:mãe|pai] você queria ser? E conseguiu?', roles: ['Mãe', 'Pai', 'Avó'] },
       { id: 1313, text: 'Como você enxerga a responsabilidade de ser pai?', roles: ['Pai'] },
-      { id: 1174, text: 'Em que você fez diferente [a:da sua mãe|do seu pai]?', roles: ['Mãe', 'Pai'] },
-      { id: 1175, text: 'E o que você repetiu [a:dela|dele] sem perceber?', roles: ['Mãe', 'Pai'] },
-      { id: 1176, text: 'Já se sentiu [a:culpada|culpado] como [a:mãe|pai]? Por quê?', roles: ['Mãe', 'Pai'] },
+      { id: 1174, text: 'Em que você fez diferente [a:da sua mãe|do seu pai]?', roles: ['Mãe', 'Pai', 'Avó'] },
+      { id: 1175, text: 'E o que você repetiu [a:dela|dele] sem perceber?', roles: ['Mãe', 'Pai', 'Avó'] },
+      { id: 1176, text: 'Já se sentiu [a:culpada|culpado] como [a:mãe|pai]? Por quê?', roles: ['Mãe', 'Pai', 'Avó'] },
       { id: 1312, text: 'O que você sentia por mim e não conseguia demonstrar?', roles: ['Pai'] },
       { id: 1177, text: 'Do que você abriu mão para me criar?', roles: ['Mãe', 'Pai'] },
-      { id: 1178, text: 'Como você conciliou trabalho e filhos?', roles: ['Mãe', 'Pai'] },
+      { id: 1178, text: 'Como você conciliou trabalho e filhos?', roles: ['Mãe', 'Pai', 'Avó'] },
       { id: 1179, text: 'Que momento do dia a dia você queria congelar?', roles: ['Mãe', 'Pai'] },
-      { id: 1180, text: 'O que você aprendeu sobre si [a:mesma|mesmo] sendo [a:mãe|pai]?', roles: ['Mãe', 'Pai'] },
-      { id: 1181, text: 'O que você tem certeza de que fez certo?', roles: ['Mãe', 'Pai'] },
-      { id: 1182, text: 'Se pudesse voltar, o que você faria diferente?', roles: ['Mãe', 'Pai'] },
+      { id: 1180, text: 'O que você aprendeu sobre si [a:mesma|mesmo] sendo [a:mãe|pai]?', roles: ['Mãe', 'Pai', 'Avó'] },
+      { id: 1181, text: 'O que você tem certeza de que fez certo?', roles: ['Mãe', 'Pai', 'Avó'] },
+      { id: 1182, text: 'Se pudesse voltar, o que você faria diferente?', roles: ['Mãe', 'Pai', 'Avó'] },
       { id: 1183, text: 'O que você gostaria que eu soubesse sobre o que foi me criar?', roles: ['Mãe', 'Pai'] },
+      { id: 1350, text: 'Que momento com [c:ele|ela] você queria viver de novo?', roles: ['Avó'] },
+      { id: 1351, text: 'Do que você mais se orgulha [c:nele|nela]?', roles: ['Avó'] },
+      { id: 1352, text: 'Como foi quando [c:ele|ela] saiu de casa?', roles: ['Avó'] },
+      { id: 1353, text: 'Como foi ver [c:o meu pai virar pai|a minha mãe virar mãe]?', roles: ['Avó'] },
+      { id: 1354, text: 'O que você vê [c:dele|dela] em mim?', roles: ['Avó'] },
     ]
   },
   {
     id: 'sobre-mim',
     title: 'E sobre mim?',
     questions: [
-      { id: 1184, text: 'Por que você escolheu o meu nome?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1185, text: 'Como você descobriu que eu estava a caminho?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
+      { id: 1184, text: 'Por que você escolheu o meu nome?', textFor: { Avó: 'Você sabe por que escolheram o meu nome?' }, roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1185, text: 'Como você descobriu que eu estava a caminho?', textFor: { Avó: 'Como você ficou sabendo que eu estava a caminho?' }, roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
       { id: 1186, text: 'Como [a:o meu pai|a minha mãe] reagiu quando soube?', textFor: { Pai: 'Como você e a minha mãe comemoraram a notícia?' }, roles: ['Mãe', 'Pai'], needs: 'parceiro', aboutRecipient: true },
-      { id: 1187, text: 'Você acertou se eu seria menina ou menino?', roles: ['Mãe', 'Pai'], needs: 'gravidez', aboutRecipient: true },
+      { id: 1187, text: 'Você acertou se eu seria menina ou menino?', textFor: { Avó: 'Você achava que eu seria menina ou menino?' }, roles: ['Mãe', 'Pai', 'Avó'], needs: 'gravidez', aboutRecipient: true },
       { id: 1188, text: 'O que você sentia quando me percebia mexendo na barriga?', roles: ['Mãe'], needs: 'gravidez', aboutRecipient: true },
       { id: 1314, text: 'Como foi me sentir mexendo na barriga da minha mãe?', roles: ['Pai'], needs: 'gravidez', aboutRecipient: true },
-      { id: 1189, text: 'Como foi o dia em que eu nasci ou cheguei?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1190, text: 'Qual foi a primeira coisa que você pensou quando me viu?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1191, text: 'Com quem eu parecia quando era bebê?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1192, text: 'Qual foi a minha primeira palavra?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1193, text: 'Como foram os meus primeiros passos?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1194, text: 'Que apelidos eu já tive?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1195, text: 'Qual era a minha comida favorita? E qual eu não comia de jeito nenhum?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1196, text: 'Que brinquedo ou paninho ia comigo para todo lado?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1197, text: 'Que mania eu tinha quando era [r:pequeno|pequena]?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1198, text: 'Do que você mais gostava em mim quando eu era [r:pequeno|pequena]?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1199, text: 'Que coisa engraçada eu disse que a família repete até hoje?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1200, text: 'Como foi o meu primeiro dia na escola?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1201, text: 'Você lembra o que eu dizia que queria ser quando crescesse?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1202, text: 'Que travessura minha você nunca esqueceu?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1203, text: 'Qual foi o maior susto que eu te dei?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1204, text: 'Do que eu tinha medo? E como você me acalmava?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
+      { id: 1189, text: 'Como foi o dia em que eu nasci ou cheguei?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1190, text: 'Qual foi a primeira coisa que você pensou quando me viu?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1191, text: 'Com quem eu parecia quando era bebê?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1192, text: 'Qual foi a minha primeira palavra?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1193, text: 'Como foram os meus primeiros passos?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1194, text: 'Que apelidos eu já tive?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1195, text: 'Qual era a minha comida favorita? E qual eu não comia de jeito nenhum?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1196, text: 'Que brinquedo ou paninho ia comigo para todo lado?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1355, text: 'O que a gente fazia junto quando eu ia na sua casa?', roles: ['Avó'], aboutRecipient: true },
+      { id: 1356, text: 'Que comida você fazia só para mim?', roles: ['Avó'], aboutRecipient: true },
+      { id: 1197, text: 'Que mania eu tinha quando era [r:pequeno|pequena]?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1198, text: 'Do que você mais gostava em mim quando eu era [r:pequeno|pequena]?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1199, text: 'Que coisa engraçada eu disse que a família repete até hoje?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1200, text: 'Como foi o meu primeiro dia na escola?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1201, text: 'Você lembra o que eu dizia que queria ser quando crescesse?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1202, text: 'Que travessura minha você nunca esqueceu?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1203, text: 'Qual foi o maior susto que eu te dei?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1204, text: 'Do que eu tinha medo? E como você me acalmava?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1357, text: 'Que história você gostava de me contar?', roles: ['Avó'], aboutRecipient: true },
       { id: 1205, text: 'Teve alguma fase minha que foi especialmente difícil para você?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1206, text: 'Como eu era na adolescência, do seu ponto de vista?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1207, text: 'Foi difícil quando eu saí de casa?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1208, text: 'Que momento comigo você queria viver de novo?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1209, text: 'Em que momento eu te surpreendi de um jeito que você não esquece?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1210, text: 'O que você já via em mim [r:pequeno|pequena] que continua igual hoje?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1211, text: 'Qual conquista minha te deixou mais [a:orgulhosa|orgulhoso]?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1212, text: 'Do que você mais se orgulha de ter me ensinado?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
-      { id: 1213, text: 'O que eu te ensinei sem saber?', roles: ['Mãe', 'Pai'], aboutRecipient: true },
+      { id: 1206, text: 'Como eu era na adolescência, do seu ponto de vista?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1207, text: 'Foi difícil quando eu saí de casa?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1208, text: 'Que momento comigo você queria viver de novo?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1209, text: 'Em que momento eu te surpreendi de um jeito que você não esquece?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1210, text: 'O que você já via em mim [r:pequeno|pequena] que continua igual hoje?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1358, text: 'O que você vê de você em mim?', roles: ['Avó'], aboutRecipient: true },
+      { id: 1211, text: 'Qual conquista minha te deixou mais [a:orgulhosa|orgulhoso]?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1212, text: 'Do que você mais se orgulha de ter me ensinado?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
+      { id: 1213, text: 'O que eu te ensinei sem saber?', roles: ['Mãe', 'Pai', 'Avó'], aboutRecipient: true },
     ]
   },
   {
@@ -345,7 +392,7 @@ export const bank: BankChapter[] = [
       { id: 1246, text: 'Que receita da família não pode se perder? Como se faz?' },
       { id: 1247, text: 'Qual prato é a sua especialidade?' },
       { id: 1248, text: 'Quem te ensinou a cozinhar?' },
-      { id: 1249, text: 'Como é, ou era, o almoço de domingo na nossa casa?' },
+      { id: 1249, text: 'Como é, ou era, o almoço de domingo na nossa casa?', textFor: { Avó: 'Como é, ou era, o almoço de domingo na sua casa?' } },
       { id: 1250, text: 'A que restaurante você voltaria agora, e com quem?' },
       { id: 1251, text: 'Como a família comemora o Natal e as festas do ano?' },
       { id: 1252, text: 'Que tradição você herdou dos seus pais?' },
@@ -422,24 +469,27 @@ export const bank: BankChapter[] = [
 
 const writesAsWoman = (role?: string) => role !== 'Pai' && role !== 'Avô'
 
-const resolve = (text: string, role?: string, recipientGender?: RecipientGender) =>
-  text.replace(/\[([ar]):([^|\]]*)\|([^\]]*)\]/g, (_, who: string, first: string, second: string) => {
-    if (who === 'a') return writesAsWoman(role) ? first : second
+type Reader = { recipientGender?: RecipientGender; childOf?: UserBook['childOf'] }
 
-    return recipientGender === 'menina' ? second : first
+const resolve = (text: string, role: string | undefined, reader: Reader) =>
+  text.replace(/\[([arc]):([^|\]]*)\|([^\]]*)\]/g, (_, who: string, first: string, second: string) => {
+    if (who === 'a') return writesAsWoman(role) ? first : second
+    if (who === 'c') return reader.childOf === 'filha' ? second : first
+
+    return reader.recipientGender === 'menina' ? second : first
   })
 
 // Os capítulos de um livro: só as perguntas do papel de quem escreve, já com o texto final
-export function chaptersFor(role?: string, recipientGender?: RecipientGender): Chapter[] {
+export function chaptersFor(role?: string, reader: Reader = {}): Chapter[] {
   return bank
     .map(chapter => ({
       id: chapter.id,
-      title: resolve(chapter.title, role, recipientGender),
+      title: resolve(chapter.titleFor?.[role as Role] ?? chapter.title, role, reader),
       questions: chapter.questions
         .filter(question => !question.roles || question.roles.includes(role as Role))
         .map(question => ({
           id: question.id,
-          text: resolve(question.textFor?.[role as Role] ?? question.text, role, recipientGender),
+          text: resolve(question.textFor?.[role as Role] ?? question.text, role, reader),
           // Pergunta que existe só para um papel: trocar de papel apaga a resposta
           ...(question.roles?.length === 1 && { profile: question.roles[0] }),
           ...(question.aboutRecipient && { aboutRecipient: true })
