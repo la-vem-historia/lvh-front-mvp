@@ -201,29 +201,26 @@ const ExcluirConta = () => (
   </Button>
 )
 
-// Traz de volta o card de primeiros passos da home, para quem marcou "Não ver novamente"
-const PrimeirosPassosConfig = () => {
+// Traz de volta as dicas da home, para quem as escondeu no X
+const DicasConfig = () => {
   const user = useUser()
   const updateUser = useUpdateUser()
 
   const show = () => {
-    try {
-      sessionStorage.removeItem('lvh:checklist-dispensado')
-    } catch {}
     updateUser({ checklistHidden: false })
   }
 
   if (!user.checklistHidden) {
     return (
       <p className='text-muted-foreground text-sm'>
-        O card aparece na home até você completar os passos. Você pode dispensá-lo por lá.
+        As dicas aparecem na home, uma por vez. Para esconder, use o X ao lado delas.
       </p>
     )
   }
 
   return (
     <div className='flex flex-col items-start gap-3'>
-      <p className='text-muted-foreground text-sm'>Você escolheu não ver o card de primeiros passos.</p>
+      <p className='text-muted-foreground text-sm'>Você escondeu as dicas da home.</p>
       <Button type='button' variant='outline' className='h-10 px-5' onClick={show}>
         Mostrar de novo na home
       </Button>
@@ -254,8 +251,8 @@ const Configuracoes = () => (
       <Leitores />
     </Section>
 
-    <Section title='Primeiros passos' description='O guia da home com os primeiros marcos da sua história.'>
-      <PrimeirosPassosConfig />
+    <Section title='Dicas' description='Sugestões curtas na home sobre o que dá para fazer no seu livro.'>
+      <DicasConfig />
     </Section>
 
     <Section

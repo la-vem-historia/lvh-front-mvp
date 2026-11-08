@@ -8,7 +8,7 @@ import { BookmarkIcon, ChevronDownIcon, CircleCheckIcon, ImageIcon, MicIcon, Use
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import PageHeading from '@/components/app/page-heading'
-import PrimeirosPassos from '@/components/app/primeiros-passos'
+import Dicas from '@/components/app/dicas'
 import { useUser } from '@/components/app/session'
 
 import { getAnswers, getBookmarks, getChapters, getCollaborators, isAnswered } from '@/lib/lvh/api'
@@ -147,7 +147,7 @@ const Painel = () => {
         </div>
       </div>
 
-      <PrimeirosPassos answers={answers} nextQuestionId={next?.id} />
+      <Dicas answers={answers} nextQuestionId={next?.id} />
 
       {/* Marcadas: mesmo visual de um capítulo, mas fora da lista deles. Começa sempre fechada */}
       <Collapsible className='border-foreground border-y'>
