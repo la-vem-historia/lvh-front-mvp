@@ -30,7 +30,10 @@ const sortear = <T,>(items: T[]) => items[Math.floor(Math.random() * items.lengt
 export const getSaudacao = (name: string, answered: number, now = new Date()): Saudacao => {
   const firstName = name.trim().split(/\s+/)[0] || name
 
-  if (!answered) return { title: `Olá, ${firstName}.`, line: PRIMEIRA_VEZ }
+  const periodo = periodoDe(now.getHours())
+
+  // Antes da primeira resposta: cumprimento pela hora, sem "Oi de novo", e a explicação de como funciona
+  if (!answered) return { title: `${CUMPRIMENTO[periodo]}, ${firstName}!`, line: PRIMEIRA_VEZ }
 
   try {
     const saved = sessionStorage.getItem(SAUDACAO_KEY)
@@ -40,7 +43,6 @@ export const getSaudacao = (name: string, answered: number, now = new Date()): S
     // Sem sessionStorage (aba privada, por exemplo): só sorteia de novo
   }
 
-  const periodo = periodoDe(now.getHours())
   const cumprimento = sortear([CUMPRIMENTO[periodo], 'Oi de novo'])
   const saudacao = {
     title: `${cumprimento}, ${firstName}!`,
