@@ -22,6 +22,10 @@ export const contentSize = (format: PageFormat) => ({
 })
 
 const PHOTO_HEIGHT = 262
+
+// Fio tracejado acima de cada pergunta: traço de 3px, folga de 1px, quase transparente
+const DIVIDER =
+  'bg-[linear-gradient(to_right,rgb(49_49_39/0.1)_3px,transparent_3px)] bg-[length:4px_1px] bg-repeat-x bg-top [font-variation-settings:"SOFT"_0,"WONK"_1]'
 const AUDIO_HEIGHT = 70
 
 
@@ -48,14 +52,17 @@ export type Page =
 export const blockClassName = (block: FlowBlock) => {
   switch (block.type) {
     case 'question':
-      // Mesma hierarquia do app: pergunta maior e mais pesada que a resposta, sem itálico.
-      // O espaço acima é fixo: uma resposta curta e uma longa terminam à mesma distância da próxima pergunta
-      return 'book-ink font-heading mt-10 mb-1.5 text-[17px] leading-[1.3] font-medium first:mt-0'
+      // Cada pergunta abre com um fio tracejado e fica a uma distância fixa da resposta anterior,
+      // seja ela curta ou longa. Fraunces em negrito, na versão de traço irregular (WONK)
+      return cn(
+        'book-ink font-heading mt-16 mb-3 pt-3 text-[16px] leading-[1.25] font-bold text-[rgb(54_46_37/0.9)] first:mt-0',
+        DIVIDER
+      )
     case 'contributor':
       return 'book-ink text-earth mt-6 mb-2 text-[8.5px] font-medium tracking-[0.2em] uppercase first:mt-0'
     case 'paragraph':
       return cn(
-        'book-ink font-heading text-[13px] leading-[21px] text-justify text-pretty hyphens-auto',
+        'book-ink font-(family-name:--font-fell) text-[14px] leading-[18px] text-left text-pretty text-[rgb(54_46_37/0.8)]',
         block.lead || block.continued ? 'indent-0' : 'indent-[1.5em]'
       )
     case 'photo':
