@@ -467,7 +467,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             type='button'
             variant='honey'
             size='cta'
-            className='w-full sm:w-fit'
+            className='w-full sm:w-fit sm:self-center'
             onClick={() => setAboutMore(false)}
           >
             Entendi
