@@ -382,7 +382,7 @@ export const PageView = ({
 // Sombra do livro sobre a mesa; acompanha o formato das páginas, inclusive a capa sozinha
 const BOOK_SHADOW = 'drop-shadow(0 22px 26px rgb(50 38 24 / 0.28))'
 
-// Botões de vidro escuro do modo de leitura: legíveis sobre madeira, tecido ou noite
+// Botões de vidro escuro do modo de leitura: legíveis sobre madeira ou tecido
 const glassButtonClassName =
   'pointer-events-auto flex cursor-pointer items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition-[background-color,opacity] hover:bg-black/50 disabled:pointer-events-none disabled:opacity-0'
 

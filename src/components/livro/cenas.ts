@@ -2,16 +2,14 @@ import type { CSSProperties } from 'react'
 
 import type { StaticImageData } from 'next/image'
 
-import algodao from '@/assets/leitura/algodao.jpg'
 import carvalho from '@/assets/leitura/carvalho.jpg'
-import linhoCru from '@/assets/leitura/linho-cru.jpg'
 import linho from '@/assets/leitura/linho.jpg'
 import madeira from '@/assets/leitura/madeira.jpg'
 import nogueira from '@/assets/leitura/nogueira.jpg'
 
 // Superfícies do modo de leitura: o livro fica aberto sobre uma delas, como numa mesa.
-// Todas são fotos de verdade: três madeiras, três tecidos e a noite (a mesa rústica no escuro)
-export type CenaId = 'madeira' | 'carvalho' | 'nogueira' | 'linho' | 'linho-cru' | 'algodao' | 'noite'
+// Todas são fotos de verdade: três madeiras e um linho
+export type CenaId = 'madeira' | 'carvalho' | 'nogueira' | 'linho'
 
 type Cena = {
   id: CenaId
@@ -19,7 +17,7 @@ type Cena = {
   style: CSSProperties
   // Bolinha do seletor: um pedaço da própria textura
   swatch: CSSProperties
-  // Sombra do livro sobre a superfície: mais funda no escuro, mais leve no tecido claro
+  // Sombra do livro sobre a superfície: mais funda na madeira escura, mais leve no tecido
   shadow: string
 }
 
@@ -63,36 +61,6 @@ export const CENAS: Cena[] = [
     style: photo(linho, '#b39a77'),
     swatch: photo(linho, '#b39a77'),
     shadow: FABRIC_SHADOW
-  },
-  {
-    id: 'linho-cru',
-    label: 'Linho cru',
-    style: photo(linhoCru, '#e3d8cc'),
-    swatch: photo(linhoCru, '#e3d8cc'),
-    shadow: FABRIC_SHADOW
-  },
-  {
-    id: 'algodao',
-    label: 'Algodão cru',
-    style: photo(algodao, '#efe6d8'),
-    swatch: photo(algodao, '#efe6d8'),
-    shadow: FABRIC_SHADOW
-  },
-  {
-    // A mesa rústica no escuro, com a luz de um abajur no livro
-    id: 'noite',
-    label: 'Noite',
-    style: photo(
-      madeira,
-      '#0c0805',
-      'radial-gradient(ellipse 58% 52% at 50% 48%, rgb(255 196 130 / 0.08), rgb(8 5 3 / 0.72) 62%, rgb(4 2 1 / 0.92) 100%)'
-    ),
-    swatch: photo(
-      madeira,
-      '#0c0805',
-      'radial-gradient(circle at 50% 40%, rgb(255 196 130 / 0.1), rgb(8 5 3 / 0.8) 75%)'
-    ),
-    shadow: 'drop-shadow(0 30px 40px rgb(0 0 0 / 0.7))'
   }
 ]
 
