@@ -5,38 +5,60 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { CircleArrowDownIcon, PaletteIcon } from 'lucide-react'
+import { CircleArrowDownIcon, InfoIcon, PaletteIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
 import BookReader from '@/components/livro/book-reader'
+import ComoLerEpub from '@/components/livro/como-ler-epub'
 import Compartilhar from '@/components/livro/compartilhar'
 import LeituraImersiva from '@/components/livro/leitura-imersiva'
 import LivroImpresso from '@/components/livro/livro-impresso'
 import Personalizar from '@/components/livro/personalizar'
 
-import { getBook, getChapters } from '@/lib/lvh/api'
-import type { Book } from '@/lib/lvh/types'
+import { getAudioLinks, getBook, getChapters } from '@/lib/lvh/api'
+import type { Book, UserBook } from '@/lib/lvh/types'
 
-// Um botão só para baixar: o PDF para imprimir ou a pasta do livro (página que abre sem internet,
-// fotos e áudios com os códigos impressos no livro)
+// Um botão só para baixar: o PDF para imprimir, o EPUB para leitores digitais ou a pasta do livro
+// (página que abre sem internet, fotos e áudios com os códigos impressos no livro)
 const Baixar = ({ book }: { book: Book }) => {
   const user = useUser()
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  // Passo a passo para mandar o EPUB ao Kindle, ao Apple Livros e aos outros leitores
+  const [epubGuide, setEpubGuide] = useState(false)
 
-  const downloadZip = async () => {
+  // Link de cada voz, o mesmo do QR code do livro impresso, para o EPUB levar até o áudio
+  const voiceLinks = async () => {
+    const ids = book.chapters.flatMap(chapter =>
+      chapter.entries.filter(entry => entry.answer?.audio).map(entry => entry.question.id)
+    )
+    const tokens = await getAudioLinks(ids)
+
+    return Object.fromEntries(
+      Object.entries(tokens).map(([id, token]) => [id, `${window.location.origin}/ouvir/${token}`])
+    )
+  }
+
+  const build = async (kind: 'zip' | 'epub', info: UserBook) => {
+    if (kind === 'zip') return (await import('@/lib/lvh/zip')).buildBookZip(book, info)
+
+    return (await import('@/lib/lvh/epub')).buildBookEpub(book, info, await voiceLinks())
+  }
+
+  // O arquivo é montado no navegador e baixado direto, sem passar por servidor
+  const save = async (kind: 'zip' | 'epub') => {
     if (!user.activeBook) return
 
     setPending(true)
     setError(null)
 
     try {
-      const { buildBookZip } = await import('@/lib/lvh/zip')
-      const { blob, filename } = await buildBookZip(book, user.activeBook)
+      const { blob, filename } = await build(kind, user.activeBook)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
 
@@ -45,7 +67,7 @@ const Baixar = ({ book }: { book: Book }) => {
       link.click()
       URL.revokeObjectURL(url)
     } catch {
-      setError('Não deu para montar o ZIP. Tente de novo.')
+      setError(`Não deu para montar o ${kind.toUpperCase()}. Tente de novo.`)
     }
 
     setPending(false)
@@ -53,7 +75,7 @@ const Baixar = ({ book }: { book: Book }) => {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger
           render={<Button type='button' variant='outline' size='cta' className='min-w-0 gap-2' disabled={pending} />}
         >
@@ -68,12 +90,39 @@ const Baixar = ({ book }: { book: Book }) => {
             <span className='text-sm font-medium'>PDF</span>
             <span className='text-muted-foreground text-xs'>Para imprimir o livro</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={downloadZip} className='flex-col items-start gap-0.5 rounded-xl px-3 py-2.5'>
+          <DropdownMenuItem onClick={() => save('epub')} className='items-start gap-3 rounded-xl py-2.5 pr-1.5 pl-3'>
+            <span className='flex flex-1 flex-col gap-0.5'>
+              <span className='text-sm font-medium'>EPUB</span>
+              <span className='text-muted-foreground text-xs'>Para Kindle e outros leitores</span>
+            </span>
+            {/* Abre o passo a passo sem baixar: o clique não chega ao item */}
+            <button
+              type='button'
+              aria-label='Como mandar o EPUB para o Kindle e outros leitores'
+              onClick={event => {
+                event.stopPropagation()
+                setMenuOpen(false)
+                setEpubGuide(true)
+              }}
+              className='text-muted-foreground hover:text-foreground hover:bg-background -my-1 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full'
+            >
+              <InfoIcon className='size-4' />
+            </button>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => save('zip')} className='flex-col items-start gap-0.5 rounded-xl px-3 py-2.5'>
             <span className='text-sm font-medium'>ZIP</span>
             <span className='text-muted-foreground text-xs'>O livro com fotos e áudios</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <ComoLerEpub
+        open={epubGuide}
+        onOpenChange={setEpubGuide}
+        onDownload={() => {
+          setEpubGuide(false)
+          save('epub')
+        }}
+      />
       {error && (
         <span role='alert' className='text-destructive text-sm'>
           {error}
