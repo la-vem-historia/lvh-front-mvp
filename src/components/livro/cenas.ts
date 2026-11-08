@@ -1,9 +1,10 @@
 import type { CSSProperties } from 'react'
 
+import linho from '@/assets/leitura/linho.jpg'
 import madeira from '@/assets/leitura/madeira.jpg'
 
 // Superfícies do modo de leitura: o livro fica aberto sobre uma delas, como numa mesa.
-// Madeira e noite usam a foto da mesa; os tecidos ainda são desenhados aqui (SVG e gradientes)
+// Madeira, linho e noite usam fotos de verdade; a toalha xadrez ainda é desenhada aqui (SVG e gradientes)
 export type CenaId = 'madeira' | 'toalha' | 'linho' | 'noite'
 
 type Cena = {
@@ -64,8 +65,13 @@ export const CENAS: Cena[] = [
   {
     id: 'linho',
     label: 'Linho',
-    style: { backgroundColor: '#e8dfcc', backgroundImage: WEAVE, backgroundSize: '300px 300px' },
-    swatch: { backgroundColor: '#e8dfcc', backgroundImage: WEAVE, backgroundSize: '150px 150px' },
+    style: {
+      backgroundColor: '#b39a77',
+      backgroundImage: `url(${linho.src})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    },
+    swatch: { backgroundColor: '#b39a77', backgroundImage: `url(${linho.src})`, backgroundSize: 'cover' },
     shadow: 'drop-shadow(0 26px 30px rgb(60 45 30 / 0.3))'
   },
   {
