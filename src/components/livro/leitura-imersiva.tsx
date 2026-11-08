@@ -44,9 +44,10 @@ const iconButtonClassName =
 
 type LeituraImersivaProps = {
   book: Book
-  // Texto discreto no canto: de quem é o livro e, no link de convidado, quem está lendo
+  // Texto discreto acima do livro: de quem é o livro e, no link de convidado, quem está lendo
   caption?: string
-  onClose: () => void
+  // Sem onClose (o convidado), o livro não tem como ser fechado: para ele, o livro é a página toda
+  onClose?: () => void
 }
 
 // Modo de leitura: o livro aberto sobre uma superfície (madeira ou linho), em tela cheia,
@@ -110,7 +111,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
       // Com os ajustes abertos, o Esc fecha só o painel
       if (event.key === 'Escape' && !document.fullscreenElement && !settingsOpenRef.current) {
         if (indexOpenRef.current) openIndex(false)
-        else onClose()
+        else onClose?.()
       }
     }
     const handleFullscreen = () => setFullscreen(Boolean(document.fullscreenElement))
@@ -351,15 +352,17 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
             >
               {fullscreen ? <ShrinkIcon /> : <ExpandIcon />}
             </button>
-            <button
-              type='button'
-              onClick={onClose}
-              aria-label='Fechar o livro'
-              title='Fechar o livro (Esc)'
-              className={iconButtonClassName}
-            >
-              <XIcon />
-            </button>
+            {onClose && (
+              <button
+                type='button'
+                onClick={onClose}
+                aria-label='Fechar o livro'
+                title='Fechar o livro (Esc)'
+                className={iconButtonClassName}
+              >
+                <XIcon />
+              </button>
+            )}
           </div>
         </div>
       </div>
