@@ -179,7 +179,7 @@ Cada foto e cada áudio tem um código, o mesmo que aparece impresso no livro:
 - P047-A é a voz da pergunta 47 (pasta "audios").
 Com o livro impresso na mão, procure o código ao lado do QR code ou embaixo da foto e abra o arquivo com o mesmo nome.
 
-Para imprimir, use "Baixar PDF" na página do livro em lavemhistoria.com.br, ou imprima o "Abrir o livro.html" pelo navegador.
+Para imprimir, use "Baixar", depois "PDF", na página do livro em lavemhistoria.com.br, ou imprima o "Abrir o livro.html" pelo navegador.
 `
 
   const root = title

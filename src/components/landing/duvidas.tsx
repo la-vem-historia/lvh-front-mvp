@@ -31,7 +31,7 @@ const questions = [
   {
     question: 'Como funcionam as perguntas?',
     answer:
-      'São mais de 100 perguntas, organizadas em capítulos como Infância, Família e Origens, Amor, Trabalho e Lições para o Futuro. Você responde na ordem que quiser, pula as que não fazem sentido e marca as que quer deixar para depois.'
+      'São mais de 300 perguntas, na ordem de uma vida, em capítulos como De onde você vem, Sua infância, Seus amores, Seu trabalho e o que você ama e O que você quer me dizer. Você responde na ordem que quiser, pula as que não fazem sentido e marca as que quer deixar para depois.'
   },
   {
     question: 'Posso responder falando, em vez de escrever?',

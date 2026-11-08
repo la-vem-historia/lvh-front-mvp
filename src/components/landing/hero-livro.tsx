@@ -253,7 +253,7 @@ const HeroLivro = () => {
             <div className='absolute inset-0 shadow-[0_24px_44px_-24px_rgb(50_38_24/0.55)] [transform:rotateY(180deg)] [backface-visibility:hidden]'>
               <Page side='left' number={12}>
                 <span className='book-ink text-earth text-[3.8cqw] font-medium tracking-[0.2em] uppercase'>
-                  Capítulo 1 · Infância
+                  Capítulo 2 · Sua infância
                 </span>
                 <Question>Qual é a sua lembrança mais antiga?</Question>
                 <AnswerText>

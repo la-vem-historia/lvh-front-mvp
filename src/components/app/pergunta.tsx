@@ -23,6 +23,7 @@ import ColaboradoresPergunta from '@/components/app/colaboradores-pergunta'
 import Lightbox from '@/components/app/lightbox'
 import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
+import { recipientOf } from '@/lib/lvh/livros'
 import { useDictation } from '@/components/app/use-dictation'
 import { useRecorder } from '@/components/app/use-recorder'
 
@@ -354,7 +355,18 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
     event.target.value = ''
     if (!file || photos.length >= MAX_PHOTOS) return
 
-    const next = [...photos, await resizeImage(file)]
+    let resized: string
+
+    // Formato que o navegador não abre (HEIC no computador, arquivo corrompido): avisa em vez de não fazer nada
+    try {
+      resized = await resizeImage(file)
+    } catch {
+      setError('Não foi possível abrir esta foto. Tente uma em JPG ou PNG.')
+
+      return
+    }
+
+    const next = [...photos, resized]
     const nextCaptions = next.map((_, photoIndex) => captions[photoIndex] ?? '')
 
     setPhotos(next)
@@ -408,10 +420,22 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
           Ele está pronto e continua online para quem lê. Para mudar uma resposta, reabra o livro em Meus livros.
         </p>
         <div className='flex flex-wrap items-center gap-3'>
-          <Button render={<Link href='/app/livros' />} nativeButton={false} variant='honey' size='cta' className='w-fit'>
+          <Button
+            render={<Link href='/app/livros' />}
+            nativeButton={false}
+            variant='honey'
+            size='cta'
+            className='w-fit'
+          >
             Ir para Meus livros
           </Button>
-          <Button render={<Link href='/app/livro' />} nativeButton={false} variant='outline' size='cta' className='w-fit'>
+          <Button
+            render={<Link href='/app/livro' />}
+            nativeButton={false}
+            variant='outline'
+            size='cta'
+            className='w-fit'
+          >
             Ler o livro
           </Button>
         </div>
@@ -481,7 +505,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             value={text}
             onChange={event => updateText(event.target.value)}
             aria-label='Sua resposta'
-            placeholder='Conte como se estivesse falando com a sua família…'
+            placeholder={`Conte como se estivesse falando com ${user.activeBook ? recipientOf(user.activeBook) : 'a sua família'}…`}
             className='placeholder:text-muted-foreground/70 min-h-0 w-full flex-1 resize-none overflow-y-auto bg-transparent px-6 pt-6 font-(family-name:--font-fell) text-xl leading-relaxed outline-none sm:px-8 sm:pt-8 sm:text-2xl'
           />
 

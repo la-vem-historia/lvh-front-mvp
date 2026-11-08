@@ -131,11 +131,15 @@ const ExcluirConta = () => {
                 )}
               </div>
               <div className='flex flex-wrap items-center gap-4'>
-                <Button type='button' variant='outline' className='bg-background h-10 gap-2 px-5' disabled>
+                <Button
+                  render={<Link href='/app/livro/imprimir' />}
+                  nativeButton={false}
+                  variant='outline'
+                  className='bg-background h-10 gap-2 px-5'
+                >
                   <DownloadIcon />
                   Baixar o livro em PDF
                 </Button>
-                <span className='border-border rounded-full border px-2.5 py-0.5 text-xs font-medium'>Em breve</span>
               </div>
             </div>
           </section>

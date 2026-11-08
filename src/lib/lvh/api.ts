@@ -78,7 +78,15 @@ const nameFromEmail = (email: string) => {
 }
 
 // Campos que vêm do livro ativo: nunca ficam guardados no usuário
-const BOOK_FIELDS = ['activeBook', 'profile', 'bookName', 'dedication', 'coverColor', 'coverPhoto', 'onboarded'] as const
+const BOOK_FIELDS = [
+  'activeBook',
+  'profile',
+  'bookName',
+  'dedication',
+  'coverColor',
+  'coverPhoto',
+  'onboarded'
+] as const
 
 const stripBookFields = (user: User): User => {
   const raw = { ...user }
@@ -315,7 +323,6 @@ const saveBooks = (books: UserBook[]) => {
   if (!write(BOOKS_KEY, books)) throw new Error('Não foi possível salvar o livro.')
 }
 
-
 // Respostas de outro livro que valem para o livro novo: as que existem para o papel novo e
 // não falam de quem recebe o livro
 const copyableAnswers = (fromId: string, role: Role) => {
@@ -482,7 +489,6 @@ export async function reopenBook(id: string): Promise<UserBook> {
   return updateBook(id, { status: 'em-andamento', concludedAt: undefined })
 }
 
-
 export async function getChapters(user: User): Promise<Chapter[]> {
   return chaptersFor(user.profile, user.activeBook ?? {})
 }
@@ -594,10 +600,11 @@ export async function getBook(user: User): Promise<Book> {
     coverPhoto: user.coverPhoto,
     year: new Date().getFullYear(),
     contributors: [...new Set(approvedNames)],
+    // Os capítulos sem nenhuma resposta saem do livro e os que ficam são numerados em sequência: 1, 2, 3
     chapters: chapters
-      .map((chapter, index) => ({
+      .map(chapter => ({
         id: chapter.id,
-        number: index + 1,
+        number: 0,
         title: chapter.title,
         entries: chapter.questions
           .map(question => ({
@@ -610,6 +617,7 @@ export async function getBook(user: User): Promise<Book> {
           .filter(entry => entry.answer || entry.contributions.length)
       }))
       .filter(chapter => chapter.entries.length > 0)
+      .map((chapter, index) => ({ ...chapter, number: index + 1 }))
   }
 }
 
@@ -802,7 +810,9 @@ export async function getContributions(questionId?: number): Promise<Contributio
 export async function setContributionApproval(contributionId: string, approved: boolean) {
   write(
     bookKey(CONTRIBUTIONS_KEY),
-    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), []).map(item => (item.id === contributionId ? { ...item, approved } : item))
+    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), []).map(item =>
+      item.id === contributionId ? { ...item, approved } : item
+    )
   )
 }
 
@@ -832,7 +842,7 @@ export async function getCollaboratorView(token: string): Promise<CollaboratorVi
       .map(item => [item.questionId, item])
   )
 
-  return { collaborator, ownerName: owner.name, questions, contributions }
+  return { collaborator, ownerName: owner.bookName?.trim() || owner.name, questions, contributions }
 }
 
 export async function saveContribution(token: string, questionId: number, text: string): Promise<Contribution> {

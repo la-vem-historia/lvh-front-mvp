@@ -320,15 +320,15 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
     },
     // Avós: as perguntas falam de "meu pai" ou "minha mãe" e precisam saber qual dos dois é seu filho
     pai: {
-      title: `${who} é ${chosen?.gender === 'menina' ? 'filha' : 'filho'} do seu…`,
+      title: `${who} é ${chosen?.gender === 'menina' ? 'filha' : 'filho'} de quem?`,
       hint: 'Assim as perguntas sabem se falam do pai ou da mãe.',
       content: (
         <div className='flex flex-wrap gap-3'>
           <Choice name='child-of' checked={childOf === 'filho'} onChange={() => setChildOf('filho')}>
-            Filho
+            Do meu filho
           </Choice>
           <Choice name='child-of' checked={childOf === 'filha'} onChange={() => setChildOf('filha')}>
-            Filha
+            Da minha filha
           </Choice>
         </div>
       )

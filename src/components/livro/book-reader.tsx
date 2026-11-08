@@ -961,7 +961,9 @@ const BookReader = ({
       </div>
 
       {preview && layout && (
-        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>Clique no livro para abrir em tela cheia.</p>
+        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>
+          Toque ou clique no livro para abrir em tela cheia.
+        </p>
       )}
 
       {pageElements.map((element, index) =>

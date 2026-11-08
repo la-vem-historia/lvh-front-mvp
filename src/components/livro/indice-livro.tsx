@@ -10,9 +10,12 @@ import { cn } from '@/lib/utils'
 // Busca sem acento e sem maiúsculas: "joao" acha "João". Troca letra por letra, sem mudar o tamanho
 // do texto, para a posição achada no texto normalizado valer também no original
 export const fold = (text: string) =>
-  Array.from(text, char => char.normalize('NFD').replace(/\p{M}/gu, '').charAt(0) || char)
-    .join('')
-    .toLowerCase()
+  Array.from(text, char => {
+    const base = char.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+
+    // Só troca quando o tamanho não muda (acentos); emoji e símbolos ficam como estão
+    return base.length === char.length ? base : char
+  }).join('')
 
 type Entry = { page: number; question: string; text: string }
 
