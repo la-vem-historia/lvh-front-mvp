@@ -282,9 +282,4 @@
     mix-blend-mode: normal;
     text-shadow: none;
   }
-
-  /* A pauta do caderno sai borrada no PDF: no livro impresso o texto fica sobre o papel limpo */
-  .livro-folha .book-ruled {
-    background-image: none;
-  }
 }

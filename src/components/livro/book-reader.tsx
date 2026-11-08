@@ -180,8 +180,6 @@ const FlowBlockView = ({
           )}
         </div>
       )
-    case 'rule':
-      return <div aria-hidden='true' className={className} style={{ height }} />
     case 'audio':
       return (
         <div className={className} style={{ height }}>
