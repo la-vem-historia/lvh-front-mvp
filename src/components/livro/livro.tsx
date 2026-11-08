@@ -106,7 +106,7 @@ const Livro = () => {
     // Altura da tela menos o header: com o livro inteiro visível, a página não rola.
     // No computador, três colunas: o título à esquerda, o livro no meio e as ações à direita
     <div className='mx-auto flex h-[calc(100svh-5rem)] min-h-[36rem] w-full max-w-7xl flex-col gap-6 px-4 pt-8 sm:px-6 lg:flex-row lg:gap-10 lg:px-16'>
-      <div className='flex flex-col gap-6 lg:w-64 lg:shrink-0'>
+      <div className='flex flex-col lg:w-64 lg:shrink-0'>
         <div className='flex flex-col gap-3'>
           <p className={eyebrowClassName}>O livro</p>
           <h1 className={pageTitleClassName}>O seu livro</h1>
@@ -119,21 +119,6 @@ const Livro = () => {
           </p>
         </div>
 
-        {/* Convite discreto enquanto a pessoa ainda não personalizou o livro */}
-        {answered > 0 && !user.bookName && !user.dedication && (
-          <div className='bg-sand flex flex-col items-start gap-3 rounded-2xl px-5 py-4'>
-            <p className='text-sm'>
-              Confirme o nome que vai na capa e, se quiser, escreva uma dedicatória para quem vai ler.
-            </p>
-            <button
-              type='button'
-              onClick={() => setCustomizing(true)}
-              className='cursor-pointer text-sm font-medium underline underline-offset-4'
-            >
-              Personalizar o livro
-            </button>
-          </div>
-        )}
       </div>
 
       {customizing && <Personalizar open onOpenChange={setCustomizing} />}

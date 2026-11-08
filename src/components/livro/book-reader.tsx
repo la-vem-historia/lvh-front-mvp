@@ -536,6 +536,7 @@ const BookReader = ({
   onOpenImmersive
 }: BookReaderProps) => {
   const [narrow, setNarrow] = useState(false)
+  const [smallScreen, setSmallScreen] = useState(false)
   // No celular, o livro ocupa quase a tela toda: as setas descem para o rodapé
   const padX = immersive ? (narrow ? 12 : IMMERSIVE_PAD_X) : STAGE_PAD_X
   const padY = immersive ? (narrow ? 72 : IMMERSIVE_PAD_Y) : STAGE_PAD_Y
@@ -559,8 +560,9 @@ const BookReader = ({
   const [hasOverflow, setHasOverflow] = useState(false)
   const [dragging, setDragging] = useState(false)
 
-  // Telas estreitas usam o formato de bolso; a paginação muda junto com o formato
-  const formatName = frame.width === 0 ? null : frame.width < 600 ? 'pocket' : 'book'
+  // Só celulares usam o formato de bolso (pela largura da tela, não do espaço do livro: no computador,
+  // uma coluna estreita deixaria a capa esticada); a paginação muda junto com o formato
+  const formatName = frame.width === 0 ? null : smallScreen ? 'pocket' : 'book'
   const format = PAGE_FORMATS[formatName ?? 'book']
   const content = contentSize(format)
 
@@ -587,6 +589,7 @@ const BookReader = ({
     const measure = () => {
       setFrame({ width: element.clientWidth, height: element.clientHeight })
       setNarrow(element.clientWidth < 640)
+      setSmallScreen(window.innerWidth < 640)
       setHasOverflow(element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1)
     }
     const observer = new ResizeObserver(measure)
@@ -805,7 +808,8 @@ const BookReader = ({
         onDragStart={event => canPan && event.preventDefault()}
         className={cn(
           'min-h-0 flex-1',
-          zoom > 1 ? 'overflow-auto' : 'overflow-hidden',
+          // Sem zoom, nada é cortado: a sombra do livro se espalha livre pela página
+          zoom > 1 ? 'overflow-auto' : 'overflow-visible',
           canPan && (dragging ? 'cursor-grabbing select-none' : 'cursor-grab')
         )}
       >
@@ -942,7 +946,7 @@ const BookReader = ({
 
       {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
       {!immersive && (
-        <nav aria-label='Páginas do livro' className='bg-background/90 fixed inset-x-0 bottom-0 z-40 backdrop-blur'>
+        <nav aria-label='Páginas do livro' className='fixed inset-x-0 bottom-0 z-40'>
           <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
             <Button
               id='livro-anterior'
