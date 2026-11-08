@@ -1,52 +1,17 @@
-'use client'
+import { eyebrowClassName } from '@/components/app/page-heading'
 
-import { useEffect, useState } from 'react'
-
-import { BookOpenIcon, CheckIcon } from 'lucide-react'
-
-import { Button } from '@/components/ui/button'
-
-import { getPrintInterest, registerPrintInterest } from '@/lib/lvh/api'
 import { cn } from '@/lib/utils'
 
-// Livro impresso e encadernado pela gráfica parceira. Enquanto o pedido não existe,
-// o botão só registra quem quer ser avisado; depois disso, vira uma confirmação
-const LivroImpresso = ({ className }: { className?: string }) => {
-  const [interest, setInterest] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
-
-  useEffect(() => {
-    getPrintInterest().then(setInterest)
-  }, [])
-
-  const notify = async () => {
-    setPending(true)
-    setInterest(await registerPrintInterest())
-    setPending(false)
-  }
-
-  if (interest) {
-    return (
-      <p role='status' className={cn('flex items-start gap-2 text-sm text-pretty', className)}>
-        <CheckIcon className='text-moss mt-0.5 size-4 shrink-0' />
-        Avisamos você assim que o livro impresso estiver disponível.
-      </p>
-    )
-  }
-
-  return (
-    <Button
-      type='button'
-      variant='moss'
-      size='cta'
-      className={cn('gap-2', className)}
-      disabled={pending}
-      onClick={notify}
-    >
-      Imprimir o livro físico
-      <BookOpenIcon className='size-5' />
-    </Button>
-  )
-}
+// Recado sobre o livro impresso. Ainda não é um pedido nem uma promessa: só conta que a
+// parceria com a gráfica está em teste e que ela só abre quando o resultado estiver à altura
+const LivroImpresso = ({ className }: { className?: string }) => (
+  <div className={cn('border-border flex w-full flex-col gap-2 border-t pt-4', className)}>
+    <p className={eyebrowClassName}>Livro impresso</p>
+    <p className='text-muted-foreground text-sm text-pretty'>
+      Estamos testando com uma gráfica parceira o papel, as cores e a encadernação. O livro impresso só chega aqui
+      quando estiver à altura da sua história, por isso ainda não tem data.
+    </p>
+  </div>
+)
 
 export default LivroImpresso

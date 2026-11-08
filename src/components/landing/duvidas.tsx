@@ -51,7 +51,7 @@ const questions = [
   {
     question: 'Dá para ter o livro impresso?',
     answer:
-      'Dá. No plano Completo, você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz.'
+      'Dá. No plano Completo, você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz. Também estamos testando com uma gráfica parceira um livro impresso e encadernado por nós. Ainda não tem data: ele só entra no site quando o papel, as cores e o acabamento estiverem à altura da história.'
   },
   {
     question: 'Qual a diferença entre o Essencial e o Completo?',
