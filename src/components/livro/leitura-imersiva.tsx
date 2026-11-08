@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createPortal } from 'react-dom'
 
-import { ExpandIcon, ShrinkIcon, XIcon } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
+import { ExpandIcon, ShrinkIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
 
 import BookReader from '@/components/livro/book-reader'
 import { CENAS, CENA_PADRAO, type CenaId } from '@/components/livro/cenas'
@@ -14,6 +15,8 @@ import { cn } from '@/lib/utils'
 
 // Preferências de quem lê, guardadas só neste navegador
 const CENA_KEY = 'lvh:leitura-cena'
+const PAGINAS_KEY = 'lvh:leitura-paginas'
+const VIRADA_KEY = 'lvh:leitura-virada'
 // Tempo parado até os controles sumirem e ficar só o livro
 const IDLE_MS = 2200
 
@@ -35,6 +38,7 @@ const savePreference = (key: string, value: string) => {
 
 const glassClassName =
   'flex items-center rounded-full bg-black/35 text-white backdrop-blur-md shadow-[0_8px_24px_-12px_rgb(0_0_0/0.6)]'
+const sectionTitleClassName = 'text-[0.6875rem] font-medium tracking-[0.12em] text-white/60 uppercase'
 const iconButtonClassName =
   'flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-white/15 [&_svg]:size-[1.125rem]'
 
@@ -54,6 +58,10 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
 
     return CENAS.some(item => item.id === saved) ? saved : CENA_PADRAO
   })
+  const [paginas, setPaginas] = useState(() => readPreference<'duas' | 'uma'>(PAGINAS_KEY, 'duas'))
+  const [virada, setVirada] = useState(() => readPreference(VIRADA_KEY, 'ligada') === 'ligada')
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsOpenRef = useRef(false)
   const [visible, setVisible] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const idleTimer = useRef<number | undefined>(undefined)
@@ -66,14 +74,14 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
     setVisible(true)
     window.clearTimeout(idleTimer.current)
     idleTimer.current = window.setTimeout(() => {
-      if (!hovering.current) setVisible(false)
+      if (!hovering.current && !settingsOpenRef.current) setVisible(false)
     }, IDLE_MS)
   }, [])
 
   useEffect(() => {
     // Os controles já começam à vista; só o relógio para escondê-los é que liga aqui
     idleTimer.current = window.setTimeout(() => {
-      if (!hovering.current) setVisible(false)
+      if (!hovering.current && !settingsOpenRef.current) setVisible(false)
     }, IDLE_MS)
 
     // A página de trás não rola enquanto o livro está aberto
@@ -87,7 +95,8 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
 
     const handleKey = (event: KeyboardEvent) => {
       wake()
-      if (event.key === 'Escape' && !document.fullscreenElement) onClose()
+      // Com os ajustes abertos, o Esc fecha só o painel
+      if (event.key === 'Escape' && !document.fullscreenElement && !settingsOpenRef.current) onClose()
     }
     const handleFullscreen = () => setFullscreen(Boolean(document.fullscreenElement))
 
@@ -108,6 +117,49 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
     setCena(id)
     savePreference(CENA_KEY, id)
   }
+
+  const choosePaginas = (value: 'duas' | 'uma') => {
+    setPaginas(value)
+    savePreference(PAGINAS_KEY, value)
+  }
+
+  const toggleVirada = () => {
+    const next = !virada
+
+    setVirada(next)
+    savePreference(VIRADA_KEY, next ? 'ligada' : 'desligada')
+  }
+
+  const openSettings = (open: boolean) => {
+    settingsOpenRef.current = open
+    setSettingsOpen(open)
+    wake()
+  }
+
+  // Com uma página só, a folha não tem como virar como num livro aberto: a página apenas troca
+  const singlePage = paginas === 'uma'
+  const animate = virada && !singlePage
+
+  const swatches = (kind: 'textura' | 'cor') => (
+    <div role='radiogroup' aria-label={kind === 'textura' ? 'Texturas' : 'Cores'} className='flex gap-2'>
+      {CENAS.filter(item => item.kind === kind).map(item => (
+        <button
+          key={item.id}
+          type='button'
+          role='radio'
+          aria-checked={cena === item.id}
+          aria-label={item.label}
+          title={item.label}
+          onClick={() => chooseScene(item.id)}
+          className={cn(
+            'size-9 cursor-pointer rounded-full ring-offset-2 ring-offset-[#2a2420] transition-[box-shadow,scale] hover:scale-110',
+            cena === item.id ? 'ring-2 ring-white' : 'ring-1 ring-white/25'
+          )}
+          style={item.swatch}
+        />
+      ))}
+    </div>
+  )
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
@@ -134,9 +186,16 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         }}
       />
 
-      <BookReader book={book} immersive controlsVisible={visible} shadow={scene.shadow} />
+      <BookReader
+        book={book}
+        immersive
+        controlsVisible={visible}
+        shadow={scene.shadow}
+        singlePage={singlePage}
+        animate={animate}
+      />
 
-      {/* Barra de cima: quem é o livro à esquerda; fundos, tela cheia e sair à direita */}
+      {/* Barra de cima: quem é o livro à esquerda; ajustes, tela cheia e sair à direita */}
       <div
         onPointerEnter={() => (hovering.current = true)}
         onPointerLeave={() => (hovering.current = false)}
@@ -154,26 +213,97 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         )}
 
         <div className='flex flex-wrap items-center justify-end gap-2'>
-          <div role='radiogroup' aria-label='Fundo da leitura' className={cn(glassClassName, 'gap-1.5 p-1.5')}>
-            {CENAS.map(item => (
-              <button
-                key={item.id}
-                type='button'
-                role='radio'
-                aria-checked={cena === item.id}
-                aria-label={item.label}
-                title={item.label}
-                onClick={() => chooseScene(item.id)}
-                className={cn(
-                  'size-7 cursor-pointer rounded-full ring-offset-2 ring-offset-black/40 transition-[box-shadow,scale] hover:scale-110',
-                  cena === item.id ? 'ring-2 ring-white' : 'ring-1 ring-white/30'
-                )}
-                style={item.swatch}
-              />
-            ))}
-          </div>
-
           <div className={cn(glassClassName, 'gap-0.5 p-1')}>
+            {/* Ajustes da leitura: fundo, uma ou duas páginas e a animação da folha */}
+            <Popover.Root open={settingsOpen} onOpenChange={openSettings}>
+              <Popover.Trigger
+                aria-label='Ajustes da leitura'
+                title='Ajustes da leitura'
+                className={cn(iconButtonClassName, settingsOpen && 'bg-white/15')}
+              >
+                <SlidersHorizontalIcon />
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner side='bottom' align='end' sideOffset={10} className='z-[80]'>
+                  <Popover.Popup
+                    onPointerEnter={() => (hovering.current = true)}
+                    onPointerLeave={() => (hovering.current = false)}
+                    className='flex w-[19rem] flex-col gap-5 rounded-3xl bg-[#2a2420]/90 p-5 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.7)] backdrop-blur-xl outline-none'
+                  >
+                    <section className='flex flex-col gap-3'>
+                      <p className={sectionTitleClassName}>Fundo</p>
+                      <div className='flex flex-col gap-2'>
+                        <span className='text-sm text-white/80'>Texturas</span>
+                        {swatches('textura')}
+                      </div>
+                      <div className='flex flex-col gap-2'>
+                        <span className='text-sm text-white/80'>Cores</span>
+                        {swatches('cor')}
+                      </div>
+                    </section>
+
+                    {/* Em telas estreitas só cabe uma página, então a escolha nem aparece */}
+                    <section className='flex flex-col gap-3 max-[819px]:hidden'>
+                      <p className={sectionTitleClassName}>Páginas</p>
+                      <div role='radiogroup' aria-label='Páginas' className='flex rounded-full bg-white/10 p-1'>
+                        {(
+                          [
+                            ['duas', 'Duas páginas'],
+                            ['uma', 'Uma página']
+                          ] as const
+                        ).map(([value, label]) => (
+                          <button
+                            key={value}
+                            type='button'
+                            role='radio'
+                            aria-checked={paginas === value}
+                            onClick={() => choosePaginas(value)}
+                            className={cn(
+                              'flex-1 cursor-pointer rounded-full px-3 py-2 text-sm transition-colors',
+                              paginas === value ? 'bg-white text-[#2a2420]' : 'text-white/80 hover:text-white'
+                            )}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section className='flex flex-col gap-2'>
+                      <div className='flex items-center justify-between gap-4'>
+                        <span id='virada-label' className='text-sm'>
+                          Animação de virar a página
+                        </span>
+                        <button
+                          type='button'
+                          role='switch'
+                          aria-checked={animate}
+                          aria-labelledby='virada-label'
+                          disabled={singlePage}
+                          onClick={toggleVirada}
+                          className={cn(
+                            'relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors disabled:cursor-default disabled:opacity-40',
+                            animate ? 'bg-honey' : 'bg-white/20'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow transition-transform',
+                              animate && 'translate-x-5'
+                            )}
+                          />
+                        </button>
+                      </div>
+                      {singlePage && (
+                        <p className='text-xs text-pretty text-white/60'>
+                          Com uma página por vez, a página troca sem animação.
+                        </p>
+                      )}
+                    </section>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
             <button
               type='button'
               onClick={toggleFullscreen}

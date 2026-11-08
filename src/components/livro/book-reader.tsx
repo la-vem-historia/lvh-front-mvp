@@ -444,7 +444,8 @@ const BookBody = ({
   height,
   before,
   after,
-  coverLeft = width
+  coverLeft = width,
+  pagesWide = 2
 }: {
   mode: 'open' | 'cover' | 'back'
   cloth: string
@@ -455,6 +456,8 @@ const BookBody = ({
   after: number
   // Onde a capa fechada fica: na metade direita do livro aberto, ou sozinha quando o leitor mostra uma página por vez
   coverLeft?: number
+  // Aberto com uma página só: a capa e as pilhas abraçam essa página
+  pagesWide?: 1 | 2
 }) => {
   const total = before + after
   const board = (left: number, boardWidth: number, offset = 0) => (
@@ -483,14 +486,20 @@ const BookBody = ({
             style={{
               left: -BOARD - STACK.x,
               top: -BOARD,
-              width: width * 2 + (BOARD + STACK.x) * 2,
+              width: width * pagesWide + (BOARD + STACK.x) * 2,
               height: height + BOARD * 2 + STACK.y,
               backgroundColor: cloth,
               boxShadow: BOARD_EDGE
             }}
           />
           <Sheets count={sheetCount(before, total)} side={-1} left={0} width={width} height={height} />
-          <Sheets count={sheetCount(after, total)} side={1} left={width} width={width} height={height} />
+          <Sheets
+            count={sheetCount(after, total)}
+            side={1}
+            left={width * (pagesWide - 1)}
+            width={width}
+            height={height}
+          />
         </>
       )}
       {/* Fechado: a capa por cima; por baixo, o miolo e a contracapa aparecem no canto e dão a grossura */}
@@ -525,6 +534,10 @@ type BookReaderProps = {
   onFlipStart?: () => void
   // Na página do livro: abre o modo de leitura (pelo "Abrir o livro" da capa e pelo botão de tela cheia)
   onOpenImmersive?: () => void
+  // Modo de leitura: mostrar uma página por vez, mesmo com espaço para duas
+  singlePage?: boolean
+  // Folha virando com animação; sem ela, a página só troca
+  animate?: boolean
 }
 
 const BookReader = ({
@@ -533,7 +546,9 @@ const BookReader = ({
   controlsVisible = true,
   shadow = BOOK_SHADOW,
   onFlipStart,
-  onOpenImmersive
+  onOpenImmersive,
+  singlePage = false,
+  animate = true
 }: BookReaderProps) => {
   const [narrow, setNarrow] = useState(false)
   const [smallScreen, setSmallScreen] = useState(false)
@@ -556,6 +571,7 @@ const BookReader = ({
   const hostRef = useRef<HTMLDivElement>(null)
   const flipRef = useRef<PageFlip | null>(null)
   const currentRef = useRef(0)
+  const animateRef = useRef(animate)
   // Livro maior que o quadro (com zoom): dá para arrastar a vista com o mouse
   const [hasOverflow, setHasOverflow] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -656,7 +672,7 @@ const BookReader = ({
   const preview = !immersive && Boolean(onOpenImmersive)
 
   // Na pré-visualização só aparece a capa: uma página por vez, para ela ocupar todo o espaço
-  const isSpread = frame.width >= 820 && !preview
+  const isSpread = frame.width >= 820 && !preview && !singlePage
 
   // Livro aberto: capa sozinha, depois páginas aos pares (esquerda ímpar, direita par)
   const lastIndex = pages.length - 1
@@ -694,6 +710,7 @@ const BookReader = ({
   const zoomOut = () => setZoom(ZOOM_STEPS[Math.max(0, zoomIndex - 1)])
 
   currentRef.current = current
+  animateRef.current = animate
 
   // A virada começa pelo canto de baixo: direito ao avançar, esquerdo ao voltar
   const goTo = useCallback((index: number) => {
@@ -701,17 +718,24 @@ const BookReader = ({
 
     if (!flip) return
     setCurrent(index)
-    flip.flip(index, 'bottom')
+    if (animateRef.current) flip.flip(index, 'bottom')
+    else flip.turnToPage(index)
   }, [])
   const previous = () => {
     if (!flipRef.current || spreadIndex === 0) return
-    setCurrent(spreads[spreadIndex - 1][0])
-    flipRef.current.flipPrev('bottom')
+    const target = spreads[spreadIndex - 1][0]
+
+    setCurrent(target)
+    if (animate) flipRef.current.flipPrev('bottom')
+    else flipRef.current.turnToPage(target)
   }
   const next = () => {
     if (!flipRef.current || spreadIndex >= spreads.length - 1) return
-    setCurrent(spreads[spreadIndex + 1][0])
-    flipRef.current.flipNext('bottom')
+    const target = spreads[spreadIndex + 1][0]
+
+    setCurrent(target)
+    if (animate) flipRef.current.flipNext('bottom')
+    else flipRef.current.turnToPage(target)
   }
 
   // Uma div por página, criada fora do React: a biblioteca de virada move essas divs pelo DOM,
@@ -740,7 +764,8 @@ const BookReader = ({
       usePortrait: !isSpread,
       // No modo de leitura dá para pegar o canto da folha e arrastar, ou deslizar o dedo; links e botões
       // dentro das páginas continuam recebendo o clique
-      useMouseEvents: immersive,
+      // Sem animação, não há folha para arrastar: as setas e o teclado trocam a página
+      useMouseEvents: immersive && animate,
       clickEventForward: true,
       mobileScrollSupport: false,
       swipeDistance: 30,
@@ -762,7 +787,7 @@ const BookReader = ({
       flipRef.current = null
       flip.destroy()
     }
-  }, [pageElements, format, isSpread, immersive])
+  }, [pageElements, format, isSpread, immersive, animate])
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -836,7 +861,7 @@ const BookReader = ({
                 transition: `transform ${FLIP_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
               }}
             >
-              {(isSpread || isCover) && (
+              {(isSpread || isCover || (immersive && !narrow)) && (
                 <div
                   className='absolute top-0 left-0 origin-top-left'
                   style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
@@ -849,6 +874,7 @@ const BookReader = ({
                     before={Math.max(0, visible[0] ?? 0)}
                     after={Math.max(0, lastIndex - (visible[visible.length - 1] ?? 0))}
                     coverLeft={isSpread ? format.width : 0}
+                    pagesWide={isSpread ? 2 : 1}
                   />
                 </div>
               )}

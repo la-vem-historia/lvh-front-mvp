@@ -9,6 +9,8 @@ declare module 'page-flip' {
     flipNext(corner?: FlipCorner): void
     flipPrev(corner?: FlipCorner): void
     flip(page: number, corner?: FlipCorner): void
+    // Troca de página sem animação
+    turnToPage(page: number): void
     getCurrentPageIndex(): number
     destroy(): void
   }
