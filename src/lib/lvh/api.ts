@@ -36,9 +36,18 @@ const CONTRIBUTIONS_KEY = 'lvh:contributions'
 const AUDIO_LINKS_KEY = 'lvh:audio-links'
 const BOOKMARKS_KEY = 'lvh:bookmarks'
 const BOOKS_KEY = 'lvh:books'
+const PRINT_INTEREST_KEY = 'lvh:livro-impresso'
 
 // Tudo o que é de um livro (respostas, leitores, colaboradores, voz) fica numa chave com o id dele
-const PER_BOOK_KEYS = [ANSWERS_KEY, BOOKMARKS_KEY, SHARES_KEY, COLLABORATORS_KEY, CONTRIBUTIONS_KEY, AUDIO_LINKS_KEY]
+const PER_BOOK_KEYS = [
+  ANSWERS_KEY,
+  BOOKMARKS_KEY,
+  SHARES_KEY,
+  COLLABORATORS_KEY,
+  CONTRIBUTIONS_KEY,
+  AUDIO_LINKS_KEY,
+  PRINT_INTEREST_KEY
+]
 
 const read = <T>(key: string, fallback: T): T => {
   try {
@@ -536,6 +545,20 @@ export async function saveAnswer(questionId: number, changes: AnswerChanges): Pr
   }
 
   return answer
+}
+
+// Livro impresso pela gráfica parceira: enquanto o pedido não existe, guardamos quem quer ser avisado.
+// Com o backend, esta função vai para uma lista própria (não a dos interessados no lançamento)
+export async function getPrintInterest(): Promise<string | null> {
+  return read<string | null>(bookKey(PRINT_INTEREST_KEY), null)
+}
+
+export async function registerPrintInterest(): Promise<string> {
+  const when = new Date().toISOString()
+
+  write(bookKey(PRINT_INTEREST_KEY), when)
+
+  return when
 }
 
 // Perguntas marcadas para voltar depois (buscar uma foto, lembrar melhor). A mais recente vem primeiro

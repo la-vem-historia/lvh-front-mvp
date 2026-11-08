@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 
+import { ForwardIcon } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -67,8 +69,9 @@ const Compartilhar = () => {
 
   return (
     <Sheet>
-      <SheetTrigger render={<Button variant='honey' size='cta' />}>
-        Compartilhar{shares.length > 0 && ` · ${shares.length}`}
+      <SheetTrigger render={<Button variant='outline' size='cta' className='gap-2' />}>
+        Compartilhar
+        <ForwardIcon className='size-5' />
       </SheetTrigger>
       <SheetContent className='bg-background w-full gap-0 overflow-y-auto sm:max-w-md'>
         <SheetHeader className='gap-3 p-6 pt-10'>

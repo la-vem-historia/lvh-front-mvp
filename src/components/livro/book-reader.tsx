@@ -651,7 +651,12 @@ const BookReader = ({
   }
 
   const pages = layout?.pages ?? []
-  const isSpread = frame.width >= 820
+  // Pré-visualização (página do livro e link de convidado fechado): só a capa, sem barra nem zoom.
+  // Folhear acontece no modo de leitura, aberto com um clique no próprio livro
+  const preview = !immersive && Boolean(onOpenImmersive)
+
+  // Na pré-visualização só aparece a capa: uma página por vez, para ela ocupar todo o espaço
+  const isSpread = frame.width >= 820 && !preview
 
   // Livro aberto: capa sozinha, depois páginas aos pares (esquerda ímpar, direita par)
   const lastIndex = pages.length - 1
@@ -789,7 +794,7 @@ const BookReader = ({
 
   return (
     // Sem fundo próprio: o livro fica aberto sobre o creme da página, como numa mesa
-    <div className={cn('flex min-h-0 flex-1 flex-col', immersive ? 'relative' : 'px-2 pb-24 sm:px-8')}>
+    <div className={cn('flex min-h-0 flex-1 flex-col', immersive || preview ? 'relative' : 'px-2 pb-24 sm:px-8')}>
       {/* Área invisível onde os blocos são medidos, com a mesma tinta das páginas */}
       <div
         ref={measureRef}
@@ -852,10 +857,22 @@ const BookReader = ({
                 className='relative origin-top-left'
                 style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
               />
+              {preview && (
+                <button
+                  type='button'
+                  onClick={onOpenImmersive}
+                  aria-label='Abrir o livro em tela cheia'
+                  className='absolute inset-0 z-10 cursor-pointer rounded-[3px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
+                />
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {preview && layout && (
+        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>Clique no livro para abrir em tela cheia.</p>
+      )}
 
       {pageElements.map((element, index) =>
         createPortal(
@@ -945,7 +962,7 @@ const BookReader = ({
       )}
 
       {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
-      {!immersive && (
+      {!immersive && !preview && (
         <nav aria-label='Páginas do livro' className='fixed inset-x-0 bottom-0 z-40'>
           <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
             <Button
