@@ -212,7 +212,20 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         onIndexOpenChange={openIndex}
       />
 
-      {/* Barra de cima: quem é o livro à esquerda; ajustes, tela cheia e sair à direita */}
+      {/* De quem é o livro: só texto, centralizado acima do livro, para não parecer mais um botão */}
+      {caption && (
+        <p
+          className={cn(
+            'pointer-events-none absolute inset-x-0 top-0 truncate px-48 pt-7 text-center text-sm transition-opacity duration-500 max-md:hidden',
+            scene.light ? 'text-[#2a2420]/75' : 'text-white/80 [text-shadow:0_1px_3px_rgb(0_0_0/0.5)]',
+            visible ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          {caption}
+        </p>
+      )}
+
+      {/* Barra de cima: índice à esquerda; ajustes, tela cheia e sair à direita */}
       <div
         onPointerEnter={() => (hovering.current = true)}
         onPointerLeave={() => (hovering.current = false)}
@@ -235,11 +248,6 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
             <ListIcon className='size-4' />
             Índice
           </button>
-          {caption && (
-            <span className={cn(glassClassName, 'min-w-0 px-4 py-2.5 text-sm max-md:hidden')}>
-              <span className='truncate'>{caption}</span>
-            </span>
-          )}
         </div>
 
         <div className='flex flex-wrap items-center justify-end gap-2'>
