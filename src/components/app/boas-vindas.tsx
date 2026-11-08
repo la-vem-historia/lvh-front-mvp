@@ -246,7 +246,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
   const questions: Record<StepId, { title: string; hint?: string; content: ReactNode }> = {
     nome: {
       title: `Qual é o nome ${feminine ? 'dela' : 'dele'}?`,
-      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando.`,
+      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando. É possível alterar depois em “Personalizar livro”.`,
       content: (
         <div className='flex flex-col gap-2'>
           <label htmlFor='livro-nome' className='text-sm font-medium'>
