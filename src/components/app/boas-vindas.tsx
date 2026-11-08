@@ -246,7 +246,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
   const questions: Record<StepId, { title: string; hint?: string; content: ReactNode }> = {
     nome: {
       title: `Qual é o nome ${feminine ? 'dela' : 'dele'}?`,
-      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando. É possível alterar depois em “Personalizar livro”.`,
+      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando.\nÉ possível alterar depois em “Personalizar livro”.`,
       content: (
         <div className='flex flex-col gap-2'>
           <label htmlFor='livro-nome' className='text-sm font-medium'>
@@ -389,7 +389,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             <h1 id='passo-titulo' ref={heading} tabIndex={-1} className={cn(pageTitleClassName, 'outline-none')}>
               {question.title}
             </h1>
-            {question.hint && <p className='text-muted-foreground text-base text-pretty'>{question.hint}</p>}
+            {question.hint && <p className='text-muted-foreground text-base text-pretty whitespace-pre-line'>{question.hint}</p>}
           </div>
           {question.content}
         </fieldset>
