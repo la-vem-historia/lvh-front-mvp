@@ -12,6 +12,7 @@ import PrimeirosPassos from '@/components/app/primeiros-passos'
 import { useUser } from '@/components/app/session'
 
 import { getAnswers, getBookmarks, getChapters, getCollaborators, isAnswered } from '@/lib/lvh/api'
+import { getSaudacao, type Saudacao } from '@/lib/lvh/saudacao'
 import type { Answer, Chapter, Question } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +24,7 @@ const Painel = () => {
   // Perguntas com convidado, para o ícone de convite na lista
   const [invitedQuestions, setInvitedQuestions] = useState<Set<number>>(new Set())
   const [bookmarks, setBookmarks] = useState<number[]>([])
+  const [saudacao, setSaudacao] = useState<Saudacao | null>(null)
 
   useEffect(() => {
     Promise.all([getChapters(user), getAnswers(), getCollaborators(), getBookmarks()]).then(
@@ -31,11 +33,17 @@ const Painel = () => {
         setAnswers(nextAnswers)
         setBookmarks(nextBookmarks)
         setInvitedQuestions(new Set(collaborators.flatMap(collaborator => collaborator.questionIds)))
+        // Sorteada uma vez, quando os dados chegam, para não trocar a cada nova renderização
+        const answeredCount = nextChapters
+          .flatMap(chapter => chapter.questions)
+          .filter(question => isAnswered(nextAnswers[question.id])).length
+
+        setSaudacao(getSaudacao(user.name, answeredCount))
       }
     )
   }, [user])
 
-  if (!chapters) return null
+  if (!chapters || !saudacao) return null
 
   const questions = chapters.flatMap(chapter => chapter.questions)
   const answered = questions.filter(question => isAnswered(answers[question.id])).length
@@ -102,8 +110,8 @@ const Painel = () => {
   return (
     <div className='mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 pt-8 pb-16 sm:px-6 lg:px-16 lg:pb-24'>
       <div className='grid gap-10 lg:grid-cols-12 lg:gap-8'>
-        <PageHeading eyebrow='O seu livro' title={`Olá, ${user.name}.`} className='lg:col-span-6'>
-          Responda no seu tempo, na ordem que quiser. Cada resposta vira um trecho do seu livro.
+        <PageHeading eyebrow='O seu livro' title={saudacao.title} className='lg:col-span-6'>
+          {saudacao.line}
         </PageHeading>
 
         <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8'>
