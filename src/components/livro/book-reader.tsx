@@ -398,7 +398,10 @@ const STAGE_PAD_Y = 40
 const BOARD = 7
 const MAX_SHEETS = 9
 const MIN_SHEETS = 3
-const SHEET_STEP = { x: 1.25, y: 0.9 }
+const SHEET_STEP = { x: 0.8, y: 0.6 }
+// Quanto a pilha mais grossa avança para fora da página: a capa precisa sobrar além disso
+const STACK = { x: MAX_SHEETS * SHEET_STEP.x, y: MAX_SHEETS * SHEET_STEP.y }
+const BOARD_EDGE = 'inset 0 0 0 1px rgb(0 0 0 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.08)'
 const SHEET_EDGE = 'inset 0 0 0 0.6px rgb(100 80 52 / 0.5)'
 const PAGE_EDGE_WEAR = 'inset 0 0 22px rgb(110 82 48 / 0.13), inset 0 0 3px rgb(110 82 48 / 0.12)'
 
@@ -460,17 +463,29 @@ const BookBody = ({
         width: boardWidth + BOARD * 2,
         height: height + BOARD * 2,
         backgroundColor: cloth,
-        boxShadow: 'inset 0 0 0 1px rgb(0 0 0 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.08)'
+        boxShadow: BOARD_EDGE
       }}
     />
   )
-  const closedOffset = MAX_SHEETS * SHEET_STEP.x + 3
+  const closedOffset = STACK.x + 3
 
   return (
     <div aria-hidden='true' className='pointer-events-none absolute inset-0'>
       {mode === 'open' && (
         <>
-          {board(0, width * 2)}
+          {/* Aberto, a capa tem tamanho fixo e sobra além da pilha mais grossa possível, dos dois lados:
+              a borda aparece inteira na esquerda e na direita, em qualquer ponto da leitura */}
+          <span
+            className='absolute rounded-[3px]'
+            style={{
+              left: -BOARD - STACK.x,
+              top: -BOARD,
+              width: width * 2 + (BOARD + STACK.x) * 2,
+              height: height + BOARD * 2 + STACK.y,
+              backgroundColor: cloth,
+              boxShadow: BOARD_EDGE
+            }}
+          />
           <Sheets count={sheetCount(before, total)} side={-1} left={0} width={width} height={height} />
           <Sheets count={sheetCount(after, total)} side={1} left={width} width={width} height={height} />
         </>
