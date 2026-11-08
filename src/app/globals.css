@@ -287,3 +287,34 @@
     text-shadow: none;
   }
 }
+
+/* Arquivo da gráfica (PDF/X-1a não aceita transparência). O servidor imprime o livro em duas camadas,
+   que se encaixam porque nada aqui muda o tamanho ou a posição de nenhum elemento:
+   - frente: só texto e fotos, sem fundo, sombra nem borda. Sai em vetor, com o texto nítido
+   - fundo: tudo menos texto e fotos (fios, sombras, molduras, QR codes). O motor da gráfica achata em imagem */
+@media print {
+  html[data-grafica='frente'] .livro-folha,
+  html[data-grafica='frente'] .livro-folha * {
+    background: transparent !important;
+    border-color: transparent !important;
+    outline-color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-grafica='frente'] .livro-folha svg {
+    visibility: hidden !important;
+  }
+
+  html[data-grafica='fundo'] .livro-folha * {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: none !important;
+    text-decoration-color: transparent !important;
+  }
+
+  html[data-grafica='fundo'] .livro-folha img {
+    visibility: hidden !important;
+  }
+}
