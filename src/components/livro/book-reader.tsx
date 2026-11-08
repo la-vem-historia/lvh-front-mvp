@@ -443,7 +443,8 @@ const BookBody = ({
   width,
   height,
   before,
-  after
+  after,
+  coverLeft = width
 }: {
   mode: 'open' | 'cover' | 'back'
   cloth: string
@@ -452,6 +453,8 @@ const BookBody = ({
   // Páginas já lidas e páginas que faltam
   before: number
   after: number
+  // Onde a capa fechada fica: na metade direita do livro aberto, ou sozinha quando o leitor mostra uma página por vez
+  coverLeft?: number
 }) => {
   const total = before + after
   const board = (left: number, boardWidth: number, offset = 0) => (
@@ -493,8 +496,8 @@ const BookBody = ({
       {/* Fechado: a capa por cima; por baixo, o miolo e a contracapa aparecem no canto e dão a grossura */}
       {mode === 'cover' && (
         <>
-          {board(width, width, closedOffset)}
-          <Sheets count={MAX_SHEETS} side={1} left={width} width={width} height={height} />
+          {board(coverLeft, width, closedOffset)}
+          <Sheets count={MAX_SHEETS} side={1} left={coverLeft} width={width} height={height} />
         </>
       )}
       {mode === 'back' && (
@@ -824,7 +827,7 @@ const BookReader = ({
                 transition: `transform ${FLIP_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
               }}
             >
-              {isSpread && (
+              {(isSpread || isCover) && (
                 <div
                   className='absolute top-0 left-0 origin-top-left'
                   style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
@@ -836,6 +839,7 @@ const BookReader = ({
                     height={format.height}
                     before={Math.max(0, visible[0] ?? 0)}
                     after={Math.max(0, lastIndex - (visible[visible.length - 1] ?? 0))}
+                    coverLeft={isSpread ? format.width : 0}
                   />
                 </div>
               )}
@@ -938,10 +942,7 @@ const BookReader = ({
 
       {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
       {!immersive && (
-        <nav
-          aria-label='Páginas do livro'
-          className='bg-background/90 border-foreground fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur'
-        >
+        <nav aria-label='Páginas do livro' className='bg-background/90 fixed inset-x-0 bottom-0 z-40 backdrop-blur'>
           <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
             <Button
               id='livro-anterior'
