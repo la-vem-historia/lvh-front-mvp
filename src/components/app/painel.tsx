@@ -129,10 +129,10 @@ const Painel = () => {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label='Progresso da sua história'
-              // Trilho "vazio": contorno marcado e quase nada por dentro; o preenchimento é meio opaco
-              className='border-foreground/35 bg-background h-1.5 w-full overflow-hidden rounded-full border'
+              // Trilho em oliva bem claro, com contorno; o que já foi feito vai no oliva da etiqueta do perfil
+              className='border-olive/35 bg-olive/15 h-1.5 w-full overflow-hidden rounded-full border'
             >
-              <div className='bg-foreground/45 h-full rounded-full transition-all' style={{ width: `${progress}%` }} />
+              <div className='bg-olive h-full rounded-full transition-all' style={{ width: `${progress}%` }} />
             </div>
           </div>
           {next && (
