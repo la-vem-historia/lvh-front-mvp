@@ -114,8 +114,9 @@ const Painel = () => {
           {saudacao.line}
         </PageHeading>
 
-        <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8'>
-          <div className='flex flex-col gap-3'>
+        {/* No computador, tudo encostado à direita, alinhado com o resto da página */}
+        <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8 lg:items-end'>
+          <div className='flex w-full max-w-sm flex-col gap-3'>
             <div className='flex items-baseline justify-between text-sm'>
               <span className='font-medium'>
                 {answered} de {questions.length} perguntas respondidas
@@ -128,9 +129,10 @@ const Painel = () => {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label='Progresso da sua história'
-              className='bg-border h-0.5 w-full'
+              // Trilho "vazio": contorno marcado e quase nada por dentro; o preenchimento é meio opaco
+              className='border-foreground/35 bg-background h-1.5 w-full overflow-hidden rounded-full border'
             >
-              <div className='bg-foreground h-full transition-all' style={{ width: `${progress}%` }} />
+              <div className='bg-foreground/45 h-full rounded-full transition-all' style={{ width: `${progress}%` }} />
             </div>
           </div>
           {next && (
