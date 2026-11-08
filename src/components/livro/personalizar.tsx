@@ -91,7 +91,7 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
                 onChange={event => setBookName(event.target.value)}
                 placeholder='Maria Oliveira'
                 required
-                className='bg-background font-heading h-12 px-5 text-xl md:text-xl'
+                className='bg-field font-heading h-12 px-5 text-xl md:text-xl'
               />
             </div>
 
@@ -189,7 +189,7 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
               aria-label='Dedicatória'
               placeholder={DEDICATION_EXAMPLE}
               rows={3}
-              className='border-border bg-background font-heading placeholder:text-muted-foreground/70 focus-visible:border-ring w-full resize-none rounded-2xl border p-4 text-lg italic outline-none'
+              className='border-input bg-field font-heading placeholder:text-muted-foreground/70 focus-visible:border-ring w-full resize-none rounded-2xl border p-4 text-lg italic outline-none'
             />
           </section>
 

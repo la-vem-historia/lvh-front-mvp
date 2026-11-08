@@ -171,7 +171,7 @@ const PerguntaDaSemana = () => {
                 id='lembrete-horario'
                 value={reminder.time}
                 onChange={event => change({ time: event.target.value })}
-                className='border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-12 w-full cursor-pointer appearance-none rounded-full border pr-10 pl-5 text-base outline-none focus-visible:ring-3'
+                className='border-input bg-field focus-visible:border-ring focus-visible:ring-ring/50 h-12 w-full cursor-pointer appearance-none rounded-full border pr-10 pl-5 text-base outline-none focus-visible:ring-3'
               >
                 {TIMES.map(time => (
                   <option key={time} value={time}>

@@ -74,7 +74,7 @@ const questions = [
   }
 ]
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 // Formulário de dúvidas: guarda a mensagem em /api/contato, e a equipe responde por e-mail
 const Contato = () => {
@@ -159,7 +159,7 @@ const Contato = () => {
           minLength={5}
           maxLength={4000}
           rows={4}
-          className='border-input bg-background placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none focus-visible:ring-3'
+          className='border-input bg-field placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none focus-visible:ring-3'
         />
       </div>
       {/* Isca para robôs: fica escondida e quem preenche é descartado em silêncio */}

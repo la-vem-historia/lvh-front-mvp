@@ -19,7 +19,7 @@ import { changeProfile, countProfileOnlyAnswers, signOut, type LoginProvider } f
 import { resizeImage } from '@/lib/lvh/media'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 // Papéis disponíveis, com a mesma cor do card escolhido no onboarding
 const roles = [

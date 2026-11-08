@@ -19,7 +19,7 @@ import {
 import type { Collaborator, Contribution } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 export const collaboratorLink = (collaborator: Collaborator) =>
   `${window.location.origin}/colaborar/${collaborator.token}`
@@ -346,7 +346,7 @@ const ColaboradoresPergunta = ({
                   value={message}
                   onChange={event => setCustomMessage(event.target.value)}
                   required
-                  className='border-border bg-background focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
+                  className='border-input bg-field focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
                 />
                 <p className='text-muted-foreground text-xs'>
                   Já escrevemos uma mensagem para você. Mude o que quiser.

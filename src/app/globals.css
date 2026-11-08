@@ -13,6 +13,7 @@
   --color-cream: var(--lvh-cream);
   --color-book: var(--lvh-green);
   --color-paper: var(--lvh-paper);
+  --color-field: var(--field);
   --color-moss: var(--lvh-moss);
   --color-honey: var(--lvh-honey);
   --color-clay: var(--lvh-clay);
@@ -151,7 +152,9 @@
   --accent-foreground: var(--lvh-text);
   --destructive: oklch(0.577 0.245 27.325);
   --border: rgb(51 51 51 / 0.2);
-  --input: rgb(51 51 51 / 0.2);
+  --input: rgb(51 51 51 / 0.3);
+  /* Fundo dos campos de formulário: branco translúcido, para destacar do creme sem recortar demais */
+  --field: rgb(255 255 255 / 0.6);
   --ring: rgb(51 51 51 / 0.5);
   --chart-1: #333333;
   --chart-2: #945c26;
@@ -188,6 +191,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
+  --field: oklch(1 0 0 / 6%);
   --ring: oklch(0.547 0.021 43.1);
   --chart-1: oklch(0.868 0.007 39.5);
   --chart-2: oklch(0.547 0.021 43.1);

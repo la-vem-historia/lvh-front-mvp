@@ -10,7 +10,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { addShare, getShares, removeShare } from '@/lib/lvh/api'
 import type { Share } from '@/lib/lvh/types'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 const linkFor = (share: Share) => `${window.location.origin}/ler/${share.token}`
 

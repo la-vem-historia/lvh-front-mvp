@@ -24,7 +24,7 @@ import { sendLoginCode, signInWithProvider, updateUser, verifyLoginCode, type Lo
 import { CADASTRO_EMAIL_KEY } from '@/lib/lvh/cadastro'
 import { isTeam, type LeadResult } from '@/lib/lvh/pre-abertura'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 // Mesma entrada suave dos blocos da landing
 const reveal = {
