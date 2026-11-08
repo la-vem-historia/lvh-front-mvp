@@ -81,6 +81,9 @@ const AppHeader = () => {
   // Escrevendo, o cabeçalho vira modo foco: só as abas, sem logo nem conta
   const focus = pathname.startsWith('/app/pergunta')
 
+  // No onboarding (conta nova e novo livro) não há cabeçalho: nada ali é clicável ainda, e o foco fica nos passos
+  if (pathname === '/app/boas-vindas' || pathname === '/app/livros/novo') return null
+
   return (
     // Mesma barra da landing: 80px, creme translúcido com desfoque e logo grande
     <header className='bg-background/85 sticky top-0 z-50 backdrop-blur print:hidden'>
