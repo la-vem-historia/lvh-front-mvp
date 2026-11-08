@@ -23,6 +23,7 @@ import { AppleIcon, FacebookIcon, GoogleIcon } from '@/components/app/social-ico
 import { sendLoginCode, signInWithProvider, updateUser, verifyLoginCode, type LoginProvider } from '@/lib/lvh/api'
 import { CADASTRO_EMAIL_KEY } from '@/lib/lvh/cadastro'
 import { isTeam, type LeadResult } from '@/lib/lvh/pre-abertura'
+import { cn } from '@/lib/utils'
 
 const fieldClassName = 'bg-field h-12 px-5 text-base'
 
@@ -46,7 +47,8 @@ type Step = 'email' | 'codigo' | 'nome' | 'aviso'
 const Heading = ({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) => (
   <div className='flex flex-col gap-4'>
     <p className={eyebrowClassName}>{eyebrow}</p>
-    <h1 className={pageTitleClassName}>{title}</h1>
+    {/* Sem balancear: título curto fica numa linha só, sem quebra forçada no meio */}
+    <h1 className={cn(pageTitleClassName, 'text-pretty')}>{title}</h1>
     {children && <p className='text-muted-foreground text-base text-pretty'>{children}</p>}
   </div>
 )
@@ -312,8 +314,8 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
   if (step === 'nome') {
     return (
       <MotionPreset key='nome' {...reveal} className='flex w-full max-w-md flex-col gap-10'>
-        <Heading eyebrow='Conta criada' title='Como podemos te chamar?'>
-          É o nome que aparece no seu livro e para quem você convidar. Dá para mudar depois.
+        <Heading eyebrow='Conta criada' title='Qual é o seu nome?'>
+          Você pode mudar depois, mas esse é o nome que aparece como autor do livro e também para quem você convidar.
         </Heading>
 
         <form onSubmit={handleName} className='flex flex-col gap-5'>
