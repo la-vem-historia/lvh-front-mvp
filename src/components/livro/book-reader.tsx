@@ -13,7 +13,15 @@ import {
 
 import { createPortal } from 'react-dom'
 
-import { ArrowLeftIcon, ArrowRightIcon, ZoomInIcon, ZoomOutIcon } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ExpandIcon,
+  ZoomInIcon,
+  ZoomOutIcon
+} from 'lucide-react'
 import { PageFlip } from 'page-flip'
 import 'page-flip/src/Style/stPageFlip.css'
 
@@ -376,14 +384,48 @@ export const PageView = ({
 // Sombra do livro sobre a mesa; acompanha o formato das páginas, inclusive a capa sozinha
 const BOOK_SHADOW = 'drop-shadow(0 22px 26px rgb(50 38 24 / 0.28))'
 
+// Botões de vidro escuro do modo de leitura: legíveis sobre madeira, tecido ou noite
+const glassButtonClassName =
+  'pointer-events-auto flex cursor-pointer items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition-[background-color,opacity] hover:bg-black/50 disabled:pointer-events-none disabled:opacity-0'
+
 // Duração da virada de página, também usada para o livro deslizar ao abrir e fechar
 const FLIP_MS = 650
 
 // Folga ao redor do livro: cabe a sombra e a folha que se levanta ao virar, sem cortes nem rolagem
 const STAGE_PAD_X = 56
 const STAGE_PAD_Y = 40
+// No modo de leitura sobra espaço para as setas dos lados e o número da página embaixo
+const IMMERSIVE_PAD_X = 112
+const IMMERSIVE_PAD_Y = 84
 
-const BookReader = ({ book }: { book: Book }) => {
+type BookReaderProps = {
+  book: Book
+  // Modo de leitura em tela cheia: sem barra fixa, com setas e número da página que aparecem e somem
+  immersive?: boolean
+  controlsVisible?: boolean
+  // Sombra do livro sobre a superfície escolhida
+  shadow?: string
+  // A folha começou a virar: hora do som de papel
+  onFlipStart?: () => void
+  // Na página do livro: abre o modo de leitura (pelo "Abrir o livro" da capa e pelo botão de tela cheia)
+  onOpenImmersive?: () => void
+}
+
+const BookReader = ({
+  book,
+  immersive = false,
+  controlsVisible = true,
+  shadow = BOOK_SHADOW,
+  onFlipStart,
+  onOpenImmersive
+}: BookReaderProps) => {
+  const [narrow, setNarrow] = useState(false)
+  // No celular, o livro ocupa quase a tela toda: as setas descem para o rodapé
+  const padX = immersive ? (narrow ? 12 : IMMERSIVE_PAD_X) : STAGE_PAD_X
+  const padY = immersive ? (narrow ? 72 : IMMERSIVE_PAD_Y) : STAGE_PAD_Y
+  const flipStartRef = useRef(onFlipStart)
+
+  flipStartRef.current = onFlipStart
   const measureRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -428,6 +470,7 @@ const BookReader = ({ book }: { book: Book }) => {
 
     const measure = () => {
       setFrame({ width: element.clientWidth, height: element.clientHeight })
+      setNarrow(element.clientWidth < 640)
       setHasOverflow(element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1)
     }
     const observer = new ResizeObserver(measure)
@@ -515,8 +558,8 @@ const BookReader = ({ book }: { book: Book }) => {
       0,
       Math.min(
         MAX_SCALE,
-        (frame.width - STAGE_PAD_X * 2) / (format.width * pagesWide),
-        (frame.height - STAGE_PAD_Y * 2) / format.height
+        (frame.width - padX * 2) / (format.width * pagesWide),
+        (frame.height - padY * 2) / format.height
       )
     ) * zoom
 
@@ -571,8 +614,12 @@ const BookReader = ({ book }: { book: Book }) => {
       autoSize: true,
       showCover: true,
       usePortrait: !isSpread,
-      useMouseEvents: false,
+      // No modo de leitura dá para pegar o canto da folha e arrastar, ou deslizar o dedo; links e botões
+      // dentro das páginas continuam recebendo o clique
+      useMouseEvents: immersive,
+      clickEventForward: true,
       mobileScrollSupport: false,
+      swipeDistance: 30,
       drawShadow: true,
       maxShadowOpacity: 0.35,
       flippingTime: FLIP_MS,
@@ -581,14 +628,17 @@ const BookReader = ({ book }: { book: Book }) => {
 
     flip.loadFromHTML(pageElements)
     flip.on('flip', event => setCurrent(Number(event.data)))
-    flip.on('changeState', event => setFlipping(event.data !== 'read'))
+    flip.on('changeState', event => {
+      setFlipping(event.data !== 'read')
+      if (event.data === 'flipping') flipStartRef.current?.()
+    })
     flipRef.current = flip
 
     return () => {
       flipRef.current = null
       flip.destroy()
     }
-  }, [pageElements, format, isSpread])
+  }, [pageElements, format, isSpread, immersive])
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -604,13 +654,23 @@ const BookReader = ({ book }: { book: Book }) => {
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
 
+  const pageLabel = `${
+    isCover
+      ? 'Capa'
+      : isBack
+        ? 'Contracapa'
+        : visible.length > 1
+          ? `Páginas ${visible[0] + 1}–${visible[1] + 1}`
+          : `Página ${(visible[0] ?? 0) + 1}`
+  } de ${pages.length}`
+
   const bookWidth = format.width * pagesWide
   // Fechado, o livro aparece centralizado; ao abrir, desliza junto com a capa até o centro
   const closedShift = isSpread && isCover ? -format.width / 2 : isSpread && isBack ? format.width / 2 : 0
 
   return (
     // Sem fundo próprio: o livro fica aberto sobre o creme da página, como numa mesa
-    <div className='flex min-h-0 flex-1 flex-col px-2 pb-24 sm:px-8'>
+    <div className={cn('flex min-h-0 flex-1 flex-col', immersive ? 'relative' : 'px-2 pb-24 sm:px-8')}>
       {/* Área invisível onde os blocos são medidos, com a mesma tinta das páginas */}
       <div
         ref={measureRef}
@@ -636,14 +696,14 @@ const BookReader = ({ book }: { book: Book }) => {
         <div
           ref={stageRef}
           className='flex min-h-full w-max min-w-full items-center justify-center'
-          style={{ padding: `${STAGE_PAD_Y}px ${STAGE_PAD_X}px` }}
+          style={{ padding: `${padY}px ${padX}px` }}
         >
           {layout && scale > 0 && (
             <div
               style={{
                 width: bookWidth * scale,
                 height: format.height * scale,
-                filter: BOOK_SHADOW,
+                filter: shadow,
                 transform: `translateX(${closedShift * scale}px)`,
                 transition: `transform ${FLIP_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
               }}
@@ -696,79 +756,125 @@ const BookReader = ({ book }: { book: Book }) => {
         )
       )}
 
-      {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
-      <nav
-        aria-label='Páginas do livro'
-        className='bg-background/90 border-foreground fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur'
-      >
-        <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
-          <Button
+      {immersive && (
+        // Setas grandes dos lados e o número da página embaixo, em vidro escuro para ler sobre qualquer fundo.
+        // Somem junto com o resto quando o mouse para
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-0 transition-opacity duration-500',
+            controlsVisible ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          <button
             id='livro-anterior'
-            variant='outline'
-            className='h-12 gap-2 px-5'
+            type='button'
             onClick={previous}
             disabled={!layout || flipping || spreadIndex === 0}
+            aria-label='Página anterior'
+            className={cn(
+              glassButtonClassName,
+              'absolute bottom-4 left-4 size-12 sm:top-1/2 sm:bottom-auto sm:left-6 sm:size-14 sm:-translate-y-1/2'
+            )}
           >
-            <ArrowLeftIcon />
-            <span className='max-sm:sr-only'>Anterior</span>
-          </Button>
-
-          <div className='flex flex-col items-center gap-1.5'>
-            <div className='bg-sand flex items-center rounded-full p-1'>
-              <button
-                id='livro-zoom-menos'
-                type='button'
-                onClick={zoomOut}
-                disabled={zoomIndex <= 0}
-                aria-label='Diminuir zoom'
-                className='hover:bg-stone flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
-              >
-                <ZoomOutIcon className='size-4' />
-              </button>
-              <button
-                type='button'
-                onClick={() => setZoom(1)}
-                aria-label='Voltar ao tamanho da tela'
-                title='Voltar ao tamanho da tela'
-                className='w-14 cursor-pointer text-center text-xs font-medium tabular-nums'
-              >
-                {Math.round(zoom * 100)}%
-              </button>
-              <button
-                id='livro-zoom-mais'
-                type='button'
-                onClick={zoomIn}
-                disabled={zoomIndex >= ZOOM_STEPS.length - 1}
-                aria-label='Aumentar zoom'
-                className='hover:bg-stone flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
-              >
-                <ZoomInIcon className='size-4' />
-              </button>
-            </div>
-            <span className='text-muted-foreground text-xs tabular-nums'>
-              {isCover
-                ? 'Capa'
-                : isBack
-                  ? 'Contracapa'
-                  : visible.length > 1
-                    ? `Páginas ${visible[0] + 1}–${visible[1] + 1}`
-                    : `Página ${(visible[0] ?? 0) + 1}`}{' '}
-              de {pages.length}
-            </span>
-          </div>
-
-          <Button
+            <ChevronLeftIcon className='size-6' />
+          </button>
+          <button
             id='livro-proxima'
-            variant='honey'
-            className='h-12 gap-2 px-5'
+            type='button'
             onClick={next}
             disabled={!layout || flipping || spreadIndex >= spreads.length - 1}
+            aria-label={isCover ? 'Abrir o livro' : 'Próxima página'}
+            className={cn(
+              glassButtonClassName,
+              'absolute right-4 bottom-4 size-12 sm:top-1/2 sm:right-6 sm:bottom-auto sm:size-14 sm:-translate-y-1/2'
+            )}
           >
-            <span className='max-sm:sr-only'>{isCover ? 'Abrir o livro' : 'Próxima'}</span>
-            <ArrowRightIcon />
-          </Button>
+            <ChevronRightIcon className='size-6' />
+          </button>
+          <span className='absolute bottom-7 left-1/2 -translate-x-1/2 rounded-full bg-black/35 px-4 py-2 text-xs font-medium text-white tabular-nums backdrop-blur-md'>
+            {pageLabel}
+          </span>
         </div>
-      </nav>
+      )}
+
+      {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
+      {!immersive && (
+        <nav
+          aria-label='Páginas do livro'
+          className='bg-background/90 border-foreground fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur'
+        >
+          <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
+            <Button
+              id='livro-anterior'
+              variant='outline'
+              className='h-12 gap-2 px-5'
+              onClick={previous}
+              disabled={!layout || flipping || spreadIndex === 0}
+            >
+              <ArrowLeftIcon />
+              <span className='max-sm:sr-only'>Anterior</span>
+            </Button>
+
+            <div className='flex flex-col items-center gap-1.5'>
+              <div className='bg-sand flex items-center rounded-full p-1'>
+                <button
+                  id='livro-zoom-menos'
+                  type='button'
+                  onClick={zoomOut}
+                  disabled={zoomIndex <= 0}
+                  aria-label='Diminuir zoom'
+                  className='hover:bg-stone flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
+                >
+                  <ZoomOutIcon className='size-4' />
+                </button>
+                <button
+                  type='button'
+                  onClick={() => setZoom(1)}
+                  aria-label='Voltar ao tamanho da tela'
+                  title='Voltar ao tamanho da tela'
+                  className='w-14 cursor-pointer text-center text-xs font-medium tabular-nums'
+                >
+                  {Math.round(zoom * 100)}%
+                </button>
+                <button
+                  id='livro-zoom-mais'
+                  type='button'
+                  onClick={zoomIn}
+                  disabled={zoomIndex >= ZOOM_STEPS.length - 1}
+                  aria-label='Aumentar zoom'
+                  className='hover:bg-stone flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
+                >
+                  <ZoomInIcon className='size-4' />
+                </button>
+                {onOpenImmersive && (
+                  <button
+                    type='button'
+                    onClick={onOpenImmersive}
+                    aria-label='Ler em tela cheia'
+                    title='Ler em tela cheia'
+                    className='hover:bg-stone ml-1 flex size-8 cursor-pointer items-center justify-center rounded-full transition-colors'
+                  >
+                    <ExpandIcon className='size-4' />
+                  </button>
+                )}
+              </div>
+              <span className='text-muted-foreground text-xs tabular-nums'>{pageLabel}</span>
+            </div>
+
+            <Button
+              id='livro-proxima'
+              variant='honey'
+              className='h-12 gap-2 px-5'
+              // Na capa, "Abrir o livro" leva ao modo de leitura quando ele existe
+              onClick={isCover && onOpenImmersive ? onOpenImmersive : next}
+              disabled={!layout || flipping || spreadIndex >= spreads.length - 1}
+            >
+              <span className='max-sm:sr-only'>{isCover ? 'Abrir o livro' : 'Próxima'}</span>
+              <ArrowRightIcon />
+            </Button>
+          </div>
+        </nav>
+      )}
     </div>
   )
 }

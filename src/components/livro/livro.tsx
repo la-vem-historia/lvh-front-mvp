@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
@@ -9,6 +9,7 @@ import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-head
 import { useUser } from '@/components/app/session'
 import BookReader from '@/components/livro/book-reader'
 import Compartilhar from '@/components/livro/compartilhar'
+import LeituraImersiva from '@/components/livro/leitura-imersiva'
 import Personalizar from '@/components/livro/personalizar'
 
 import { getBook } from '@/lib/lvh/api'
@@ -61,6 +62,9 @@ const Livro = () => {
   const user = useUser()
   const [book, setBook] = useState<Book | null>(null)
   const [customizing, setCustomizing] = useState(false)
+  // Modo de leitura em tela cheia, aberto pelo "Abrir o livro" da capa ou pelo botão de tela cheia
+  const [reading, setReading] = useState(false)
+  const closeReading = useCallback(() => setReading(false), [])
 
   useEffect(() => {
     getBook(user).then(setBook)
@@ -119,8 +123,11 @@ const Livro = () => {
 
       {customizing && <Personalizar open onOpenChange={setCustomizing} />}
 
+      {reading && <LeituraImersiva book={book} caption={`Um livro de ${book.author}`} onClose={closeReading} />}
+
       {answered > 0 ? (
-        <BookReader book={book} />
+        // Um leitor por vez: enquanto o modo de leitura está aberto, o da página sai de cena
+        !reading && <BookReader book={book} onOpenImmersive={() => setReading(true)} />
       ) : (
         <div className='border-border flex flex-col items-start gap-6 border-t pt-10'>
           <p className='text-muted-foreground max-w-md text-base'>

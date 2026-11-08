@@ -1,19 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
 import BookReader from '@/components/livro/book-reader'
+import LeituraImersiva from '@/components/livro/leitura-imersiva'
 import Logo from '@/components/shadcn-studio/logo'
 import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
 
 import { getSharedBook } from '@/lib/lvh/api'
 import type { Book, Share } from '@/lib/lvh/types'
 
-// Leitura de quem recebeu o link: sem conta, só o livro
+// Leitura de quem recebeu o link: sem conta, só o livro, aberto direto em tela cheia
 const LivroCompartilhado = ({ token }: { token: string }) => {
   const [shared, setShared] = useState<{ book: Book; reader: Share } | null | undefined>(undefined)
+  // Quem recebe o link já entra no modo de leitura; ao fechar, vê o livro na página, com a opção de voltar
+  const [reading, setReading] = useState(true)
+  const closeReading = useCallback(() => setReading(false), [])
 
   useEffect(() => {
     getSharedBook(token).then(setShared)
@@ -46,7 +50,15 @@ const LivroCompartilhado = ({ token }: { token: string }) => {
               <p className={eyebrowClassName}>Um livro de {shared.book.author}</p>
               <h1 className={pageTitleClassName}>Escrito para a família.</h1>
             </div>
-            <BookReader book={shared.book} />
+            {reading ? (
+              <LeituraImersiva
+                book={shared.book}
+                caption={`Um livro de ${shared.book.author} · Lendo como ${shared.reader.name}`}
+                onClose={closeReading}
+              />
+            ) : (
+              <BookReader book={shared.book} onOpenImmersive={() => setReading(true)} />
+            )}
           </>
         )}
       </main>
