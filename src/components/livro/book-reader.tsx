@@ -42,7 +42,7 @@ import {
   type PageFormat
 } from '@/components/livro/paginate'
 
-import { PAPER_STYLE } from '@/lib/lvh/paper'
+import { PAPER, PAPER_STYLE } from '@/lib/lvh/paper'
 import type { Book } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -392,6 +392,106 @@ const FLIP_MS = 650
 // Folga ao redor do livro: cabe a sombra e a folha que se levanta ao virar, sem cortes nem rolagem
 const STAGE_PAD_X = 56
 const STAGE_PAD_Y = 40
+// Corpo do livro por trás das páginas: a capa dura sobrando nas bordas e a pilha de folhas de cada lado.
+// A pilha engrossa do lado que já foi lido e afina do lado que falta, como num livro de verdade.
+// Medidas em unidades da página (escalam junto com o livro)
+const BOARD = 7
+const MAX_SHEETS = 9
+const MIN_SHEETS = 3
+const SHEET_STEP = { x: 1.25, y: 0.9 }
+const SHEET_EDGE = 'inset 0 0 0 0.6px rgb(100 80 52 / 0.5)'
+const PAGE_EDGE_WEAR = 'inset 0 0 22px rgb(110 82 48 / 0.13), inset 0 0 3px rgb(110 82 48 / 0.12)'
+
+const sheetCount = (pages: number, total: number) =>
+  pages <= 0 ? 0 : Math.max(MIN_SHEETS, Math.round((pages / Math.max(1, total)) * MAX_SHEETS))
+
+const Sheets = ({
+  count,
+  side,
+  left,
+  width,
+  height
+}: {
+  count: number
+  side: -1 | 1
+  left: number
+  width: number
+  height: number
+}) =>
+  Array.from({ length: count }, (_, index) => count - index).map(step => (
+    <span
+      key={step}
+      className='absolute'
+      style={{
+        left: left + side * step * SHEET_STEP.x,
+        top: step * SHEET_STEP.y,
+        width,
+        height,
+        // Folhas mais fundas ficam um pouco mais escuras, como na sombra da pilha
+        backgroundColor: `color-mix(in srgb, ${PAPER}, rgb(90 70 45) ${6 + step * 2.5}%)`,
+        boxShadow: SHEET_EDGE
+      }}
+    />
+  ))
+
+const BookBody = ({
+  mode,
+  cloth,
+  width,
+  height,
+  before,
+  after
+}: {
+  mode: 'open' | 'cover' | 'back'
+  cloth: string
+  width: number
+  height: number
+  // Páginas já lidas e páginas que faltam
+  before: number
+  after: number
+}) => {
+  const total = before + after
+  const board = (left: number, boardWidth: number, offset = 0) => (
+    <span
+      className='absolute rounded-[3px]'
+      style={{
+        left: left - BOARD + offset,
+        top: -BOARD + Math.abs(offset) * 0.75,
+        width: boardWidth + BOARD * 2,
+        height: height + BOARD * 2,
+        backgroundColor: cloth,
+        boxShadow: 'inset 0 0 0 1px rgb(0 0 0 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.08)'
+      }}
+    />
+  )
+  const closedOffset = MAX_SHEETS * SHEET_STEP.x + 3
+
+  return (
+    <div aria-hidden='true' className='pointer-events-none absolute inset-0'>
+      {mode === 'open' && (
+        <>
+          {board(0, width * 2)}
+          <Sheets count={sheetCount(before, total)} side={-1} left={0} width={width} height={height} />
+          <Sheets count={sheetCount(after, total)} side={1} left={width} width={width} height={height} />
+        </>
+      )}
+      {/* Fechado: a capa por cima; por baixo, o miolo e a contracapa aparecem no canto e dão a grossura */}
+      {mode === 'cover' && (
+        <>
+          {board(width, width, closedOffset)}
+          <Sheets count={MAX_SHEETS} side={1} left={width} width={width} height={height} />
+        </>
+      )}
+      {mode === 'back' && (
+        <>
+          {board(0, width, -closedOffset)}
+          <Sheets count={MAX_SHEETS} side={-1} left={0} width={width} height={height} />
+        </>
+      )}
+    </div>
+  )
+}
+
 // No modo de leitura sobra espaço para as setas dos lados e o número da página embaixo
 const IMMERSIVE_PAD_X = 112
 const IMMERSIVE_PAD_Y = 84
@@ -698,17 +798,35 @@ const BookReader = ({
         >
           {layout && scale > 0 && (
             <div
+              className='relative'
               style={{
                 width: bookWidth * scale,
                 height: format.height * scale,
-                filter: shadow,
+                // Sombra de contato bem junto à mesa, uma sombra curta para baixo e à direita (a grossura do livro)
+                // e a sombra larga da cena
+                filter: `drop-shadow(0 1px 1.5px rgb(20 12 4 / 0.45)) drop-shadow(3px 5px 4px rgb(20 12 4 / 0.28)) ${shadow}`,
                 transform: `translateX(${closedShift * scale}px)`,
                 transition: `transform ${FLIP_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
               }}
             >
+              {isSpread && (
+                <div
+                  className='absolute top-0 left-0 origin-top-left'
+                  style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
+                >
+                  <BookBody
+                    mode={isCover ? 'cover' : isBack ? 'back' : 'open'}
+                    cloth={coverColors[book.coverColor].cloth}
+                    width={format.width}
+                    height={format.height}
+                    before={Math.max(0, visible[0] ?? 0)}
+                    after={Math.max(0, lastIndex - (visible[visible.length - 1] ?? 0))}
+                  />
+                </div>
+              )}
               <div
                 ref={hostRef}
-                className='origin-top-left'
+                className='relative origin-top-left'
                 style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
               />
             </div>
@@ -728,24 +846,32 @@ const BookReader = ({
               onGoTo={goTo}
               single={!isSpread}
             />
-            {/* Dobra do miolo: sombra junto à costura */}
+            {/* Dobra do miolo: um vinco escuro e estreito na costura, abrindo numa sombra suave */}
             {isSpread && index > 0 && index < lastIndex && (
               <span
                 aria-hidden='true'
-                className='pointer-events-none absolute inset-y-0 w-[14%]'
+                className='pointer-events-none absolute inset-y-0 w-[16%]'
                 style={
                   index % 2 === 1
                     ? {
                         right: 0,
                         background:
-                          'linear-gradient(to left, rgb(60 45 30 / 0.16), rgb(60 45 30 / 0.04) 40%, transparent)'
+                          'linear-gradient(to left, rgb(45 32 18 / 0.34), rgb(60 45 30 / 0.12) 6%, rgb(60 45 30 / 0.04) 40%, transparent)'
                       }
                     : {
                         left: 0,
                         background:
-                          'linear-gradient(to right, rgb(60 45 30 / 0.2), rgb(60 45 30 / 0.05) 40%, transparent)'
+                          'linear-gradient(to right, rgb(45 32 18 / 0.38), rgb(60 45 30 / 0.14) 6%, rgb(60 45 30 / 0.05) 40%, transparent)'
                       }
                 }
+              />
+            )}
+            {/* Bordas da folha um pouco mais escuras, como o papel manuseado que pega luz e poeira nas pontas */}
+            {isSpread && index > 0 && index < lastIndex && (
+              <span
+                aria-hidden='true'
+                className='pointer-events-none absolute inset-0'
+                style={{ boxShadow: PAGE_EDGE_WEAR }}
               />
             )}
           </>,
