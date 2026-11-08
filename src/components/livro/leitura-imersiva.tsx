@@ -4,18 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { createPortal } from 'react-dom'
 
-import { ExpandIcon, ShrinkIcon, Volume2Icon, VolumeXIcon, XIcon } from 'lucide-react'
+import { ExpandIcon, ShrinkIcon, XIcon } from 'lucide-react'
 
 import BookReader from '@/components/livro/book-reader'
 import { CENAS, CENA_PADRAO, type CenaId } from '@/components/livro/cenas'
-import { playPageTurn } from '@/components/livro/som-pagina'
 
 import type { Book } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
 // Preferências de quem lê, guardadas só neste navegador
 const CENA_KEY = 'lvh:leitura-cena'
-const SOM_KEY = 'lvh:leitura-som'
 // Tempo parado até os controles sumirem e ficar só o livro
 const IDLE_MS = 2200
 
@@ -51,7 +49,6 @@ type LeituraImersivaProps = {
 // sem nada do site em volta. Os controles aparecem ao mexer o mouse ou tocar, e somem sozinhos
 const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
   const [cena, setCena] = useState<CenaId>(() => readPreference<CenaId>(CENA_KEY, CENA_PADRAO))
-  const [sound, setSound] = useState(() => readPreference(SOM_KEY, 'ligado') === 'ligado')
   const [visible, setVisible] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const idleTimer = useRef<number | undefined>(undefined)
@@ -107,23 +104,10 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
     savePreference(CENA_KEY, id)
   }
 
-  const toggleSound = () => {
-    const next = !sound
-
-    setSound(next)
-    savePreference(SOM_KEY, next ? 'ligado' : 'desligado')
-    // Ao ligar, toca uma vez: confirma o som e libera o áudio no navegador
-    if (next) playPageTurn()
-  }
-
   const toggleFullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
     else document.documentElement.requestFullscreen().catch(() => {})
   }
-
-  const handleFlipStart = useCallback(() => {
-    if (sound) playPageTurn()
-  }, [sound])
 
   return createPortal(
     <div
@@ -145,9 +129,9 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         }}
       />
 
-      <BookReader book={book} immersive controlsVisible={visible} shadow={scene.shadow} onFlipStart={handleFlipStart} />
+      <BookReader book={book} immersive controlsVisible={visible} shadow={scene.shadow} />
 
-      {/* Barra de cima: quem é o livro à esquerda; fundos, som, tela cheia e sair à direita */}
+      {/* Barra de cima: quem é o livro à esquerda; fundos, tela cheia e sair à direita */}
       <div
         onPointerEnter={() => (hovering.current = true)}
         onPointerLeave={() => (hovering.current = false)}
@@ -185,16 +169,6 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
           </div>
 
           <div className={cn(glassClassName, 'gap-0.5 p-1')}>
-            <button
-              type='button'
-              onClick={toggleSound}
-              aria-pressed={sound}
-              aria-label={sound ? 'Desligar o som das páginas' : 'Ligar o som das páginas'}
-              title={sound ? 'Desligar o som das páginas' : 'Ligar o som das páginas'}
-              className={iconButtonClassName}
-            >
-              {sound ? <Volume2Icon /> : <VolumeXIcon />}
-            </button>
             <button
               type='button'
               onClick={toggleFullscreen}
