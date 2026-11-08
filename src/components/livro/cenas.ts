@@ -1,11 +1,17 @@
 import type { CSSProperties } from 'react'
 
+import type { StaticImageData } from 'next/image'
+
+import algodao from '@/assets/leitura/algodao.jpg'
+import carvalho from '@/assets/leitura/carvalho.jpg'
+import linhoCru from '@/assets/leitura/linho-cru.jpg'
 import linho from '@/assets/leitura/linho.jpg'
 import madeira from '@/assets/leitura/madeira.jpg'
+import nogueira from '@/assets/leitura/nogueira.jpg'
 
 // Superfícies do modo de leitura: o livro fica aberto sobre uma delas, como numa mesa.
-// Madeira, linho e noite usam fotos de verdade; a toalha xadrez ainda é desenhada aqui (SVG e gradientes)
-export type CenaId = 'madeira' | 'toalha' | 'linho' | 'noite'
+// Todas são fotos de verdade: três madeiras, três tecidos e a noite (a mesa rústica no escuro)
+export type CenaId = 'madeira' | 'carvalho' | 'nogueira' | 'linho' | 'linho-cru' | 'algodao' | 'noite'
 
 type Cena = {
   id: CenaId
@@ -17,77 +23,75 @@ type Cena = {
   shadow: string
 }
 
-const svg = (markup: string) => `url("data:image/svg+xml,${encodeURIComponent(markup)}")`
+// Foto como fundo: cobre a tela toda, com a cor média da foto por baixo enquanto ela carrega
+const photo = (image: StaticImageData, color: string, overlay?: string): CSSProperties => ({
+  backgroundColor: color,
+  backgroundImage: overlay ? `${overlay}, url(${image.src})` : `url(${image.src})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center'
+})
 
-// Foto de uma mesa de madeira de verdade. A noite usa a mesma mesa, no escuro, com a luz de um abajur no livro
-const WOOD = `url(${madeira.src})`
-
-// Trama fina de tecido: ruído miúdo, quase invisível, por cima da cor
-const WEAVE = svg(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>
-  <filter id='trama'>
-    <feTurbulence type='fractalNoise' baseFrequency='0.9 0.45' numOctaves='2' seed='3'/>
-    <feColorMatrix values='0 0 0 0 0.3  0 0 0 0 0.24  0 0 0 0 0.16  0 0 0 0.16 0'/>
-  </filter>
-  <rect width='100%' height='100%' filter='url(#trama)'/>
-</svg>`)
-
-// Xadrez de toalha de mesa (vichy): duas faixas que se cruzam e escurecem onde se encontram
-const GINGHAM = 'rgb(176 74 58 / 0.42)'
+const WOOD_SHADOW = 'drop-shadow(0 32px 38px rgb(30 16 6 / 0.55))'
+const LIGHT_WOOD_SHADOW = 'drop-shadow(0 30px 36px rgb(60 35 12 / 0.42))'
+const FABRIC_SHADOW = 'drop-shadow(0 26px 30px rgb(60 45 30 / 0.3))'
 
 export const CENAS: Cena[] = [
   {
     id: 'madeira',
-    label: 'Mesa de madeira',
-    style: { backgroundColor: '#6b4527', backgroundImage: WOOD, backgroundSize: 'cover', backgroundPosition: 'center' },
-    swatch: {
-      backgroundColor: '#6b4527',
-      backgroundImage: WOOD,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    },
-    shadow: 'drop-shadow(0 32px 38px rgb(30 16 6 / 0.55))'
+    label: 'Madeira rústica',
+    style: photo(madeira, '#6b4527'),
+    swatch: photo(madeira, '#6b4527'),
+    shadow: WOOD_SHADOW
   },
   {
-    id: 'toalha',
-    label: 'Toalha xadrez',
-    style: {
-      backgroundColor: '#f4ede0',
-      backgroundImage: `${WEAVE}, linear-gradient(90deg, ${GINGHAM} 50%, transparent 50%), linear-gradient(${GINGHAM} 50%, transparent 50%)`,
-      backgroundSize: '300px 300px, 56px 56px, 56px 56px'
-    },
-    swatch: {
-      backgroundColor: '#f4ede0',
-      backgroundImage: `linear-gradient(90deg, ${GINGHAM} 50%, transparent 50%), linear-gradient(${GINGHAM} 50%, transparent 50%)`,
-      backgroundSize: '12px 12px'
-    },
-    shadow: 'drop-shadow(0 26px 30px rgb(70 30 20 / 0.32))'
+    id: 'carvalho',
+    label: 'Carvalho',
+    style: photo(carvalho, '#c08a55'),
+    swatch: photo(carvalho, '#c08a55'),
+    shadow: LIGHT_WOOD_SHADOW
+  },
+  {
+    id: 'nogueira',
+    label: 'Nogueira',
+    style: photo(nogueira, '#6e4630'),
+    swatch: photo(nogueira, '#6e4630'),
+    shadow: WOOD_SHADOW
   },
   {
     id: 'linho',
     label: 'Linho',
-    style: {
-      backgroundColor: '#b39a77',
-      backgroundImage: `url(${linho.src})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    },
-    swatch: { backgroundColor: '#b39a77', backgroundImage: `url(${linho.src})`, backgroundSize: 'cover' },
-    shadow: 'drop-shadow(0 26px 30px rgb(60 45 30 / 0.3))'
+    style: photo(linho, '#b39a77'),
+    swatch: photo(linho, '#b39a77'),
+    shadow: FABRIC_SHADOW
   },
   {
+    id: 'linho-cru',
+    label: 'Linho cru',
+    style: photo(linhoCru, '#e3d8cc'),
+    swatch: photo(linhoCru, '#e3d8cc'),
+    shadow: FABRIC_SHADOW
+  },
+  {
+    id: 'algodao',
+    label: 'Algodão cru',
+    style: photo(algodao, '#efe6d8'),
+    swatch: photo(algodao, '#efe6d8'),
+    shadow: FABRIC_SHADOW
+  },
+  {
+    // A mesa rústica no escuro, com a luz de um abajur no livro
     id: 'noite',
     label: 'Noite',
-    style: {
-      backgroundColor: '#0c0805',
-      backgroundImage: `radial-gradient(ellipse 58% 52% at 50% 48%, rgb(255 196 130 / 0.08), rgb(8 5 3 / 0.72) 62%, rgb(4 2 1 / 0.92) 100%), ${WOOD}`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    },
-    swatch: {
-      backgroundColor: '#0c0805',
-      backgroundImage: `radial-gradient(circle at 50% 40%, rgb(255 196 130 / 0.1), rgb(8 5 3 / 0.8) 75%), ${WOOD}`,
-      backgroundSize: 'cover'
-    },
+    style: photo(
+      madeira,
+      '#0c0805',
+      'radial-gradient(ellipse 58% 52% at 50% 48%, rgb(255 196 130 / 0.08), rgb(8 5 3 / 0.72) 62%, rgb(4 2 1 / 0.92) 100%)'
+    ),
+    swatch: photo(
+      madeira,
+      '#0c0805',
+      'radial-gradient(circle at 50% 40%, rgb(255 196 130 / 0.1), rgb(8 5 3 / 0.8) 75%)'
+    ),
     shadow: 'drop-shadow(0 30px 40px rgb(0 0 0 / 0.7))'
   }
 ]

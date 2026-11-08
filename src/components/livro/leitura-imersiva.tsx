@@ -45,7 +45,7 @@ type LeituraImersivaProps = {
   onClose: () => void
 }
 
-// Modo de leitura: o livro aberto sobre uma superfície (madeira, toalha, linho ou noite), em tela cheia,
+// Modo de leitura: o livro aberto sobre uma superfície (madeiras, tecidos ou a noite), em tela cheia,
 // sem nada do site em volta. Os controles aparecem ao mexer o mouse ou tocar, e somem sozinhos
 const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
   const [cena, setCena] = useState<CenaId>(() => readPreference<CenaId>(CENA_KEY, CENA_PADRAO))
