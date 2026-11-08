@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button'
 import Lightbox from '@/components/app/lightbox'
 import AudioMark from '@/components/livro/audio-mark'
 import AudioQr from '@/components/livro/audio-qr'
+import IndiceLivro, { fold } from '@/components/livro/indice-livro'
 import BookCover, { BookBack, coverColors } from '@/components/livro/book-cover'
 import {
   PAGE_FORMATS,
@@ -522,6 +523,8 @@ const BookBody = ({
 // No modo de leitura sobra espaço para as setas dos lados e o número da página embaixo
 const IMMERSIVE_PAD_X = 112
 const IMMERSIVE_PAD_Y = 84
+// Largura do índice (22rem) mais as margens dele
+const INDEX_PANEL_SPACE = 400
 
 type BookReaderProps = {
   book: Book
@@ -538,6 +541,9 @@ type BookReaderProps = {
   singlePage?: boolean
   // Folha virando com animação; sem ela, a página só troca
   animate?: boolean
+  // Índice do modo de leitura (capítulos e busca), aberto pelo botão da barra de cima
+  indexOpen?: boolean
+  onIndexOpenChange?: (open: boolean) => void
 }
 
 const BookReader = ({
@@ -548,12 +554,16 @@ const BookReader = ({
   onFlipStart,
   onOpenImmersive,
   singlePage = false,
-  animate = true
+  animate = true,
+  indexOpen = false,
+  onIndexOpenChange
 }: BookReaderProps) => {
   const [narrow, setNarrow] = useState(false)
   const [smallScreen, setSmallScreen] = useState(false)
   // No celular, o livro ocupa quase a tela toda: as setas descem para o rodapé
   const padX = immersive ? (narrow ? 12 : IMMERSIVE_PAD_X) : STAGE_PAD_X
+  // Com o índice aberto no computador, o livro abre espaço à esquerda para o painel não cobrir a página
+  const padLeft = immersive && indexOpen && !narrow ? INDEX_PANEL_SPACE : padX
   const padY = immersive ? (narrow ? 72 : IMMERSIVE_PAD_Y) : STAGE_PAD_Y
   const flipStartRef = useRef(onFlipStart)
 
@@ -698,7 +708,7 @@ const BookReader = ({
       0,
       Math.min(
         MAX_SCALE,
-        (frame.width - padX * 2) / (format.width * pagesWide),
+        (frame.width - padX - padLeft) / (format.width * pagesWide),
         (frame.height - padY * 2) / format.height
       )
     ) * zoom
@@ -803,6 +813,60 @@ const BookReader = ({
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
 
+  // Pular para uma página (índice, busca, régua): sempre sem animação. Ver a folha virar e o livro
+  // aparecer 40 páginas depois parece defeito. Com um termo, ele fica marcado na página por uns segundos
+  const highlightTimer = useRef<number | undefined>(undefined)
+  const jumpTo = (index: number, term?: string) => {
+    const flip = flipRef.current
+
+    if (!flip) return
+    setCurrent(index)
+    flip.turnToPage(index)
+
+    if (!term || typeof CSS === 'undefined' || !('highlights' in CSS)) return
+
+    window.clearTimeout(highlightTimer.current)
+    // Espera a página aparecer e marca todas as ocorrências nas páginas à vista
+    window.setTimeout(() => {
+      const wanted = fold(term)
+      const ranges: Range[] = []
+      const targets = spreads.find(spread => spread.includes(index)) ?? [index]
+
+      targets.forEach(page => {
+        const element = pageElements[page]
+        const walker = element && document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+
+        while (walker?.nextNode()) {
+          const node = walker.currentNode as Text
+          const text = fold(node.data)
+          let at = text.indexOf(wanted)
+
+          while (at >= 0) {
+            const range = document.createRange()
+
+            range.setStart(node, at)
+            range.setEnd(node, at + wanted.length)
+            ranges.push(range)
+            at = text.indexOf(wanted, at + wanted.length)
+          }
+        }
+      })
+
+      CSS.highlights.set('lvh-busca', new Highlight(...ranges))
+      highlightTimer.current = window.setTimeout(() => CSS.highlights.delete('lvh-busca'), 5000)
+    }, 60)
+  }
+
+  // Capítulo da página aberta, para a régua dizer onde a pessoa está
+  const visiblePage = pages[visible[visible.length - 1] ?? 0]
+  const chapterLabel =
+    visiblePage?.type === 'content'
+      ? visiblePage.chapterTitle
+      : visiblePage?.type === 'chapter'
+        ? visiblePage.title
+        : ''
+  const [scrub, setScrub] = useState<number | null>(null)
+
   const pageLabel = `${
     isCover
       ? 'Capa'
@@ -846,7 +910,7 @@ const BookReader = ({
         <div
           ref={stageRef}
           className='flex min-h-full w-max min-w-full items-center justify-center'
-          style={{ padding: `${padY}px ${padX}px` }}
+          style={{ padding: `${padY}px ${padX}px ${padY}px ${padLeft}px` }}
         >
           {layout && scale > 0 && (
             <div
@@ -981,11 +1045,50 @@ const BookReader = ({
           >
             <ChevronRightIcon className='size-6' />
           </button>
-          <span className='absolute bottom-7 left-1/2 -translate-x-1/2 rounded-full bg-black/35 px-4 py-2 text-xs font-medium text-white tabular-nums backdrop-blur-md'>
-            {pageLabel}
-          </span>
+          {/* Régua de páginas: arrastar leva direto para qualquer ponto do livro */}
+          <div className='pointer-events-auto absolute bottom-5 left-1/2 flex w-[min(26rem,calc(100vw-9.5rem))] -translate-x-1/2 flex-col gap-1.5 rounded-3xl bg-black/35 px-4 pt-2.5 pb-2 text-white backdrop-blur-md'>
+            <input
+              type='range'
+              min={0}
+              max={Math.max(0, spreads.length - 1)}
+              step={1}
+              value={scrub ?? spreadIndex}
+              disabled={!layout}
+              aria-label='Ir para a página'
+              aria-valuetext={pageLabel}
+              onChange={event => {
+                const target = Number(event.target.value)
+
+                setScrub(target)
+                jumpTo(spreads[target][0])
+              }}
+              onPointerUp={() => setScrub(null)}
+              onBlur={() => setScrub(null)}
+              className='h-4 w-full cursor-pointer accent-white'
+            />
+            <span className='flex items-baseline justify-between gap-3 text-xs'>
+              <span className='truncate text-white/70'>{chapterLabel}</span>
+              <span className='shrink-0 font-medium tabular-nums'>{pageLabel}</span>
+            </span>
+          </div>
         </div>
       )}
+
+      {immersive && indexOpen && layout && (
+        <IndiceLivro
+          pages={pages}
+          current={visible[0] ?? 0}
+          onJump={(page, term) => {
+            jumpTo(page, term)
+            // No celular o índice cobre o livro: fecha para mostrar a página
+            if (narrow) onIndexOpenChange?.(false)
+          }}
+          onClose={() => onIndexOpenChange?.(false)}
+        />
+      )}
+
+      {/* Palavra buscada, marcada como caneta marca-texto */}
+      {immersive && <style>{'::highlight(lvh-busca){background-color:rgb(245 190 78 / 0.6);color:inherit}'}</style>}
 
       {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
       {!immersive && !preview && (

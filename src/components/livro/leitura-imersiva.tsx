@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { Popover } from '@base-ui/react/popover'
-import { ExpandIcon, ShrinkIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
+import { ExpandIcon, ListIcon, ShrinkIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
 
 import BookReader from '@/components/livro/book-reader'
 import { CENAS, CENA_PADRAO, type CenaId } from '@/components/livro/cenas'
@@ -62,6 +62,8 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
   const [virada, setVirada] = useState(() => readPreference(VIRADA_KEY, 'ligada') === 'ligada')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsOpenRef = useRef(false)
+  const [indexOpen, setIndexOpen] = useState(false)
+  const indexOpenRef = useRef(false)
   const [visible, setVisible] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
   const idleTimer = useRef<number | undefined>(undefined)
@@ -74,14 +76,24 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
     setVisible(true)
     window.clearTimeout(idleTimer.current)
     idleTimer.current = window.setTimeout(() => {
-      if (!hovering.current && !settingsOpenRef.current) setVisible(false)
+      if (!hovering.current && !settingsOpenRef.current && !indexOpenRef.current) setVisible(false)
     }, IDLE_MS)
   }, [])
+
+  // Índice com capítulos e busca: enquanto aberto, os controles não somem
+  const openIndex = useCallback(
+    (open: boolean) => {
+      indexOpenRef.current = open
+      setIndexOpen(open)
+      wake()
+    },
+    [wake]
+  )
 
   useEffect(() => {
     // Os controles já começam à vista; só o relógio para escondê-los é que liga aqui
     idleTimer.current = window.setTimeout(() => {
-      if (!hovering.current && !settingsOpenRef.current) setVisible(false)
+      if (!hovering.current && !settingsOpenRef.current && !indexOpenRef.current) setVisible(false)
     }, IDLE_MS)
 
     // A página de trás não rola enquanto o livro está aberto
@@ -96,7 +108,10 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
     const handleKey = (event: KeyboardEvent) => {
       wake()
       // Com os ajustes abertos, o Esc fecha só o painel
-      if (event.key === 'Escape' && !document.fullscreenElement && !settingsOpenRef.current) onClose()
+      if (event.key === 'Escape' && !document.fullscreenElement && !settingsOpenRef.current) {
+        if (indexOpenRef.current) openIndex(false)
+        else onClose()
+      }
     }
     const handleFullscreen = () => setFullscreen(Boolean(document.fullscreenElement))
 
@@ -111,7 +126,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
       document.removeEventListener('fullscreenchange', handleFullscreen)
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
     }
-  }, [wake, onClose])
+  }, [wake, onClose, openIndex])
 
   const chooseScene = (id: CenaId) => {
     setCena(id)
@@ -193,6 +208,8 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         shadow={scene.shadow}
         singlePage={singlePage}
         animate={animate}
+        indexOpen={indexOpen}
+        onIndexOpenChange={openIndex}
       />
 
       {/* Barra de cima: quem é o livro à esquerda; ajustes, tela cheia e sair à direita */}
@@ -204,13 +221,26 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
           visible ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
       >
-        {caption ? (
-          <span className={cn(glassClassName, 'min-w-0 px-4 py-2.5 text-sm max-sm:hidden')}>
-            <span className='truncate'>{caption}</span>
-          </span>
-        ) : (
-          <span />
-        )}
+        <div className='flex min-w-0 items-center gap-2'>
+          <button
+            type='button'
+            onClick={() => openIndex(!indexOpen)}
+            aria-expanded={indexOpen}
+            className={cn(
+              glassClassName,
+              'cursor-pointer gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-black/50',
+              indexOpen && 'bg-black/55'
+            )}
+          >
+            <ListIcon className='size-4' />
+            Índice
+          </button>
+          {caption && (
+            <span className={cn(glassClassName, 'min-w-0 px-4 py-2.5 text-sm max-md:hidden')}>
+              <span className='truncate'>{caption}</span>
+            </span>
+          )}
+        </div>
 
         <div className='flex flex-wrap items-center justify-end gap-2'>
           <div className={cn(glassClassName, 'gap-0.5 p-1')}>
