@@ -13,8 +13,6 @@ export type Role = 'Mãe' | 'Pai' | 'Avó' | 'Avô'
 
 export type RecipientGender = 'menino' | 'menina'
 
-export type PlanId = 'essencial' | 'completo'
-
 // Um livro é sempre de uma pessoa para outra: de Moreno, o pai, para o Tom
 export type UserBook = {
   id: string
@@ -59,10 +57,9 @@ export type UserBookChanges = Partial<
   >
 >
 
-// Cobrança mensal: o plano dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
+// Cobrança mensal: a assinatura dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
 // Livros concluídos não ocupam vaga
 export type Billing = {
-  plan: PlanId
   base: number
   extraSlots: number
   extraPrice: number
@@ -90,7 +87,6 @@ export type User = {
   dedication?: string
   // Tem pelo menos um livro criado
   onboarded?: boolean
-  plan?: PlanId
   // Vagas pagas além da que vem no plano, para escrever mais de um livro ao mesmo tempo
   extraSlots?: number
   // A pessoa fechou o card de primeiros passos da home
@@ -127,7 +123,6 @@ export type UserChanges = Partial<
     | 'coverPhoto'
     | 'providers'
     | 'emailReminder'
-    | 'plan'
     | 'extraSlots'
   >
 >

@@ -28,7 +28,7 @@ const questions = [
   {
     question: 'Preciso saber escrever bem?',
     answer:
-      'Não. Cada pergunta puxa uma lembrança de cada vez, e você responde do seu jeito, como se estivesse contando para alguém. Se preferir falar, use o ditado ou grave a sua voz no plano Completo.'
+      'Não. Cada pergunta puxa uma lembrança de cada vez, e você responde do seu jeito, como se estivesse contando para alguém. Se preferir falar, use o ditado ou grave a sua voz.'
   },
   {
     question: 'Como funcionam as perguntas?',
@@ -38,12 +38,12 @@ const questions = [
   {
     question: 'Posso responder falando, em vez de escrever?',
     answer:
-      'Pode. No plano Completo, você dita e o texto aparece sozinho, ou grava a sua voz. A gravação fica junto da resposta e toca dentro do livro, para a família ouvir a história contada por você.'
+      'Pode. Você dita e o texto aparece sozinho, ou grava a sua voz. A gravação fica junto da resposta e toca dentro do livro, para a família ouvir a história contada por você.'
   },
   {
     question: 'Onde dá para ler o livro?',
     answer:
-      'Em vários lugares. Direto no navegador do celular, do tablet ou do computador, virando as páginas como num livro. Você também baixa o livro em EPUB, o formato dos livros digitais, e lê no Kindle, no app Livros do iPhone, iPad e Mac, no Google Play Livros ou no Kobo. E, no plano Completo, ainda tem o PDF para imprimir.'
+      'Em vários lugares. Direto no navegador do celular, do tablet ou do computador, virando as páginas como num livro. Você também baixa o livro em EPUB, o formato dos livros digitais, e lê no Kindle, no app Livros do iPhone, iPad e Mac, no Google Play Livros ou no Kobo. E ainda tem o PDF para imprimir.'
   },
   {
     question: 'Para quem posso mandar o livro?',
@@ -63,17 +63,17 @@ const questions = [
   {
     question: 'Dá para ter o livro impresso?',
     answer:
-      'Dá. No plano Completo, você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz. Também estamos testando com uma gráfica parceira um livro impresso e encadernado por nós. Ainda não tem data: ele só entra no site quando o papel, as cores e o acabamento estiverem à altura da história.'
+      'Dá. Você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz. Também estamos testando com uma gráfica parceira um livro impresso e encadernado por nós. Ainda não tem data: ele só entra no site quando o papel, as cores e o acabamento estiverem à altura da história.'
   },
   {
-    question: 'Qual a diferença entre o Essencial e o Completo?',
+    question: 'Quanto custa?',
     answer:
-      'O Essencial é para quem quer contar a história escrevendo: todas as perguntas, o livro digital, o EPUB para Kindle e outros leitores e a leitura para convidados. O Completo acrescenta fotos, gravação de voz, ditado, convidados respondendo junto e o PDF para imprimir.'
+      'Um plano só, com tudo incluído: R$ 24,90 por mês, ou R$ 249,00 por ano, que dá dois meses grátis. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online sem custo e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
   },
   {
-    question: 'Posso trocar de plano ou cancelar?',
+    question: 'Posso cancelar?',
     answer:
-      'Pode trocar de plano quando quiser. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'
+      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'
   },
   {
     question: 'Funciona no celular?',

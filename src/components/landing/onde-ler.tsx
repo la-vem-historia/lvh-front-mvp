@@ -56,7 +56,7 @@ const formas: Forma[] = [
   },
   {
     title: 'No livro impresso',
-    text: 'No plano Completo, o PDF vai pronto para a gráfica. Nas respostas gravadas, um QR code leva até a sua voz.',
+    text: 'O PDF vai pronto para a gráfica. Nas respostas gravadas, um QR code leva até a sua voz.',
     Icon: BookOpenIcon,
     alt: 'Avô e neto folheando o livro impresso, com o celular apontado para um QR code',
     area: 'lg:col-span-3'

@@ -8,7 +8,7 @@ import { PartyPopperIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import Section from '@/components/app/section'
-import { useRefreshUser, useUpdateUser, useUser } from '@/components/app/session'
+import { useRefreshUser, useUser } from '@/components/app/session'
 import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 import {
@@ -18,13 +18,12 @@ import {
   deleteBook,
   getBilling,
   getBooks,
-  planPrices,
   reopenBook,
   setActiveBook,
   setExtraSlots
 } from '@/lib/lvh/api'
 import { bookTitle, formatPrice, relationOf, bookTitleInline } from '@/lib/lvh/livros'
-import type { Billing, PlanId, UserBook } from '@/lib/lvh/types'
+import type { Billing, UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
 const formatDate = (iso: string) =>
@@ -304,14 +303,8 @@ const Livros = ({
 }
 
 const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => void }) => {
-  const updateUser = useUpdateUser()
   const [error, setError] = useState<string | null>(null)
   const freeSlots = billing.slots - billing.inProgress
-
-  const choose = async (plan: PlanId) => {
-    await updateUser({ plan })
-    onChange()
-  }
 
   const changeSlots = async (extraSlots: number) => {
     try {
@@ -325,29 +318,6 @@ const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => voi
 
   return (
     <div className='flex flex-col gap-8'>
-      <div className='flex flex-col gap-3'>
-        <span className='text-sm font-medium'>Plano</span>
-        <div className='flex flex-wrap gap-2'>
-          {(Object.keys(planPrices) as PlanId[]).map(plan => (
-            <button
-              key={plan}
-              type='button'
-              aria-pressed={billing.plan === plan}
-              onClick={() => choose(plan)}
-              className={cn(
-                'cursor-pointer rounded-full border px-5 py-2 text-sm transition-colors',
-                billing.plan === plan ? 'bg-moss text-cream border-moss' : 'border-border hover:border-foreground/40'
-              )}
-            >
-              {planPrices[plan].name} · {formatPrice(planPrices[plan].base)}/mês
-            </button>
-          ))}
-        </div>
-        <p className='text-muted-foreground text-xs'>
-          O plano inclui um livro em andamento. Livros concluídos não ocupam vaga e continuam online sem custo.
-        </p>
-      </div>
-
       <div className='flex flex-col gap-3'>
         <span className='text-sm font-medium'>Livros ao mesmo tempo</span>
         <p className='text-base'>
@@ -381,7 +351,7 @@ const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => voi
         <ul className='border-border flex flex-col rounded-2xl border'>
           <li className='flex items-center justify-between gap-4 px-5 py-4 text-sm'>
             <span>
-              Plano {planPrices[billing.plan].name}
+              Assinatura
               <span className='text-muted-foreground'> · inclui 1 livro em andamento</span>
             </span>
             <span className='tabular-nums'>{formatPrice(billing.base)}</span>

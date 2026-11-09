@@ -18,7 +18,6 @@ import type {
   QuestionContext,
   RoleRequest,
   NewBookInput,
-  PlanId,
   Role,
   Share,
   User,
@@ -432,11 +431,9 @@ export async function countAnsweredByBook(): Promise<Record<string, number>> {
   )
 }
 
-// Preço por mês: o plano dá uma vaga de livro em andamento; cada vaga a mais custa o valor de extra
-export const planPrices: Record<PlanId, { name: string; base: number; extra: number }> = {
-  essencial: { name: 'Essencial', base: 9.9, extra: 4.9 },
-  completo: { name: 'Completo', base: 29.9, extra: 9.9 }
-}
+// Um plano só, com tudo: a assinatura dá uma vaga de livro em andamento; cada vaga a mais custa o valor de extra.
+// No anual, 12 meses pelo preço de 10
+export const subscription = { base: 24.9, extra: 9.9 }
 
 const isInProgress = (book: UserBook) => book.status !== 'concluido'
 
@@ -453,12 +450,10 @@ export async function hasFreeSlot(): Promise<boolean> {
 }
 
 export async function getBilling(): Promise<Billing> {
-  const plan = rawUser()?.plan ?? 'completo'
   const { slots, extraSlots, inProgress } = slotInfo()
-  const { base, extra } = planPrices[plan]
+  const { base, extra } = subscription
 
   return {
-    plan,
     base,
     extraSlots,
     extraPrice: extra,
