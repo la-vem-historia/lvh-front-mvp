@@ -68,7 +68,7 @@ const questions = [
   {
     question: 'Quanto custa?',
     answer:
-      'R$ 24,90 por mês, ou R$ 249,00 por ano, que dá dois meses grátis. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online sem custo e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
+      'No anual, R$ 24,90 por mês: R$ 298,80 cobrados de uma vez, o mesmo que ganhar dois meses. No mensal, R$ 29,90 por mês, sem fidelidade. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online sem custo e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
   },
   {
     question: 'Posso cancelar?',

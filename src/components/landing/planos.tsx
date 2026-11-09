@@ -21,14 +21,15 @@ const reveal = {
 const formatPrice = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 })
 
-// No anual, a pessoa paga 10 meses e leva 12: dois meses grátis
-const ANNUAL_MONTHS = 10
-
 type Billing = 'mensal' | 'anual'
 
 // Um plano só, com tudo: a voz, as fotos e a família contando junto são o que faz o livro valer,
 // então ninguém fica sem eles. Mais de um livro ao mesmo tempo é uma vaga a mais, dentro do app
-const PRICE = 24.9
+// O mensal é mais caro de propósito, para o anual valer a pena: R$ 24,90 por mês, pagos de uma vez,
+// economiza R$ 60 no ano, o mesmo que dois meses grátis
+const MONTHLY = 29.9
+const ANNUAL_PER_MONTH = 24.9
+const ANNUAL = Math.round(ANNUAL_PER_MONTH * 12 * 100) / 100
 
 const features = [
   'Mais de 300 perguntas guiadas',
@@ -111,14 +112,14 @@ const Planos = () => {
               <div className='flex flex-col gap-1'>
                 <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
                   <span className='font-heading text-display-lg tabular-nums'>
-                    {formatPrice(annual ? Math.round((PRICE * ANNUAL_MONTHS * 100) / 12) / 100 : PRICE)}
+                    {formatPrice(annual ? ANNUAL_PER_MONTH : MONTHLY)}
                   </span>
                   <span className='text-sm'>/ mês</span>
-                  {annual && <s className='text-sm opacity-60'>{formatPrice(PRICE)}</s>}
+                  {annual && <s className='text-sm opacity-60'>{formatPrice(MONTHLY)}</s>}
                 </p>
                 <p className='text-sm opacity-80'>
                   {annual
-                    ? `${formatPrice(PRICE * ANNUAL_MONTHS)} por ano, cobrados de uma vez.`
+                    ? `${formatPrice(ANNUAL)} por ano, cobrados de uma vez.`
                     : 'Cobrado todo mês. Cancele quando quiser.'}
                 </p>
               </div>

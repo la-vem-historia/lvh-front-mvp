@@ -432,8 +432,8 @@ export async function countAnsweredByBook(): Promise<Record<string, number>> {
 }
 
 // Um plano só, com tudo: a assinatura dá uma vaga de livro em andamento; cada vaga a mais custa o valor de extra.
-// No anual, 12 meses pelo preço de 10
-export const subscription = { base: 24.9, extra: 9.9 }
+// No anual, sai R$ 24,90 por mês, pagos de uma vez
+export const subscription = { base: 29.9, extra: 9.9 }
 
 const isInProgress = (book: UserBook) => book.status !== 'concluido'
 
