@@ -60,6 +60,8 @@ export type UserBookChanges = Partial<
 // Cobrança mensal: a assinatura dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
 // Livros concluídos não ocupam vaga
 export type Billing = {
+  // Até quando a assinatura está paga por um presente (ISO)
+  giftUntil?: string
   base: number
   extraSlots: number
   extraPrice: number
@@ -99,6 +101,8 @@ export type User = {
   providers?: LoginProvider[]
   // E-mail semanal com a próxima pergunta
   emailReminder?: EmailReminder
+  // Meses ganhos de presente: a assinatura fica grátis até esta data (ISO)
+  giftUntil?: string
 }
 
 // Dia da semana (0 = domingo) e horário (HH:MM) em que a pergunta da semana chega por e-mail
@@ -124,6 +128,7 @@ export type UserChanges = Partial<
     | 'providers'
     | 'emailReminder'
     | 'extraSlots'
+    | 'giftUntil'
   >
 >
 

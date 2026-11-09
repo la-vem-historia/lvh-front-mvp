@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import Section from '@/components/app/section'
 import { useRefreshUser, useUser } from '@/components/app/session'
 import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
+import ResgatarPresente from '@/components/app/resgatar-presente'
 
 import {
   concludeBook,
@@ -23,6 +24,7 @@ import {
   setExtraSlots
 } from '@/lib/lvh/api'
 import { bookTitle, formatPrice, relationOf, bookTitleInline } from '@/lib/lvh/livros'
+import { formatGiftDate } from '@/lib/lvh/presente'
 import type { Billing, UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -346,6 +348,8 @@ const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => voi
         )}
       </div>
 
+      <ResgatarPresente giftUntil={billing.giftUntil} onChange={onChange} />
+
       <div className='flex flex-col gap-3'>
         <span className='text-sm font-medium'>Sua mensalidade</span>
         <ul className='border-border flex flex-col rounded-2xl border'>
@@ -365,9 +369,20 @@ const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => voi
               <span className='tabular-nums'>{formatPrice(billing.extraSlots * billing.extraPrice)}</span>
             </li>
           )}
+          {billing.giftUntil && (
+            <li className='border-border flex items-center justify-between gap-4 border-t px-5 py-4 text-sm'>
+              <span>
+                Presente
+                <span className='text-muted-foreground'> · até {formatGiftDate(billing.giftUntil)}</span>
+              </span>
+              <span className='tabular-nums'>−{formatPrice(billing.base)}</span>
+            </li>
+          )}
           <li className='border-foreground flex items-center justify-between gap-4 border-t px-5 py-4 text-base font-medium'>
             <span>Total por mês</span>
-            <span className='tabular-nums'>{formatPrice(billing.total)}</span>
+            <span className='tabular-nums'>
+              {formatPrice(billing.giftUntil ? billing.total - billing.base : billing.total)}
+            </span>
           </li>
         </ul>
         <p className='text-muted-foreground text-xs'>Protótipo: nenhuma cobrança é feita.</p>

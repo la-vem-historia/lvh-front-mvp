@@ -76,6 +76,11 @@ const questions = [
     answer: `Você cria a conta e usa tudo, com voz, fotos e família respondendo junto, por ${TRIAL_DAYS} dias ou até ${TRIAL_ANSWERS} respostas, o que vier primeiro. Depois, assina para continuar. Nada do que você escreveu no teste se perde.`
   },
   {
+    question: 'Posso dar de presente?',
+    answer:
+      'Pode. Você compra um cartão-presente de 3, 6 ou 12 meses, e quanto mais meses, menor o preço por mês. O cartão vai direto para o e-mail de quem ganha, ou chega para você em PDF, para imprimir e entregar em mãos. Quem ganha digita o código e usa tudo pelos meses do presente; a assinatura só é cobrada depois, se a pessoa quiser continuar.'
+  },
+  {
     question: 'Posso cancelar?',
     answer:
       'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'

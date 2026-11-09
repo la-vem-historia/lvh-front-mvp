@@ -5,6 +5,7 @@ import { createContext, use, useEffect, useState, type ReactNode } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 import { getCurrentUser, updateUser } from '@/lib/lvh/api'
+import { redeemPendingGift } from '@/lib/lvh/presente'
 import type { User, UserChanges } from '@/lib/lvh/types'
 
 const ONBOARDING_PATH = '/app/boas-vindas'
@@ -27,11 +28,18 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let active = true
 
-    getCurrentUser().then(current => {
+    const load = async () => {
+      let current = await getCurrentUser()
+
+      // Código de presente digitado antes de ter conta: vale assim que a pessoa entra
+      if (current && (await redeemPendingGift())) current = await getCurrentUser()
+
       if (!active) return
       if (current) setUser(current)
       else router.replace('/entrar')
-    })
+    }
+
+    load()
 
     return () => {
       active = false

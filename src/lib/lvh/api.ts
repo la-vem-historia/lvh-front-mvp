@@ -453,7 +453,10 @@ export async function getBilling(): Promise<Billing> {
   const { slots, extraSlots, inProgress } = slotInfo()
   const { base, extra } = subscription
 
+  const giftUntil = rawUser()?.giftUntil
+
   return {
+    giftUntil: giftUntil && new Date(giftUntil) > new Date() ? giftUntil : undefined,
     base,
     extraSlots,
     extraPrice: extra,
