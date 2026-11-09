@@ -1,5 +1,5 @@
-// Mensagens do formulário de dúvidas da landing. Ficam na tabela contatos para a equipe responder por e-mail
-import { EMAIL_PATTERN, getDatabase, missingDatabase } from '@/lib/server/db'
+// Mensagens do formulário de dúvidas da landing. Ficam na collection contacts para a equipe responder por e-mail
+import { EMAIL_PATTERN, databaseError, getDatabase, missingDatabase } from '@/lib/server/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,12 +21,17 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Escreva a sua dúvida em até 4.000 caracteres.' }, { status: 400 })
   }
 
-  const db = getDatabase()
+  const connection = getDatabase()
 
-  if (!db) return missingDatabase() ?? Response.json({ ok: true })
+  if (!connection) return missingDatabase() ?? Response.json({ ok: true })
 
-  await db.ready
-  await db.sql`INSERT INTO contatos (name, email, message) VALUES (${name}, ${email}, ${message})`
+  try {
+    const { contacts } = await connection
 
-  return Response.json({ ok: true })
+    await contacts.insertOne({ name, email, message, createdAt: new Date() })
+
+    return Response.json({ ok: true })
+  } catch (error) {
+    return databaseError(error)
+  }
 }
