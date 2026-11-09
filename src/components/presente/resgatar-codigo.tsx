@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { pageTitleClassName } from '@/components/app/page-heading'
-import CartaoVisual from '@/components/presente/cartao-visual'
+import CartaoDuplo from '@/components/presente/cartao-duplo'
 
 import { getGiftCard, savePendingGift, type GiftCard } from '@/lib/lvh/presente'
 
@@ -54,13 +54,12 @@ const ResgatarCodigo = ({ initialCode }: { initialCode: string }) => {
           </p>
         </div>
 
-        <CartaoVisual
+        <CartaoDuplo
           recipientName={gift.recipientName}
           months={gift.months}
           message={gift.message}
           buyerName={gift.buyerName}
           code={gift.code}
-          className='shadow-[0_40px_80px_-40px_rgb(40_30_20/0.55)]'
         />
 
         <div className='flex flex-col gap-3 sm:flex-row'>

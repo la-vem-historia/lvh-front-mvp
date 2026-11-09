@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { pageTitleClassName } from '@/components/app/page-heading'
-import CartaoVisual from '@/components/presente/cartao-visual'
+import CartaoDuplo from '@/components/presente/cartao-duplo'
 import SeloMaisEscolhido from '@/components/presente/selo-mais-escolhido'
 
 import { formatPrice } from '@/lib/lvh/livros'
@@ -62,13 +62,12 @@ const Comprado = ({ gift }: { gift: GiftCard }) => (
       </div>
     </div>
 
-    <CartaoVisual
+    <CartaoDuplo
       recipientName={gift.recipientName}
       months={gift.months}
       message={gift.message}
       buyerName={gift.buyerName}
       code={gift.code}
-      className='shadow-[0_40px_80px_-40px_rgb(40_30_20/0.55)]'
     />
 
     <div className='flex flex-col gap-3 sm:flex-row'>
@@ -288,12 +287,11 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
       {/* Prévia do cartão, presa ao lado enquanto a pessoa preenche */}
       <aside className='flex flex-col gap-4 lg:sticky lg:top-8 lg:self-start'>
         <span className='text-muted-foreground text-sm'>Prévia do cartão</span>
-        <CartaoVisual
+        <CartaoDuplo
           recipientName={recipientName.trim() || undefined}
           months={months}
           message={message.trim() || undefined}
           buyerName={buyerName.trim() || undefined}
-          className='shadow-[0_40px_80px_-40px_rgb(40_30_20/0.55)]'
         />
         <div className='bg-sand flex items-center justify-between rounded-2xl px-5 py-4'>
           <span className='text-sm'>{months} meses de Lá Vem História</span>
