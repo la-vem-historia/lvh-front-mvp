@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react'
 
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import Cta from '@/components/landing/cta'
 
 import { cn } from '@/lib/utils'
 
@@ -86,6 +87,7 @@ const OndeLer = () => (
           É o mesmo livro em qualquer lugar. Quem você convidar lê na tela que tiver à mão, e você pode ter o livro
           também em papel.
         </p>
+        <Cta className='mt-4'>Criar o livro da família</Cta>
       </MotionPreset>
 
       <ul className='grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3'>

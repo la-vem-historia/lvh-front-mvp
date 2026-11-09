@@ -9,6 +9,7 @@ import { ChevronDownIcon, LockIcon } from 'lucide-react'
 
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import Cta from '@/components/landing/cta'
 
 import compartilharImage from '@/assets/landing/produto/compartilhar.png'
 import fotosEVozImage from '@/assets/landing/produto/fotos-e-voz.png'
@@ -290,6 +291,10 @@ const ComoFunciona = () => {
             )
           })}
         </div>
+
+        <MotionPreset {...reveal} delay={0.4} className='lg:col-span-5'>
+          <Cta>Responder a primeira pergunta</Cta>
+        </MotionPreset>
       </div>
     </section>
   )

@@ -1,5 +1,6 @@
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { DrawLine, ScrollTilt, WordsReveal } from '@/components/landing/motion'
+import Cta from '@/components/landing/cta'
 import BookCover from '@/components/livro/book-cover'
 
 const reveal = {
@@ -66,6 +67,10 @@ const OLivro = () => {
               </MotionPreset>
             ))}
           </dl>
+
+          <MotionPreset {...reveal} delay={0.5}>
+            <Cta>Começar o meu livro</Cta>
+          </MotionPreset>
         </div>
       </div>
     </section>
