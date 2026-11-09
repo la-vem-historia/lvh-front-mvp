@@ -229,11 +229,12 @@ ${body}
 </html>
 `
 
-// Pouco estilo de propósito: o leitor manda na fonte, no tamanho e no tema (claro, sépia, escuro)
+// Pouco estilo de propósito: o leitor manda na fonte, no tamanho e no tema (claro, sépia, escuro).
+// A pergunta se separa da resposta por negrito, tamanho e espaço, que sobrevivem a qualquer troca de fonte
 const STYLE = `body { margin: 0 5%; line-height: 1.5; }
 h1, h2, h3 { font-weight: normal; line-height: 1.2; page-break-after: avoid; break-after: avoid; }
 h1 { font-size: 1.9em; margin: 2em 0 0.3em; text-align: center; }
-h2 { font-size: 1.15em; font-style: italic; margin: 2.2em 0 0.6em; }
+h2 { font-size: 1.2em; font-weight: bold; line-height: 1.3; text-align: left; hyphens: none; -webkit-hyphens: none; margin: 2.6em 0 0.9em; }
 .number { display: block; font-size: 0.75em; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.6em; opacity: 0.6; }
 .chapter h1 { margin-bottom: 1.8em; }
 p { margin: 0 0 0.8em; text-indent: 0; }
