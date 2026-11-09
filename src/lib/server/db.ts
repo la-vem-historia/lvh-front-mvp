@@ -1,5 +1,6 @@
 // MongoDB (Atlas) apontado por MONGODB_URI, no database MONGODB_DB (padrão: site).
-// Guarda a lista de interessados (leads) e as mensagens do formulário de dúvidas (contacts)
+// Guarda a lista de interessados (leads), as mensagens do formulário de dúvidas (contacts)
+// e os contadores do limite de envios por IP (rate_limits)
 import { MongoClient } from 'mongodb'
 import type { Collection } from 'mongodb'
 
@@ -15,9 +16,17 @@ export type Contact = {
   createdAt: Date
 }
 
+// Um documento por IP, rota e janela de tempo. O Mongo apaga sozinho quando expiresAt passa
+export type RateLimit = {
+  _id: string
+  count: number
+  expiresAt: Date
+}
+
 type Database = {
   leads: Collection<Lead>
   contacts: Collection<Contact>
+  rateLimits: Collection<RateLimit>
 }
 
 // Na Vercel cada função pode ser reaproveitada entre chamadas: a conexão fica no escopo global
@@ -36,11 +45,18 @@ const connect = async (uri: string): Promise<Database> => {
   const db = client.db(process.env.MONGODB_DB || 'site')
   const leads = db.collection<Lead>('leads')
   const contacts = db.collection<Contact>('contacts')
+  const rateLimits = db.collection<RateLimit>('rate_limits')
 
-  // Um e-mail só aparece uma vez na lista. createIndex não faz nada se o índice já existe
-  await leads.createIndex({ email: 1 }, { unique: true })
+  // createIndex não faz nada se o índice já existe. O terceiro argumento (opções do comando) é
+  // obrigatório na assinatura nova do driver 7; sem ele cai na versão de dois argumentos, que está obsoleta
+  await Promise.all([
+    // Um e-mail só aparece uma vez na lista
+    leads.createIndex({ email: 1 }, { unique: true }, undefined),
+    // Índice TTL: o Mongo remove os contadores vencidos (roda a cada ~60 s)
+    rateLimits.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }, undefined)
+  ])
 
-  return { leads, contacts }
+  return { leads, contacts, rateLimits }
 }
 
 export const getDatabase = () => {

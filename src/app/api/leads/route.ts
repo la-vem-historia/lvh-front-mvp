@@ -1,11 +1,15 @@
 // Lista de interessados: quem tenta criar conta antes da abertura deixa o e-mail aqui
 import { EMAIL_PATTERN, databaseError, getDatabase, isDuplicateKey, missingDatabase } from '@/lib/server/db'
+import { LEAD_LIMIT, hitRateLimit, readJson, tooLargeResponse } from '@/lib/server/rate-limit'
 import type { LeadResult } from '@/lib/lvh/pre-abertura'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null)
+  const { body, tooLarge } = await readJson(request)
+
+  if (tooLarge) return tooLargeResponse()
+
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''
 
   // Campo escondido que só robôs preenchem: finge que deu certo e não guarda nada
@@ -20,7 +24,11 @@ export async function POST(request: Request) {
   if (!connection) return missingDatabase() ?? Response.json({ already: false } satisfies LeadResult)
 
   try {
-    const { leads } = await connection
+    const { leads, rateLimits } = await connection
+
+    const limited = await hitRateLimit(rateLimits, request, LEAD_LIMIT)
+
+    if (limited) return limited
 
     // Quem se cadastra de novo mantém o primeiro registro: só grava a data na primeira vez
     const result = await leads.updateOne(
