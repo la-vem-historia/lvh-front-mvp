@@ -76,7 +76,7 @@ const BookSelector = ({ active }: { active: boolean }) => {
         <span className='truncate'>{bookLabel(user.activeBook)}</span>
         <ChevronDownIcon className='size-4 shrink-0 opacity-70' aria-hidden='true' />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='start' sideOffset={8} className={menuClassName}>
+      <DropdownMenuContent align='end' sideOffset={8} className={menuClassName}>
         {books.map(book => (
           <DropdownMenuItem key={book.id} onClick={() => open(book.id)} className={itemClassName}>
             <CheckIcon className={cn('size-4', book.id !== user.activeBook?.id && 'invisible')} aria-hidden='true' />
@@ -193,18 +193,15 @@ const AppHeader = () => {
 
   return (
     // Mesma barra da landing: creme translúcido com desfoque e logo grande.
-    // No celular, o logo sai e as duas visões descem para uma segunda linha, de ponta a ponta
+    // No celular, as duas visões descem para uma segunda linha, de ponta a ponta
     <header className='bg-background/85 sticky top-0 z-50 backdrop-blur print:hidden'>
       <div className='mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:grid sm:h-20 sm:grid-cols-[1fr_auto_1fr] sm:py-0 sm:px-6 lg:px-8'>
         {focus ? (
           <span className='max-sm:hidden' />
         ) : (
-          <div className='flex min-w-0 flex-1 items-center gap-4'>
-            <Link href='/app' className='w-fit shrink-0 max-sm:hidden'>
-              <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
-            </Link>
-            <BookSelector active={pathname.startsWith('/app/livros')} />
-          </div>
+          <Link href='/app' className='w-fit shrink-0 max-sm:flex-1'>
+            <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
+          </Link>
         )}
 
         <Views pathname={pathname} className={cn('max-sm:order-last max-sm:w-full', focus && 'max-sm:order-none')} />
@@ -212,7 +209,9 @@ const AppHeader = () => {
         {focus ? (
           <span className='max-sm:hidden' />
         ) : (
-          <div className='flex justify-end'>
+          // O livro aberto fica junto da foto: os dois dizem "de quem" e "o quê" é o que está na tela
+          <div className='flex min-w-0 items-center justify-end gap-2'>
+            <BookSelector active={pathname.startsWith('/app/livros')} />
             <AccountMenu active={account} />
           </div>
         )}
