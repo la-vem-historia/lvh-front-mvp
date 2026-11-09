@@ -1,16 +1,30 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 // Passo a passo para levar o EPUB até cada leitor. Os caminhos seguem os menus em português
 // de cada serviço; se algum mudar de nome, é aqui que se ajusta
-const LEITORES: { title: string; steps: string[] }[] = [
+const LEITORES: { title: string; steps: ReactNode[] }[] = [
   {
     title: 'Kindle',
     steps: [
-      'No computador, entre em amazon.com.br/sendtokindle com a mesma conta do seu Kindle.',
+      <>
+        No computador, entre em{' '}
+        <a
+          href='https://www.amazon.com.br/sendtokindle'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='text-foreground underline underline-offset-4'
+        >
+          amazon.com.br/sendtokindle
+          <span className='sr-only'> (abre em uma nova aba)</span>
+        </a>{' '}
+        com a mesma conta do seu Kindle.
+      </>,
       'Arraste o arquivo EPUB para a página, ou clique em Selecionar arquivos do dispositivo.',
       'Em alguns minutos o livro aparece no Kindle e no app Kindle do celular, já no formato certo.'
     ]
@@ -59,8 +73,8 @@ const ComoLerEpub = ({ open, onOpenChange, onDownload }: ComoLerEpubProps) => (
         <section key={leitor.title} className='border-border flex flex-col gap-3 border-t p-6'>
           <h3 className='text-sm font-medium'>{leitor.title}</h3>
           <ol className='text-muted-foreground flex list-decimal flex-col gap-2 pl-5 text-sm text-pretty'>
-            {leitor.steps.map(step => (
-              <li key={step}>{step}</li>
+            {leitor.steps.map((step, index) => (
+              <li key={index}>{step}</li>
             ))}
           </ol>
         </section>
