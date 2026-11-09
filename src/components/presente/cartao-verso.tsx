@@ -32,7 +32,7 @@ const CartaoVerso = ({ recipientName, months, message, buyerName, code, classNam
           {recipientName ? `Para ${recipientName}` : 'Para você'}
         </p>
         {message ? (
-          <p className='font-heading line-clamp-3 text-[3.3cqw] leading-snug italic'>“{message}”</p>
+          <p className='font-heading line-clamp-2 text-[3.4cqw] leading-snug break-words italic'>“{message}”</p>
         ) : (
           <p className='text-cream/70 text-[2.7cqw] leading-snug text-pretty'>
             {months} meses para contar a sua história e ver ela virar um livro.

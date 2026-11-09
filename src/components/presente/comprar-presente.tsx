@@ -26,7 +26,8 @@ import {
 } from '@/lib/lvh/presente'
 import { cn } from '@/lib/utils'
 
-const MESSAGE_MAX = 240
+// O que cabe em duas linhas da mensagem no verso do cartão
+const MESSAGE_MAX = 100
 
 const optionClassName = (selected: boolean) =>
   cn(
@@ -221,7 +222,7 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
                   value={message}
                   onChange={event => setMessage(event.target.value.slice(0, MESSAGE_MAX))}
                   placeholder='Quero saber tudo o que você nunca me contou.'
-                  rows={4}
+                  rows={2}
                 />
                 <span className='text-muted-foreground self-end text-xs tabular-nums'>
                   {message.length}/{MESSAGE_MAX}
