@@ -9,6 +9,7 @@ import Section from '@/components/app/section'
 import { useUpdateUser, useUser } from '@/components/app/session'
 import { collaboratorLink } from '@/components/app/colaboradores-pergunta'
 import PerguntaDaSemana from '@/components/app/pergunta-da-semana'
+import CopiaDeSeguranca from '@/components/app/copia-de-seguranca'
 
 import {
   getCollaborators,
@@ -253,6 +254,14 @@ const Configuracoes = () => (
 
     <Section title='Dicas' description='Sugestões curtas na home sobre o que dá para fazer no seu livro.'>
       <DicasConfig />
+    </Section>
+
+    <Section
+      id='copia-de-seguranca'
+      title='Cópia de segurança'
+      description='Baixe tudo num arquivo e importe de volta quando quiser: em outro navegador, numa conta nova ou depois de algum imprevisto.'
+    >
+      <CopiaDeSeguranca />
     </Section>
 
     <Section

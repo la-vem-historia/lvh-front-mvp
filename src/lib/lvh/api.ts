@@ -874,22 +874,174 @@ export async function saveContribution(token: string, questionId: number, text: 
   return contribution
 }
 
-// Cópia de tudo o que a pessoa tem no app, para baixar antes de excluir a conta
-export async function exportMyData() {
-  const per = <T>(key: string, id: string, fallback: T) => read<T>(bookKey(key, id), fallback)
+// Cópia de segurança: tudo o que a pessoa tem no app num arquivo só, para guardar e importar de volta
+// (em Configurações) ou levar embora antes de excluir a conta. A versão deixa cópias antigas
+// continuarem funcionando quando o formato mudar
+const BACKUP_VERSION = 1
+
+type BackupBook = UserBook & {
+  answers?: Record<number, Answer>
+  bookmarks?: number[]
+  collaborators?: Collaborator[]
+  contributions?: Contribution[]
+  readers?: Share[]
+  audioLinks?: Record<number, string>
+  printInterest?: string | null
+}
+
+export type Backup = { app?: string; version?: number; exportedAt: string; user: User | null; books: BackupBook[] }
+
+export type BackupSummary = {
+  exportedAt: string
+  books: number
+  answers: number
+  voices: number
+  photos: number
+  bookTitles: string[]
+}
+
+// Chave de cada parte do livro e o campo correspondente no arquivo
+const BACKUP_FIELDS = [
+  [ANSWERS_KEY, 'answers'],
+  [BOOKMARKS_KEY, 'bookmarks'],
+  [COLLABORATORS_KEY, 'collaborators'],
+  [CONTRIBUTIONS_KEY, 'contributions'],
+  [SHARES_KEY, 'readers'],
+  [AUDIO_LINKS_KEY, 'audioLinks'],
+  [PRINT_INTEREST_KEY, 'printInterest']
+] as const
+
+export async function exportMyData(): Promise<Backup> {
+  const books = readBooks().map(book => {
+    const copy: BackupBook = { ...book }
+
+    BACKUP_FIELDS.forEach(([key, field]) => {
+      const value = read<unknown>(bookKey(key, book.id), null)
+
+      if (value !== null) Object.assign(copy, { [field]: value })
+    })
+
+    return copy
+  })
 
   return {
+    app: 'la-vem-historia',
+    version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     user: rawUser(),
-    books: readBooks().map(book => ({
-      ...book,
-      answers: per<Record<number, Answer>>(ANSWERS_KEY, book.id, {}),
-      bookmarks: per<number[]>(BOOKMARKS_KEY, book.id, []),
-      collaborators: per<Collaborator[]>(COLLABORATORS_KEY, book.id, []),
-      contributions: per<Contribution[]>(CONTRIBUTIONS_KEY, book.id, []),
-      readers: per<Share[]>(SHARES_KEY, book.id, [])
-    }))
+    books
   }
+}
+
+// Lê o arquivo escolhido e confere se é mesmo uma cópia do Lá Vem História, antes de mexer em nada
+export function parseBackup(text: string): Backup {
+  let data: Backup
+
+  try {
+    data = JSON.parse(text) as Backup
+  } catch {
+    throw new Error('Este arquivo não é uma cópia do Lá Vem História.')
+  }
+
+  if (!data || !Array.isArray(data.books) || !data.books.every(book => book && typeof book.id === 'string')) {
+    throw new Error('Este arquivo não é uma cópia do Lá Vem História.')
+  }
+
+  if ((data.version ?? 1) > BACKUP_VERSION) {
+    throw new Error('Esta cópia foi feita por uma versão mais nova do app. Atualize a página e tente de novo.')
+  }
+
+  return data
+}
+
+export function summarizeBackup(backup: Backup): BackupSummary {
+  const answers = backup.books.flatMap(book => Object.values(book.answers ?? {})).filter(answer => isAnswered(answer))
+
+  return {
+    exportedAt: backup.exportedAt,
+    books: backup.books.length,
+    answers: answers.length,
+    voices: answers.filter(answer => answer.audio).length,
+    photos: answers.reduce((total, answer) => total + (answer.photos?.length ?? 0), 0),
+    bookTitles: backup.books.map(book =>
+      book.recipientName?.trim() ? `Livro ${book.recipientGender === 'menina' ? 'da' : 'do'} ${book.recipientName.trim()}` : 'Livro da família'
+    )
+  }
+}
+
+// Juntar: os livros da cópia entram ao lado dos que já existem (com id novo se o mesmo livro já estiver aqui).
+// Substituir: os livros daqui saem e a conta fica como estava na cópia, mantendo o e-mail de quem está entrando.
+// Se faltar espaço no meio do caminho, tudo volta ao que era antes: nunca fica pela metade
+export async function restoreBackup(backup: Backup, mode: 'juntar' | 'substituir'): Promise<User> {
+  const user = rawUser()
+
+  if (!user) throw new Error('Sessão expirada. Entre de novo.')
+
+  const snapshot: Record<string, string> = {}
+
+  Object.keys(window.localStorage)
+    .filter(key => key.startsWith('lvh:'))
+    .forEach(key => {
+      snapshot[key] = window.localStorage.getItem(key) ?? ''
+    })
+
+  const rollback = () => {
+    Object.keys(window.localStorage)
+      .filter(key => key.startsWith('lvh:'))
+      .forEach(key => window.localStorage.removeItem(key))
+    Object.entries(snapshot).forEach(([key, value]) => {
+      try {
+        window.localStorage.setItem(key, value)
+      } catch {}
+    })
+  }
+
+  const current = readBooks()
+
+  if (mode === 'substituir') {
+    current.forEach(book => PER_BOOK_KEYS.forEach(key => window.localStorage.removeItem(bookKey(key, book.id))))
+  }
+
+  const existingIds = new Set(mode === 'juntar' ? current.map(book => book.id) : [])
+  const restored: UserBook[] = []
+  let ok = true
+
+  for (const { answers, bookmarks, collaborators, contributions, readers, audioLinks, printInterest, ...book } of backup.books) {
+    const id = existingIds.has(book.id) ? crypto.randomUUID() : book.id
+    const parts = { answers, bookmarks, collaborators, contributions, readers, audioLinks, printInterest }
+
+    restored.push({ ...book, id })
+    BACKUP_FIELDS.forEach(([key, field]) => {
+      const value = parts[field]
+
+      if (ok && value !== undefined && value !== null) ok = write(bookKey(key, id), value)
+    })
+  }
+
+  const books = mode === 'juntar' ? [...current, ...restored] : restored
+  const backupActive = restored[backup.books.findIndex(book => book.id === backup.user?.activeBookId)]?.id
+  const activeId =
+    mode === 'substituir'
+      ? (backupActive ?? restored[0]?.id)
+      : (books.find(book => book.id === user.activeBookId)?.id ?? restored[0]?.id)
+
+  // Da conta da cópia vêm as preferências; e-mail e forma de entrar continuam os de quem está aqui agora
+  const nextUser: User =
+    mode === 'substituir' && backup.user
+      ? { ...stripBookFields(backup.user), email: user.email, providers: user.providers, activeBookId: activeId }
+      : { ...user, activeBookId: activeId }
+
+  if (ok) ok = write(BOOKS_KEY, books)
+  if (ok) ok = saveUser(nextUser)
+
+  if (!ok) {
+    rollback()
+    throw new Error(
+      'A cópia não coube no espaço do navegador, então nada foi alterado. Vozes e fotos são o que mais ocupa espaço.'
+    )
+  }
+
+  return withActiveBook(nextUser)
 }
 
 // Exclusão definitiva: conta, respostas, convites e links somem juntos
