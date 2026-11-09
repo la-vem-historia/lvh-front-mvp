@@ -118,8 +118,8 @@ const Painel = () => {
         <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8 lg:items-end'>
           <div className='flex w-full max-w-sm flex-col gap-3'>
             <div className='flex items-baseline justify-between text-sm'>
-              <span className='font-medium'>
-                {answered} de {questions.length} perguntas respondidas
+              <span>
+                <strong className='font-bold'>{answered}</strong> de {questions.length} perguntas respondidas
               </span>
               <span className='text-muted-foreground'>{progress}%</span>
             </div>
@@ -201,7 +201,7 @@ const Painel = () => {
                 <span className='text-clay text-sm font-bold'>{String(index + 1).padStart(2, '0')}</span>
                 <span className='font-heading text-xl sm:text-2xl'>{chapter.title}</span>
                 <span className='text-muted-foreground text-sm tabular-nums'>
-                  {done}/{chapter.questions.length}
+                  <strong className='text-foreground font-bold'>{done}</strong>/{chapter.questions.length}
                 </span>
                 <ChevronDownIcon className='size-4 transition-transform group-data-[panel-open]:rotate-180' />
               </CollapsibleTrigger>
