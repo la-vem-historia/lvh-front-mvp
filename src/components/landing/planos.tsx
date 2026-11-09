@@ -76,7 +76,7 @@ const Planos = () => {
                 onClick={() => setBilling(option)}
                 className={cn(
                   'flex h-11 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors',
-                  billing === option ? 'bg-foreground text-cream' : 'text-foreground hover:bg-stone/60'
+                  billing === option ? 'bg-moss text-cream' : 'text-foreground hover:bg-stone/60'
                 )}
               >
                 {option === 'mensal' ? 'Mensal' : 'Anual'}
@@ -97,7 +97,7 @@ const Planos = () => {
           <MotionPreset
             {...reveal}
             delay={0.1}
-            className='bg-olive text-cream mx-auto grid w-full max-w-5xl gap-10 rounded-2xl p-8 sm:p-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:p-12'
+            className='bg-moss text-cream mx-auto grid w-full max-w-5xl gap-10 rounded-2xl p-8 sm:p-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:p-12'
           >
             <div className='flex flex-col gap-8'>
               <div className='flex flex-col gap-2'>
