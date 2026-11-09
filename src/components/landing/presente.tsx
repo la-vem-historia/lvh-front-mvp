@@ -1,12 +1,7 @@
-import Link from 'next/link'
-
-import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import PresenteOpcoes from '@/components/landing/presente-opcoes'
 import CartaoVisual from '@/components/presente/cartao-visual'
-
-import { formatPrice } from '@/lib/lvh/livros'
-import { GIFT_OPTIONS, pricePerMonth, savingsOf } from '@/lib/lvh/presente'
 
 const reveal = {
   fade: true,
@@ -33,30 +28,7 @@ const Presente = () => (
           </p>
         </div>
 
-        <ul className='grid gap-3 sm:grid-cols-3'>
-          {GIFT_OPTIONS.map(option => (
-            <li key={option.months} className='bg-sand flex flex-col gap-1 rounded-2xl p-5'>
-              <span className='font-heading text-2xl'>{option.months} meses</span>
-              <span className='text-base font-medium tabular-nums'>{formatPrice(option.price)}</span>
-              <span className='text-muted-foreground text-xs tabular-nums'>
-                {formatPrice(pricePerMonth(option))} por mês
-                {savingsOf(option) > 0 && ` · ${savingsOf(option)}% a menos`}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
-          <Button render={<Link href='/presente' />} nativeButton={false} variant='honey' size='cta'>
-            Dar de presente
-          </Button>
-          <Link
-            href='/presente/resgatar'
-            className='text-muted-foreground hover:text-foreground text-sm underline underline-offset-4 transition-colors'
-          >
-            Ganhou um presente? Resgate o seu código
-          </Link>
-        </div>
+        <PresenteOpcoes />
       </MotionPreset>
 
       <MotionPreset {...reveal} delay={0.15} className='lg:col-span-5 lg:col-start-8'>

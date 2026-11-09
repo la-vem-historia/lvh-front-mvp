@@ -19,6 +19,13 @@ export const GIFT_OPTIONS = [
 
 export type GiftMonths = (typeof GIFT_OPTIONS)[number]['months']
 
+// A opção que leva o selo de mais escolhida e vem marcada por padrão
+export const FEATURED_MONTHS: GiftMonths = 6
+
+// Lê o ?meses= da URL, vindo da escolha feita na landing
+export const parseGiftMonths = (value: unknown): GiftMonths =>
+  GIFT_OPTIONS.find(option => String(option.months) === value)?.months ?? FEATURED_MONTHS
+
 export const pricePerMonth = (option: (typeof GIFT_OPTIONS)[number]) => option.price / option.months
 
 // Quanto sai mais barato que pagar mês a mês, em %

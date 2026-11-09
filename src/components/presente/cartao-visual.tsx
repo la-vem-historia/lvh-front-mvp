@@ -1,3 +1,5 @@
+import BookCover from '@/components/livro/book-cover'
+
 import { cn } from '@/lib/utils'
 
 type CartaoVisualProps = {
@@ -9,47 +11,52 @@ type CartaoVisualProps = {
   className?: string
 }
 
-// O cartão-presente, na proporção de um A5 deitado. Tudo em cqw para escalar com a largura:
-// o mesmo desenho serve de prévia na compra, de cartão para imprimir e de PDF
+// O cartão-presente, na proporção de um A5 deitado, como um cartão de papel: à esquerda, o livro que a pessoa vai
+// escrever, com o nome dela na capa; à direita, a dedicatória de quem dá e o código, num canhoto pontilhado.
+// Tudo em cqw para escalar com a largura: o mesmo desenho é a prévia da compra, o cartão para imprimir e o PDF
 const CartaoVisual = ({ recipientName, months, message, buyerName, code, className }: CartaoVisualProps) => (
   <div
     className={cn(
-      '@container bg-moss text-cream relative aspect-[210/148] w-full overflow-hidden rounded-[2.4cqw] [print-color-adjust:exact]',
+      '@container bg-page text-foreground relative grid aspect-[210/148] w-full grid-cols-[42fr_58fr] overflow-hidden rounded-[2cqw] ring-1 ring-black/5 [print-color-adjust:exact] print:ring-0',
       className
     )}
   >
-    {/* Fio dourado por dentro da borda, como num convite */}
-    <div aria-hidden='true' className='border-honey/50 absolute inset-[3.2cqw] rounded-[1.4cqw] border' />
-
-    <div className='relative flex h-full flex-col justify-between p-[7cqw]'>
-      <div className='flex items-start justify-between gap-[3cqw]'>
-        <span className='text-honey text-[1.7cqw] font-medium tracking-[0.3em] uppercase'>Lá Vem História</span>
-        <span className='text-cream/70 text-[1.7cqw] tracking-[0.2em] uppercase'>Cartão-presente</span>
+    {/* O livro de presente, sobre o verde, levemente inclinado como se estivesse em cima da mesa */}
+    <div className='bg-moss relative flex items-center justify-center overflow-hidden'>
+      <div
+        aria-hidden='true'
+        className='absolute inset-0 opacity-60'
+        style={{ background: 'radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.12), transparent 60%)' }}
+      />
+      <div className='w-[56%] -rotate-[5deg] shadow-[0_2.4cqw_4cqw_-1.2cqw_rgb(0_0_0/0.55)]'>
+        <BookCover author={recipientName || 'Você'} color='terracota' />
       </div>
+    </div>
 
-      <div className='flex flex-col gap-[2cqw]'>
-        <p className='font-heading text-[5.6cqw] leading-[1.1] text-balance'>
-          {recipientName ? `Um presente para ${recipientName}` : 'Um presente para você'}
+    <div className='flex flex-col justify-between px-[5.5cqw] py-[5cqw]'>
+      <div className='flex flex-col gap-[2.2cqw]'>
+        <span className='text-earth text-[1.5cqw] font-semibold tracking-[0.28em] uppercase'>
+          Lá Vem História · Cartão-presente
+        </span>
+        <p className='font-heading text-[5.4cqw] leading-[1.05] text-balance'>
+          {recipientName ? `Para ${recipientName},` : 'Para você,'}
         </p>
-        <p className='text-cream/85 text-[2.3cqw]'>
-          {months} meses para contar a sua história, com a sua voz e as suas fotos.
+        <p className='text-foreground/75 text-[2cqw] leading-snug text-pretty'>
+          {months} meses para contar a sua história e ver ela virar um livro, com a sua voz e as suas fotos.
         </p>
         {message && (
-          <p className='font-heading text-cream/90 line-clamp-3 max-w-[80%] text-[2.3cqw] leading-snug italic'>
-            “{message}”
-          </p>
+          <p className='font-heading text-foreground/90 line-clamp-3 text-[2.3cqw] leading-snug italic'>“{message}”</p>
         )}
-        {buyerName && <p className='text-cream/85 text-[2cqw]'>Com carinho, {buyerName}</p>}
+        {buyerName && <p className='text-foreground/75 text-[1.9cqw]'>Com carinho, {buyerName}</p>}
       </div>
 
-      <div className='flex items-end justify-between gap-[3cqw]'>
-        <div className='flex flex-col gap-[0.8cqw]'>
-          <span className='text-cream/70 text-[1.5cqw] tracking-[0.2em] uppercase'>Seu código</span>
-          <span className='text-honey font-mono text-[3.4cqw] tracking-[0.12em]'>{code ?? 'LVH-XXXX-XXXX'}</span>
-        </div>
-        <span className='text-cream/70 max-w-[40%] text-right text-[1.6cqw] text-pretty'>
-          Resgate em lavemhistoria.com.br/presente/resgatar
+      {/* Canhoto com o código, como um ingresso */}
+      <div className='border-earth/40 flex flex-col gap-[0.8cqw] rounded-[1.2cqw] border border-dashed px-[2.4cqw] py-[1.8cqw]'>
+        <span className='text-foreground/60 text-[1.4cqw] tracking-[0.2em] uppercase'>Código do presente</span>
+        <span className='text-[3.2cqw] font-semibold tracking-[0.12em] whitespace-nowrap tabular-nums'>
+          {code ?? 'LVH-XXXX-XXXX'}
         </span>
+        <span className='text-foreground/60 text-[1.4cqw]'>Resgate em lavemhistoria.com.br/presente/resgatar</span>
       </div>
     </div>
   </div>

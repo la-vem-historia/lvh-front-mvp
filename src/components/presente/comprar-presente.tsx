@@ -11,10 +11,12 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { pageTitleClassName } from '@/components/app/page-heading'
 import CartaoVisual from '@/components/presente/cartao-visual'
+import SeloMaisEscolhido from '@/components/presente/selo-mais-escolhido'
 
 import { formatPrice } from '@/lib/lvh/livros'
 import {
   createGiftCard,
+  FEATURED_MONTHS,
   GIFT_OPTIONS,
   pricePerMonth,
   savingsOf,
@@ -92,8 +94,8 @@ const Comprado = ({ gift }: { gift: GiftCard }) => (
 
 // Compra do cartão-presente: quantos meses, para quem, como entregar e quem está dando.
 // A prévia do cartão ao lado acompanha o que a pessoa preenche
-const ComprarPresente = () => {
-  const [months, setMonths] = useState<GiftMonths>(6)
+const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
+  const [months, setMonths] = useState<GiftMonths>(initialMonths)
   const [recipientName, setRecipientName] = useState('')
   const [message, setMessage] = useState('')
   const [delivery, setDelivery] = useState<GiftDelivery>('email')
@@ -146,7 +148,7 @@ const ComprarPresente = () => {
         </div>
 
         <Etapa number={1} title='Quantos meses'>
-          <div role='radiogroup' aria-label='Quantos meses' className='grid gap-3 sm:grid-cols-3'>
+          <div role='radiogroup' aria-label='Quantos meses' className='grid gap-3 pt-3 sm:grid-cols-3'>
             {GIFT_OPTIONS.map(item => (
               <button
                 key={item.months}
@@ -154,8 +156,9 @@ const ComprarPresente = () => {
                 role='radio'
                 aria-checked={months === item.months}
                 onClick={() => setMonths(item.months)}
-                className={optionClassName(months === item.months)}
+                className={cn(optionClassName(months === item.months), 'relative')}
               >
+                {item.months === FEATURED_MONTHS && <SeloMaisEscolhido />}
                 <span className='font-heading text-2xl'>{item.months} meses</span>
                 <span className='text-base font-medium tabular-nums'>{formatPrice(item.price)}</span>
                 <span className='text-muted-foreground text-xs tabular-nums'>
