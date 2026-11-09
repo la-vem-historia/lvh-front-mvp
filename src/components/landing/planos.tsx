@@ -38,6 +38,7 @@ const plans = [
     features: [
       { label: 'Todas as perguntas guiadas', included: true },
       { label: 'Livro digital com capa, sumário e capítulos', included: true },
+      { label: 'EPUB para ler no Kindle e outros leitores', included: true },
       { label: 'Leitura só para quem você convidar', included: true },
       { label: 'Fotos nas respostas', included: false },
       { label: 'Gravação de voz', included: false },

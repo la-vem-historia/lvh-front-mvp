@@ -68,7 +68,7 @@ const questions = [
   {
     question: 'Qual a diferença entre o Essencial e o Completo?',
     answer:
-      'O Essencial é para quem quer contar a história escrevendo: todas as perguntas, o livro digital e a leitura para convidados. O Completo acrescenta fotos, gravação de voz, ditado, convidados respondendo junto e o PDF para imprimir.'
+      'O Essencial é para quem quer contar a história escrevendo: todas as perguntas, o livro digital, o EPUB para Kindle e outros leitores e a leitura para convidados. O Completo acrescenta fotos, gravação de voz, ditado, convidados respondendo junto e o PDF para imprimir.'
   },
   {
     question: 'Posso trocar de plano ou cancelar?',
