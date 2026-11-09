@@ -9,6 +9,7 @@ import Cta from '@/components/landing/cta'
 
 import celularImage from '@/assets/landing/onde-ler/celular.jpg'
 import computadorImage from '@/assets/landing/onde-ler/computador.jpg'
+import impressoImage from '@/assets/landing/onde-ler/impresso.jpg'
 import kindleImage from '@/assets/landing/onde-ler/kindle.jpg'
 import tabletImage from '@/assets/landing/onde-ler/tablet.jpg'
 
@@ -72,7 +73,9 @@ const formas: Forma[] = [
     title: 'No livro impresso',
     text: 'O PDF vai pronto para a gráfica. Nas respostas gravadas, um QR code leva até a sua voz.',
     Icon: BookOpenIcon,
-    alt: 'Avô e neto folheando o livro impresso, com o celular apontado para um QR code',
+    image: impressoImage,
+    alt: 'Uma senhora com o livro impresso aberto no colo, enquanto a filha aproxima o celular do QR code da página e ouve a gravação',
+    focus: 'object-[55%_62%]',
     area: 'lg:col-span-3'
   }
 ]
