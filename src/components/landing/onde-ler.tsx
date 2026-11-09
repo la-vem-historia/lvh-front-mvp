@@ -7,6 +7,11 @@ import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
 import Cta from '@/components/landing/cta'
 
+import celularImage from '@/assets/landing/onde-ler/celular.jpg'
+import computadorImage from '@/assets/landing/onde-ler/computador.jpg'
+import kindleImage from '@/assets/landing/onde-ler/kindle.jpg'
+import tabletImage from '@/assets/landing/onde-ler/tablet.jpg'
+
 import { cn } from '@/lib/utils'
 
 const reveal = {
@@ -22,6 +27,8 @@ type Forma = {
   // Foto de alguém lendo assim. Sem ela, aparece uma moldura com a descrição da foto que falta
   image?: StaticImageData
   alt: string
+  // Ponto da foto que fica à vista quando o quadro corta as bordas (o aparelho)
+  focus?: string
   // Lugar no bento (a partir do lg): o celular ocupa a coluna da esquerda em pé, o impresso fecha embaixo
   area: string
 }
@@ -31,28 +38,34 @@ const formas: Forma[] = [
     title: 'No celular',
     text: 'Abra o link e leia onde estiver: no ônibus, na fila, antes de dormir. As gravações tocam ali mesmo.',
     Icon: SmartphoneIcon,
-    alt: 'Uma neta lendo o livro da avó no celular, no sofá',
+    image: celularImage,
+    alt: 'Uma jovem no sofá, com fone de ouvido, lendo no celular uma resposta da Vó Maria com a gravação da voz dela',
+    focus: 'object-[60%_50%]',
     area: 'lg:row-span-2'
   },
   {
     title: 'No computador',
     text: 'Páginas lado a lado, como um livro aberto em cima da mesa.',
     Icon: LaptopIcon,
-    alt: 'Um filho lendo o livro do pai no computador, na mesa da cozinha',
+    image: computadorImage,
+    alt: 'Um homem na mesa da cozinha, com a mão no queixo e um café ao lado, lendo no notebook o livro aberto em duas páginas',
+    focus: 'object-[35%_50%]',
     area: 'lg:col-span-2'
   },
   {
     title: 'No iPad e no tablet',
     text: 'Vire as páginas com o dedo, no sofá ou na cama.',
     Icon: TabletIcon,
-    alt: 'Uma mãe e uma criança lendo juntas num tablet',
+    image: tabletImage,
+    alt: 'As mãos de uma mãe segurando um tablet sobre a colcha, enquanto a criança aponta para uma foto antiga no livro',
     area: ''
   },
   {
     title: 'No Kindle e em outros leitores',
     text: 'Baixe o EPUB e leia no Kindle, no app Livros, no Play Livros ou no Kobo.',
     Icon: TabletSmartphoneIcon,
-    alt: 'Alguém lendo o livro num Kindle, perto da janela',
+    image: kindleImage,
+    alt: 'Um homem deitado na rede, com o jardim ao fundo, lendo o livro num Kindle',
     area: ''
   },
   {
@@ -90,7 +103,7 @@ const OndeLer = () => (
       </MotionPreset>
 
       <ul className='grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        {formas.map(({ title, text, Icon, image, alt, area }, index) => (
+        {formas.map(({ title, text, Icon, image, alt, focus, area }, index) => (
           <MotionPreset
             key={title}
             component='li'
@@ -104,8 +117,13 @@ const OndeLer = () => (
                   src={image}
                   alt={alt}
                   fill
-                  sizes='(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
-                  className='object-cover'
+                  placeholder='blur'
+                  sizes={
+                    area.includes('col-span')
+                      ? '(min-width: 1024px) 66vw, 100vw'
+                      : '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+                  }
+                  className={cn('object-cover', focus)}
                 />
               ) : (
                 <Moldura Icon={Icon} alt={alt} />
