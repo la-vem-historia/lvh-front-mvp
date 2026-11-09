@@ -244,7 +244,7 @@ const ComoFunciona = () => {
                 {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
               </span>
               <h3 className='font-heading text-[2.5rem] leading-[1.1] text-balance'>{steps[active].title}</h3>
-              <p className='text-muted-foreground text-lg leading-relaxed text-pretty'>{steps[active].text}</p>
+              <p className='text-foreground/80 text-base text-pretty'>{steps[active].text}</p>
             </div>
 
             <div className='col-span-7 col-start-6'>
@@ -267,7 +267,7 @@ const ComoFunciona = () => {
                 {String(index + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
               </span>
               <h3 className='font-heading text-2xl text-balance'>{step.title}</h3>
-              <p className='text-muted-foreground text-base leading-relaxed text-pretty'>{step.text}</p>
+              <p className='text-foreground/80 text-base text-pretty'>{step.text}</p>
             </div>
             <Janela active={index} />
           </MotionPreset>
