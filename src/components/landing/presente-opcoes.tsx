@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -12,9 +10,7 @@ import { FEATURED_MONTHS, GIFT_OPTIONS, pricePerMonth, savingsOf, type GiftMonth
 import { cn } from '@/lib/utils'
 
 // As três opções já escolhíveis na landing: o botão leva para a compra com a opção marcada
-const PresenteOpcoes = () => {
-  const [months, setMonths] = useState<GiftMonths>(FEATURED_MONTHS)
-
+const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (months: GiftMonths) => void }) => {
   return (
     <div className='flex flex-col gap-10'>
       <div role='radiogroup' aria-label='Quantos meses de presente' className='grid gap-3 pt-3 sm:grid-cols-3'>
@@ -27,7 +23,7 @@ const PresenteOpcoes = () => {
               type='button'
               role='radio'
               aria-checked={selected}
-              onClick={() => setMonths(option.months)}
+              onClick={() => onChange(option.months)}
               className={cn(
                 'relative flex cursor-pointer flex-col gap-1 rounded-2xl border p-5 text-left transition-colors',
                 selected
