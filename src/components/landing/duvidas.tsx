@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { Textarea } from '@/components/ui/textarea'
 import { WordsReveal } from '@/components/landing/motion'
-import Cta from '@/components/landing/cta'
 import { TRIAL_ANSWERS, TRIAL_DAYS } from '@/components/landing/teste-gratis'
 import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
@@ -186,7 +185,6 @@ const Duvidas = () => {
           <p className='text-muted-foreground text-base text-pretty'>
             Reunimos o que mais perguntam antes de começar o livro para os filhos ou netos.
           </p>
-          <Cta className='mt-4'>Testar grátis</Cta>
         </MotionPreset>
 
         {/* Lista de perguntas: cada uma abre e fecha sozinha, e o + vira × quando está aberta */}
