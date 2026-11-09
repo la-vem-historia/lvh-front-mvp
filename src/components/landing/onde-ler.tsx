@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
 import Cta from '@/components/landing/cta'
+import EmBreve from '@/components/landing/em-breve'
 
 import celularImage from '@/assets/landing/onde-ler/celular.jpg'
 import computadorImage from '@/assets/landing/onde-ler/computador.jpg'
@@ -30,6 +31,8 @@ type Forma = {
   alt: string
   // Ponto da foto que fica à vista quando o quadro corta as bordas (o aparelho)
   focus?: string
+  // O livro impresso e entregue por nós ainda não existe: um selo na foto explica por quê
+  soon?: boolean
   // Lugar no bento (a partir do lg): o celular ocupa a coluna da esquerda em pé, o impresso fecha embaixo
   area: string
 }
@@ -76,6 +79,7 @@ const formas: Forma[] = [
     image: impressoImage,
     alt: 'Uma senhora com o livro impresso aberto no colo, enquanto a filha aproxima o celular do QR code da página e ouve a gravação',
     focus: 'object-[55%_62%]',
+    soon: true,
     area: 'lg:col-span-3'
   }
 ]
@@ -106,7 +110,7 @@ const OndeLer = () => (
       </MotionPreset>
 
       <ul className='grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        {formas.map(({ title, text, Icon, image, alt, focus, area }, index) => (
+        {formas.map(({ title, text, Icon, image, alt, focus, soon, area }, index) => (
           <MotionPreset
             key={title}
             component='li'
@@ -131,6 +135,7 @@ const OndeLer = () => (
               ) : (
                 <Moldura Icon={Icon} alt={alt} />
               )}
+              {soon && <EmBreve />}
             </div>
             <div className='flex flex-col gap-1 p-6 pt-4'>
               <h3 className='text-base font-medium'>{title}</h3>
