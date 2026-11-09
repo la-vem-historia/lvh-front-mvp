@@ -20,10 +20,15 @@ const Hero = () => {
       <div className='bg-paper relative w-full overflow-hidden rounded-2xl lg:h-[min(calc(56.25vw-4rem),calc(100svh-10rem))] lg:min-h-[32rem]'>
         <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
 
-        {/* Véu claro só atrás do texto, para ele continuar legível em qualquer das fotos */}
+        {/* Véu creme atrás do texto: forte onde estão as letras e sumindo antes das pessoas, para o texto ficar legível
+            em qualquer das fotos, inclusive nas partes com cortina ou luz forte */}
         <div
           aria-hidden='true'
-          className='from-cream/60 via-cream/25 pointer-events-none absolute inset-y-0 left-0 hidden w-3/5 bg-gradient-to-r to-transparent lg:block'
+          className='pointer-events-none absolute inset-y-0 left-0 hidden w-[70%] lg:block'
+          style={{
+            background:
+              'linear-gradient(to right, rgb(255 254 242 / 0.88) 0%, rgb(255 254 242 / 0.78) 40%, rgb(255 254 242 / 0.4) 65%, transparent 100%)'
+          }}
         />
 
         <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
