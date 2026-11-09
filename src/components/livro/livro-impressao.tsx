@@ -306,7 +306,7 @@ const LivroImpressao = () => {
     window.setTimeout(() => {
       const previous = document.title
 
-      if (book) document.title = `${book.author}, a minha história`
+      if (book) document.title = `${book.title}, de ${book.author}`
       window.print()
       document.title = previous
     }, 300)

@@ -7,11 +7,13 @@ const INK = '#2f2a24'
 // à direita, como no livro de verdade. Tudo em cqw para escalar com a largura
 const DedicationPreview = ({
   dedication,
+  title,
   author,
   placeholder,
   className
 }: {
   dedication: string
+  title: string
   author: string
   placeholder: string
   className?: string
@@ -54,9 +56,9 @@ const DedicationPreview = ({
       >
         <div className='flex h-full flex-col items-center px-[10cqw] pt-[10cqw] pb-[8cqw] text-center'>
           <div className='flex flex-1 flex-col items-center justify-center gap-[3cqw]'>
-            <span className='font-heading text-[8cqw] leading-[1.1] text-balance'>{author}</span>
+            <span className='font-heading text-[8cqw] leading-[1.1] text-balance'>{title}</span>
             <span className='bg-earth h-px w-[8cqw]' />
-            <span className='font-heading text-[4cqw] text-[#6b6156] italic'>para a minha família</span>
+            <span className='font-heading text-[4.4cqw] text-[#6b6156] italic'>{author}</span>
           </div>
           <span className='text-[2cqw] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>Lá Vem História</span>
         </div>

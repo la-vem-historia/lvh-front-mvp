@@ -239,6 +239,7 @@ export const PageView = ({
   if (page.type === 'cover') {
     return (
       <BookCover
+        title={book.title}
         author={book.author}
         color={book.coverColor}
         photo={book.coverPhoto}
@@ -295,9 +296,9 @@ export const PageView = ({
       {page.type === 'title' && (
         <div className='book-ink flex h-full flex-col items-center text-center'>
           <div className='flex flex-1 flex-col items-center justify-center gap-4'>
-            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.author}</span>
+            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.title}</span>
             <span aria-hidden='true' className='bg-earth h-px w-8' />
-            <span className='font-heading text-[15px] text-[#6b6156] italic'>para a minha família</span>
+            <span className='font-heading text-[16px] text-[#6b6156] italic'>{book.author}</span>
           </div>
           <span className='text-[7.5px] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>
             Lá Vem História · {book.year}

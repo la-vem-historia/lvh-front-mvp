@@ -22,6 +22,9 @@ export const recipientOf = (book: Pick<UserBook, 'role' | 'recipientName' | 'rec
 export const bookTitle = (book: UserBook) =>
   book.recipientName.trim() ? `Para ${recipientOf(book)}` : 'Para a família'
 
+// Título da capa quando a pessoa ainda não escolheu um
+export const DEFAULT_COVER_TITLE = 'A minha história'
+
 export const formatPrice = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Código de cada foto e áudio, igual no livro impresso e no nome do arquivo do ZIP:

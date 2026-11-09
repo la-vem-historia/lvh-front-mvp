@@ -23,6 +23,8 @@ export type UserBook = {
   recipientGender: RecipientGender
   // Só nos livros de avós: quem recebe é filho ou filha do seu filho ou da sua filha
   childOf?: 'filho' | 'filha'
+  // Título na capa ("A minha história") e quem assina o livro ("Maria", "Vó Lena")
+  coverTitle?: string
   bookName?: string
   dedication?: string
   coverColor?: CoverColor
@@ -47,6 +49,7 @@ export type UserBookChanges = Partial<
     | 'recipientName'
     | 'recipientGender'
     | 'childOf'
+    | 'coverTitle'
     | 'bookName'
     | 'dedication'
     | 'coverColor'
@@ -82,6 +85,7 @@ export type User = {
   activeBookId?: string
   activeBook?: UserBook
   profile?: string
+  coverTitle?: string
   bookName?: string
   dedication?: string
   // Tem pelo menos um livro criado
@@ -113,6 +117,7 @@ export type UserChanges = Partial<
     User,
     | 'name'
     | 'profile'
+    | 'coverTitle'
     | 'bookName'
     | 'dedication'
     | 'onboarded'
@@ -171,6 +176,7 @@ export type BookChapter = {
 
 // O livro é montado só com as perguntas respondidas
 export type Book = {
+  title: string
   author: string
   dedication?: string
   coverColor: CoverColor

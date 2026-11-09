@@ -146,7 +146,7 @@ async function drawCover(book: Book) {
     context.font = `${size}px ${font}`
     lines = []
 
-    for (const word of book.author.split(/\s+/)) {
+    for (const word of book.title.split(/\s+/)) {
       const last = lines[lines.length - 1]
 
       if (last && context.measureText(`${last} ${word}`).width <= textWidth) lines[lines.length - 1] = `${last} ${word}`
@@ -156,7 +156,7 @@ async function drawCover(book: Book) {
     if (lines.length <= 3 && lines.every(line => context.measureText(line).width <= textWidth)) break
   }
 
-  // Foto, nome, fio e "para a minha família" formam um bloco centralizado entre a marca e o ano
+  // Foto, título, fio e o nome de quem escreveu formam um bloco centralizado entre a marca e o ano
   const lineHeight = size * 1.05
   const subtitleSize = 4.2 * cqw
   const nameBlock = lines.length * lineHeight + 3 * cqw + subtitleSize * 2.2
@@ -208,7 +208,7 @@ async function drawCover(book: Book) {
   context.fillRect(centerX - 5 * cqw, ruleY, 10 * cqw, 2)
   context.globalAlpha = 1
   context.font = `italic ${subtitleSize}px ${font}`
-  context.fillText('para a minha família', centerX, ruleY + subtitleSize * 1.4)
+  context.fillText(book.author, centerX, ruleY + subtitleSize * 1.4)
 
   spaced(String(book.year), 2.6 * cqw, height - 10.5 * cqw, 0.25)
 
@@ -260,7 +260,7 @@ export async function buildBookEpub(
   audioLinks: Record<number, string> = {}
 ): Promise<{ blob: Blob; filename: string }> {
   const { zipSync, strToU8 } = await import('fflate')
-  const title = `${book.author}, a minha história`
+  const title = book.title
   const id = `urn:lavemhistoria:${info.id}`
   const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 
@@ -296,8 +296,8 @@ export async function buildBookEpub(
     page(
       title,
       `<div class="title-page">
-<h1>${escapeXml(book.author)}</h1>
-<p class="by">para a minha família</p>
+<h1>${escapeXml(book.title)}</h1>
+<p class="by">${escapeXml(book.author)}</p>
 <p class="brand">Lá Vem História · ${book.year}</p>
 </div>`
     )

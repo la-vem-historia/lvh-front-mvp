@@ -1,6 +1,7 @@
 // Camada de dados do app. Por enquanto tudo é simulado e fica no localStorage do
 // navegador; quando o backend existir, só o miolo destas funções muda.
 
+import { DEFAULT_COVER_TITLE } from './livros'
 import { chaptersFor } from './perguntas'
 import type {
   Answer,
@@ -81,6 +82,7 @@ const nameFromEmail = (email: string) => {
 const BOOK_FIELDS = [
   'activeBook',
   'profile',
+  'coverTitle',
   'bookName',
   'dedication',
   'coverColor',
@@ -173,6 +175,7 @@ const withActiveBook = (user: User): User => {
     activeBookId: book?.id,
     activeBook: book,
     profile: book?.role,
+    coverTitle: book?.coverTitle,
     bookName: book?.bookName,
     dedication: book?.dedication,
     coverColor: book?.coverColor,
@@ -287,12 +290,13 @@ export async function updateUser(changes: UserChanges): Promise<User> {
 
   if (!current) throw new Error('Sessão expirada. Entre de novo.')
 
-  const { profile, bookName, dedication, coverColor, coverPhoto, ...accountChanges } = changes
+  const { profile, coverTitle, bookName, dedication, coverColor, coverPhoto, ...accountChanges } = changes
 
   // Ter livro é o que conta como onboarding feito; não é um campo da conta
   delete accountChanges.onboarded
   const bookChanges: UserBookChanges = {
     ...('profile' in changes && { role: profile as Role }),
+    ...('coverTitle' in changes && { coverTitle }),
     ...('bookName' in changes && { bookName }),
     ...('dedication' in changes && { dedication }),
     ...('coverColor' in changes && { coverColor }),
@@ -594,6 +598,7 @@ export async function getBook(user: User): Promise<Book> {
     .map(item => nameOf(item.collaboratorId))
 
   return {
+    title: user.coverTitle?.trim() || DEFAULT_COVER_TITLE,
     author: user.bookName?.trim() || user.name,
     dedication: user.dedication?.trim() || undefined,
     coverColor: user.coverColor ?? 'verde',

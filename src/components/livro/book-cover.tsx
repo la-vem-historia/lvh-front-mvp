@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 
 import type { CoverColor } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
+import { DEFAULT_COVER_TITLE } from '@/lib/lvh/livros'
 
 // Cores de capa: tecido e douração (o "hot stamping" dos títulos)
 export const coverColors: Record<CoverColor, { label: string; cloth: string; foil: string }> = {
@@ -28,6 +29,8 @@ const ClothGrain = ({ color }: { color: CoverColor }) => (
 )
 
 type BookCoverProps = {
+  // Título grande no centro; quem escreveu vem logo abaixo do fio, em itálico
+  title?: string
   author: string
   color?: CoverColor
   photo?: string
@@ -36,7 +39,7 @@ type BookCoverProps = {
 }
 
 // Capa em proporção de livro (A5); tudo em cqw para escalar com a largura
-const BookCover = ({ author, color = 'verde', photo, year, className }: BookCoverProps) => {
+const BookCover = ({ title = DEFAULT_COVER_TITLE, author, color = 'verde', photo, year, className }: BookCoverProps) => {
   const { cloth, foil } = coverColors[color]
   const stamped: CSSProperties = {
     color: foil,
@@ -87,11 +90,11 @@ const BookCover = ({ author, color = 'verde', photo, year, className }: BookCove
               className={cn('font-heading leading-[1.05] text-balance', photo ? 'text-[8cqw]' : 'text-[10.5cqw]')}
               style={stamped}
             >
-              {author}
+              {title}
             </span>
             <span aria-hidden='true' className='h-px w-[10cqw] opacity-60' style={{ backgroundColor: foil }} />
-            <span className='font-heading text-[4.2cqw] italic' style={stamped}>
-              para a minha família
+            <span className='font-heading text-[4.6cqw] italic' style={stamped}>
+              {author}
             </span>
           </div>
         </div>
