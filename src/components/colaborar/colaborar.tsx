@@ -102,7 +102,7 @@ const Colaborar = ({ token }: { token: string }) => {
               <p className={eyebrowClassName}>Um convite de {view.ownerName}</p>
               <h1 className={pageTitleClassName}>Conte o que você lembra, do seu jeito.</h1>
               <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-                {view.ownerName} está escrevendo a própria história e quer a sua versão destas lembranças. Só{' '}
+                {view.ownerName} está escrevendo um livro de histórias da família e quer a sua versão destas lembranças. Só{' '}
                 {view.ownerName} lê o que você escreve aqui, e você não vê as respostas de {view.ownerName}. Tudo é
                 salvo sozinho.
               </p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'motion/react'
 import { TriangleAlertIcon } from 'lucide-react'
@@ -18,12 +19,14 @@ import { changeProfile, countProfileOnlyAnswers, signOut, type LoginProvider } f
 import { resizeImage } from '@/lib/lvh/media'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 // Papéis disponíveis, com a mesma cor do card escolhido no onboarding
 const roles = [
-  { value: 'Pai', hint: 'As perguntas falam com você como pai.', card: 'bg-olive text-cream', topic: 'paternidade' },
-  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-ink', topic: 'maternidade' }
+  { value: 'Pai', hint: 'As perguntas falam com você como pai.', card: 'bg-olive text-cream', topic: 'paternidade', grand: false },
+  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-ink', topic: 'maternidade', grand: false },
+  { value: 'Avô', hint: 'As perguntas falam com você como avô.', card: 'bg-moss text-cream', topic: 'avós', grand: true },
+  { value: 'Avó', hint: 'As perguntas falam com você como avó.', card: 'bg-clay text-cream', topic: 'avós', grand: true }
 ]
 
 // Perfil: foto (salva na hora) e o nome que aparece no app
@@ -135,7 +138,8 @@ const Papel = () => {
   const [lostCount, setLostCount] = useState(0)
   const [pending, setPending] = useState(false)
   const current = roles.find(role => role.value === user.profile)
-  const others = roles.filter(role => role.value !== user.profile)
+  // Troca só dentro da mesma geração: virar avô num livro para o filho mudaria quem recebe
+  const others = roles.filter(role => role.value !== user.profile && role.grand === current?.grand)
 
   useEffect(() => {
     countProfileOnlyAnswers(user.profile).then(setLostCount)
@@ -161,7 +165,7 @@ const Papel = () => {
       {current && (
         <div className='flex flex-col gap-1'>
           <p className='flex flex-wrap items-center gap-2 text-base'>
-            Você conta a história como
+            Neste livro, você conta a história como
             <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', current.card)}>{current.value}</span>
           </p>
           <p className='text-muted-foreground text-sm'>{current.hint}</p>
@@ -343,9 +347,15 @@ const MinhaConta = () => (
 
     <Section
       title='Quem conta a história'
-      description='Escolhido ao criar a conta. Define como as perguntas falam com você.'
+      description='Escolhido ao criar o livro aberto agora. Define como as perguntas falam com você.'
     >
       <Papel />
+    </Section>
+
+    <Section title='Meus livros' description='Os livros que você escreve, um para cada pessoa, e o pagamento.'>
+      <Link href='/app/livros' className='w-fit text-base underline underline-offset-4'>
+        Ver meus livros e a mensalidade
+      </Link>
     </Section>
 
     <Section title='Login' description='Como você entra na sua conta.'>

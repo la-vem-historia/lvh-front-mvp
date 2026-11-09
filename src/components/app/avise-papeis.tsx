@@ -8,7 +8,7 @@ import { useUser } from '@/components/app/session'
 import { getRoleRequest, requestRole } from '@/lib/lvh/api'
 import { cn } from '@/lib/utils'
 
-const roles = ['Avô', 'Avó', 'Tio', 'Tia', 'Amigo', 'Amiga']
+const roles = ['Tio', 'Tia', 'Padrinho', 'Madrinha', 'Amigo', 'Amiga']
 
 // Fica dentro do formulário do onboarding: nada aqui envia o formulário
 const AvisePapeis = () => {
@@ -58,7 +58,7 @@ const AvisePapeis = () => {
   if (!open) {
     return (
       <p className='text-muted-foreground text-sm'>
-        Em breve, mais papéis: avô, avó, tio, tia, amigo e amiga.{' '}
+        Em breve, mais papéis: tio, tia, padrinho, madrinha, amigo e amiga.{' '}
         <button
           type='button'
           onClick={() => setOpen(true)}

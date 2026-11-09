@@ -13,6 +13,7 @@
   --color-cream: var(--lvh-cream);
   --color-book: var(--lvh-green);
   --color-paper: var(--lvh-paper);
+  --color-field: var(--field);
   --color-moss: var(--lvh-moss);
   --color-honey: var(--lvh-honey);
   --color-clay: var(--lvh-clay);
@@ -88,6 +89,27 @@
     transform: translateY(calc(-100% - var(--marquee-gap)));
     }
   }
+  /* Leitores flutuando em volta da janela do Como funciona */
+  --animate-float: float 6s ease-in-out infinite;
+  @keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+    }
+  50% {
+    transform: translateY(-8px);
+    }
+  }
+  /* Barra que enche enquanto um passo do Como funciona fica na tela; ao terminar, passa para o próximo */
+  --animate-step-progress: step-progress 7s linear forwards;
+  @keyframes step-progress {
+  from {
+    transform: scaleX(0);
+    }
+  to {
+    transform: scaleX(1);
+    }
+  }
 }
 
 /* Fundos da Faculty Dept, cores de texto e botões da Aesop */
@@ -130,7 +152,9 @@
   --accent-foreground: var(--lvh-text);
   --destructive: oklch(0.577 0.245 27.325);
   --border: rgb(51 51 51 / 0.2);
-  --input: rgb(51 51 51 / 0.2);
+  --input: rgb(51 51 51 / 0.3);
+  /* Fundo dos campos de formulário: branco translúcido, para destacar do creme sem recortar demais */
+  --field: rgb(255 255 255 / 0.6);
   --ring: rgb(51 51 51 / 0.5);
   --chart-1: #333333;
   --chart-2: #945c26;
@@ -167,6 +191,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
+  --field: oklch(1 0 0 / 6%);
   --ring: oklch(0.547 0.021 43.1);
   --chart-1: oklch(0.868 0.007 39.5);
   --chart-2: oklch(0.547 0.021 43.1);
@@ -261,9 +286,35 @@
     mix-blend-mode: normal;
     text-shadow: none;
   }
+}
 
-  /* A pauta do caderno sai borrada no PDF: no livro impresso o texto fica sobre o papel limpo */
-  .livro-folha .book-ruled {
-    background-image: none;
+/* Arquivo da gráfica (PDF/X-1a não aceita transparência). O servidor imprime o livro em duas camadas,
+   que se encaixam porque nada aqui muda o tamanho ou a posição de nenhum elemento:
+   - frente: só texto e fotos, sem fundo, sombra nem borda. Sai em vetor, com o texto nítido
+   - fundo: tudo menos texto e fotos (fios, sombras, molduras, QR codes). O motor da gráfica achata em imagem */
+@media print {
+  html[data-grafica='frente'] .livro-folha,
+  html[data-grafica='frente'] .livro-folha * {
+    background: transparent !important;
+    border-color: transparent !important;
+    outline-color: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  html[data-grafica='frente'] .livro-folha svg {
+    visibility: hidden !important;
+  }
+
+  html[data-grafica='fundo'] .livro-folha * {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: none !important;
+    text-decoration-color: transparent !important;
+  }
+
+  html[data-grafica='fundo'] .livro-folha img {
+    visibility: hidden !important;
   }
 }

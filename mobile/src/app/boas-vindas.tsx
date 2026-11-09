@@ -45,7 +45,7 @@ export default function BoasVindas() {
         <View style={styles.fieldset}>
           <View style={styles.titleBlock}>
             <Text accessibilityRole='header' style={type.pageTitle}>
-              Você vai contar a sua história como…
+              Você vai escrever este livro como…
             </Text>
             <Text style={type.bodyMuted}>As perguntas se adaptam a quem está contando.</Text>
           </View>
@@ -98,7 +98,7 @@ export default function BoasVindas() {
 
         <Text style={type.smallMuted}>Em breve, mais papéis: avô, avó, tio, tia, amigo e amiga.</Text>
 
-        <Button title='Começar a minha história' disabled={!profile} loading={pending} onPress={start} />
+        <Button title='Começar o livro' disabled={!profile} loading={pending} onPress={start} />
       </ScrollView>
     </SafeAreaView>
   )

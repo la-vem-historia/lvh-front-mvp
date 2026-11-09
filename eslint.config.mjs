@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // App mobile (Expo): tem lint e tsconfig próprios
     "mobile/**",
+    // Vídeo da hero (Remotion): projeto à parte, com dependências próprias
+    "video/**",
   ]),
 ]);
 

@@ -91,7 +91,7 @@ const BookCover = ({ author, color = 'verde', photo, year, className }: BookCove
             </span>
             <span aria-hidden='true' className='h-px w-[10cqw] opacity-60' style={{ backgroundColor: foil }} />
             <span className='font-heading text-[4.2cqw] italic' style={stamped}>
-              a minha história
+              para a minha família
             </span>
           </div>
         </div>

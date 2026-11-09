@@ -1,5 +1,7 @@
+import Link from 'next/link'
+
+import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
-import CadastroEmail from '@/components/landing/cadastro-email'
 import HeroLivro from '@/components/landing/hero-livro'
 import { WordsReveal } from '@/components/landing/motion'
 
@@ -23,7 +25,7 @@ const Hero = () => {
             </MotionPreset>
             {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto */}
             <WordsReveal
-              text={'Histórias de família se perdem.\nAté que você decide guardá-las.'}
+              text={'Tem coisas que só você sabe.\nConte antes que se percam.'}
               delay={0.15}
               lineClassName='lg:whitespace-nowrap'
               className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] sm:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
@@ -34,21 +36,19 @@ const Hero = () => {
               delay={0.55}
               className='text-muted-foreground max-w-xl text-base text-pretty'
             >
-              Responda perguntas guiadas sobre a sua vida e transforme suas respostas em um livro para as próximas
-              gerações.
+              A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só você
+              pode contar, na sua voz.
             </MotionPreset>
           </div>
 
-          <MotionPreset
-            {...reveal}
-            delay={0.7}
-            motionProps={{ id: 'lista-de-espera' }}
-            className='flex scroll-mt-24 flex-col gap-3'
-          >
-            <CadastroEmail />
-            <p className='text-muted-foreground text-sm'>
-              Sem spam! Os primeiros membros terão acesso antecipado e desconto especial e limitado.
-            </p>
+          {/* Dois caminhos: criar a conta agora ou descer para entender como funciona */}
+          <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3 sm:flex-row'>
+            <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
+              Cadastre-se grátis
+            </Button>
+            <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
+              Como funciona
+            </Button>
           </MotionPreset>
         </div>
       </div>

@@ -182,7 +182,7 @@ const ExcluirConta = () => {
               onChange={event => setTyped(event.target.value)}
               autoComplete='off'
               autoFocus
-              className='bg-background h-12 max-w-xs px-4 text-base'
+              className='bg-field h-12 max-w-xs px-4 text-base'
             />
           </div>
 

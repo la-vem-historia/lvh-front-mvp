@@ -56,7 +56,7 @@ const DedicationPreview = ({
           <div className='flex flex-1 flex-col items-center justify-center gap-[3cqw]'>
             <span className='font-heading text-[8cqw] leading-[1.1] text-balance'>{author}</span>
             <span className='bg-earth h-px w-[8cqw]' />
-            <span className='font-heading text-[4cqw] text-[#6b6156] italic'>a minha história</span>
+            <span className='font-heading text-[4cqw] text-[#6b6156] italic'>para a minha família</span>
           </div>
           <span className='text-[2cqw] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>Lá Vem História</span>
         </div>

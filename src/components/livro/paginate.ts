@@ -3,6 +3,7 @@
 
 import type { AudioRecording, Book } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
+import { mediaCode } from '@/lib/lvh/livros'
 
 // Página lógica; na tela ela é escalada para caber. No celular usamos um formato de
 // bolso, mais estreito, para o texto continuar legível sem precisar de zoom
@@ -21,22 +22,19 @@ export const contentSize = (format: PageFormat) => ({
 })
 
 const PHOTO_HEIGHT = 262
+
+// Fio tracejado acima de cada pergunta: traço de 3px, folga de 1px, quase transparente
+const DIVIDER =
+  'bg-[linear-gradient(to_right,rgb(49_49_39/0.1)_3px,transparent_3px)] bg-[length:4px_1px] bg-repeat-x bg-top [font-variation-settings:"SOFT"_0,"WONK"_1]'
 const AUDIO_HEIGHT = 70
 
-// Pauta das respostas: cada linha de texto cai sobre uma linha do caderno. Depois de cada resposta
-// sobram duas linhas em branco, como se a pessoa ainda tivesse espaço para escrever
-export const LINE_HEIGHT = 21
-const EXTRA_RULED_LINES = 2
-const RULED =
-  'book-ruled bg-[linear-gradient(to_bottom,transparent_18px,rgb(120_100_75/0.3)_18px,rgb(120_100_75/0.3)_19px,transparent_19px)] bg-[length:100%_21px]'
 
 export type FlowBlock =
   | { type: 'question'; text: string }
   | { type: 'contributor'; name: string }
   | { type: 'paragraph'; text: string; lead?: boolean; continued?: boolean }
-  | { type: 'photo'; src: string; caption: string; alt: string; tilt: number }
-  | { type: 'audio'; audio: AudioRecording; questionId: number }
-  | { type: 'rule'; lines: number }
+  | { type: 'photo'; src: string; caption: string; alt: string; tilt: number; code: string }
+  | { type: 'audio'; audio: AudioRecording; questionId: number; code: string }
 
 export type Page =
   | { type: 'cover' }
@@ -54,33 +52,28 @@ export type Page =
 export const blockClassName = (block: FlowBlock) => {
   switch (block.type) {
     case 'question':
-      // Mesma hierarquia do app: pergunta maior e mais pesada que a resposta, sem itálico
-      return 'book-ink font-heading mt-8 mb-1.5 text-[17px] leading-[1.3] font-medium first:mt-0'
+      // Cada pergunta abre com um fio tracejado e fica a uma distância fixa da resposta anterior,
+      // seja ela curta ou longa. Fraunces em negrito, na versão de traço irregular (WONK)
+      return cn(
+        'book-ink font-heading mt-16 mb-3 pt-3 text-[16px] leading-[1.25] font-bold text-[rgb(54_46_37/0.9)] first:mt-0',
+        DIVIDER
+      )
     case 'contributor':
       return 'book-ink text-earth mt-6 mb-2 text-[8.5px] font-medium tracking-[0.2em] uppercase first:mt-0'
     case 'paragraph':
       return cn(
-        'book-ink font-heading text-[13px] leading-[21px] text-justify text-pretty hyphens-auto',
-        RULED,
+        'book-ink font-(family-name:--font-fell) text-[14px] leading-[18px] text-left text-pretty text-[rgb(54_46_37/0.8)]',
         block.lead || block.continued ? 'indent-0' : 'indent-[1.5em]'
       )
     case 'photo':
       return 'mt-5 mb-5 flex items-center justify-center first:mt-0'
     case 'audio':
       return 'mt-4 mb-4 first:mt-0'
-    case 'rule':
-      return cn('book-ink', RULED)
   }
 }
 
 export const blockHeight = (block: FlowBlock) =>
-  block.type === 'photo'
-    ? PHOTO_HEIGHT
-    : block.type === 'audio'
-      ? AUDIO_HEIGHT
-      : block.type === 'rule'
-        ? block.lines * LINE_HEIGHT
-        : undefined
+  block.type === 'photo' ? PHOTO_HEIGHT : block.type === 'audio' ? AUDIO_HEIGHT : undefined
 
 export const contributorLabel = (name: string) => `Como ${name} lembra`
 
@@ -171,17 +164,6 @@ export function paginate(
       .filter(Boolean)
       .forEach((paragraph, index) => placeParagraph({ type: 'paragraph', text: paragraph, lead: lead && index === 0 }))
 
-  // Linhas em branco depois da resposta: só as que couberem nesta página, nunca abrem página nova
-  const placeRule = () => {
-    for (let lines = EXTRA_RULED_LINES; lines > 0; lines--) {
-      const node = createMeasureNode({ type: 'rule', lines })
-
-      measure.append(node)
-      if (fits()) return current.push({ type: 'rule', lines })
-      node.remove()
-    }
-  }
-
   // Bloco que nunca fica sozinho no pé da página: só entra se couber junto com duas linhas
   const keepWithNext = (block: FlowBlock) => {
     measure.append(createMeasureNode(block))
@@ -209,22 +191,29 @@ export function paginate(
 
       if (answer) {
         placeText(answer.text, true)
-        if (answer.text.trim()) placeRule()
         answer.photos.forEach((src, photoIndex) => {
           tilt = -tilt
           // Sem legenda, a foto entra no livro sem texto embaixo; a pergunta fica só como texto alternativo
           const caption = answer.photoCaptions?.[photoIndex]?.trim() ?? ''
 
-          place({ type: 'photo', src, caption, alt: caption || question.text, tilt })
+          place({
+            type: 'photo',
+            src,
+            caption,
+            alt: caption || question.text,
+            tilt,
+            code: mediaCode(question.id, 'foto', photoIndex)
+          })
         })
-        if (answer.audio) place({ type: 'audio', audio: answer.audio, questionId: question.id })
+        if (answer.audio) {
+          place({ type: 'audio', audio: answer.audio, questionId: question.id, code: mediaCode(question.id, 'audio') })
+        }
       }
 
       // Lembranças de quem foi convidado a responder junto
       for (const contribution of contributions) {
         keepWithNext({ type: 'contributor', name: contribution.name })
         placeText(contribution.text, false)
-        placeRule()
       }
     }
   }

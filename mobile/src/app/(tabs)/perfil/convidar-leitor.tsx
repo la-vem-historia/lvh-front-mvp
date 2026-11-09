@@ -30,7 +30,7 @@ export default function ConvidarLeitor() {
       const share = await addShare({ name, email })
 
       router.back()
-      Share.share({ message: `${share.name}, este é o seu link para ler o meu livro: ${readerLink(share.token)}` })
+      Share.share({ message: `${share.name}, estou escrevendo um livro de histórias da família e quero que você leia. Este é o seu link: ${readerLink(share.token)}` })
     } catch (reason) {
       setError((reason as Error).message)
     }

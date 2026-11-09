@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
+// Há um package-lock.json solto na pasta do usuário; sem isto o Next sobe a raiz do projeto até lá
+const root = process.cwd();
+
 const nextConfig: NextConfig = {
+  turbopack: { root },
+  outputFileTracingRoot: root,
   images: {
     remotePatterns: [
       // Imagens usadas pelos blocks do shadcn/studio

@@ -57,7 +57,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
             {/* Navigation: os links já têm 12px de respiro, então o espaço até os botões fica em 30px */}
             <HeroNavigation02 navigationData={navigationData} className='max-lg:hidden' />
 
-            {/* Entrar e cadastro na lista de espera */}
+            {/* Entrar e criar conta */}
             <div className='flex items-center gap-4 max-lg:hidden'>
               <Button
                 variant='outline'

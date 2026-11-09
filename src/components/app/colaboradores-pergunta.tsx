@@ -1,14 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
-
-import { AnimatePresence, motion } from 'motion/react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useUser } from '@/components/app/session'
-import { EASE } from '@/components/landing/motion'
 
 import {
   deleteContribution,
@@ -21,38 +19,17 @@ import {
 import type { Collaborator, Contribution } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-background h-12 px-5 text-base'
+const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 export const collaboratorLink = (collaborator: Collaborator) =>
   `${window.location.origin}/colaborar/${collaborator.token}`
 
 const actionClassName = 'cursor-pointer underline underline-offset-4'
 
-// Abre e fecha com a mesma animação (altura e opacidade). A margem negativa compensa o espaço
-// (gap) do container, para nada pular quando o bloco entra ou sai
-const Collapse = ({ gap, onOpened, children }: { gap: number; onOpened?: () => void; children: ReactNode }) => (
-  <motion.div
-    initial={{ height: 0, opacity: 0, marginTop: -gap }}
-    animate={{ height: 'auto', opacity: 1, marginTop: 0 }}
-    exit={{ height: 0, opacity: 0, marginTop: -gap }}
-    transition={{ duration: 0.45, ease: EASE }}
-    onAnimationComplete={definition => {
-      if ((definition as { height?: unknown }).height === 'auto') onOpened?.()
-    }}
-    className='overflow-hidden'
-  >
-    {children}
-  </motion.div>
-)
-
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
 
-// Depois de abrir, rola só o necessário para o botão Enviar convite aparecer acima da barra de navegação
-const revealSubmit = () =>
-  document.getElementById('convite-enviar')?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-
 const defaultMessage = (guest: string, owner: string, question: string) =>
-  `Oi, ${guest.trim() || '[nome]'}! Estou escrevendo a minha história no Lá Vem História e queria muito a sua versão de uma lembrança: “${question}”
+  `Oi, ${guest.trim() || '[nome]'}! Estou escrevendo um livro de histórias da família no Lá Vem História e queria muito a sua versão de uma lembrança: “${question}”
 
 É só abrir o link e responder do seu jeito, sem pressa. Você não vê a minha resposta, então pode contar tudo como você lembra.
 
@@ -62,18 +39,21 @@ ${owner}`
 type ColaboradoresPerguntaProps = {
   questionId: number
   questionText: string
-  // O convite abre pelo botão "Convidar para responder", na linha de ferramentas da pergunta
+  // O convite abre num modal pelo botão de convidar, na barra de ferramentas da pergunta
   inviting: boolean
   onInvitingChange: (inviting: boolean) => void
+  // Quantas pessoas têm algo nesta pergunta, para o botão de convidar mostrar
+  onPeopleChange?: (count: number) => void
 }
 
-// Respostas de convidados para uma pergunta, vistas por quem escreve o livro.
-// Só aparece quando há convidados ou um convite em andamento
+// Modal de outras lembranças: quem foi convidado para esta pergunta, as respostas para aprovar e o convite.
+// Fica tudo no modal para a tela de escrever não precisar rolar
 const ColaboradoresPergunta = ({
   questionId,
   questionText,
   inviting,
-  onInvitingChange: setInviting
+  onInvitingChange: setInviting,
+  onPeopleChange
 }: ColaboradoresPerguntaProps) => {
   const user = useUser()
   const [collaborators, setCollaborators] = useState<Collaborator[]>([])
@@ -112,6 +92,10 @@ const ColaboradoresPergunta = ({
     .filter(id => !invited.some(collaborator => collaborator.id === id))
   const people = [...invited, ...collaborators.filter(collaborator => formerIds.includes(collaborator.id))]
 
+  useEffect(() => {
+    if (loaded) onPeopleChange?.(people.length)
+  }, [loaded, people.length, onPeopleChange])
+
   const copy = async (collaborator: Collaborator) => {
     try {
       await navigator.clipboard.writeText(collaboratorLink(collaborator))
@@ -132,14 +116,19 @@ const ColaboradoresPergunta = ({
     setGuestEmail('')
     setCustomMessage(null)
     setError(null)
+    setSent(null)
   }
 
   const invite = async () => {
     try {
       const collaborator = await inviteCollaborator({ name: guestName, email: guestEmail, questionId, message })
 
+      // O modal continua aberto: a pessoa aparece na lista e o formulário fica pronto para mais um convite
       await load()
-      closeInvite()
+      setGuestName('')
+      setGuestEmail('')
+      setCustomMessage(null)
+      setError(null)
       setSent({ name: collaborator.name, copied: await copy(collaborator) })
     } catch (reason) {
       setError((reason as Error).message)
@@ -159,24 +148,24 @@ const ColaboradoresPergunta = ({
     action().then(load)
   }
 
-  // Antes de carregar não anima: quem já tem convidados vê a seção aberta, sem efeito na entrada
   if (!loaded) return null
 
-  const visible = people.length > 0 || inviting || Boolean(sent)
-
   return (
-    <AnimatePresence initial={false}>
-      {visible && (
-        <Collapse key='colaboradores' gap={40} onOpened={revealSubmit}>
-          <section id='colaboradores' className='border-border flex scroll-mt-28 flex-col gap-6 border-t pt-8'>
-            <div className='flex flex-col gap-2'>
-              <h2 className='text-base font-medium'>Outras lembranças</h2>
-              <p className='text-muted-foreground text-sm text-pretty'>
-                Convide alguém para contar a versão dele ou dela desta história. A pessoa responde pelo próprio link e
-                nunca vê a sua resposta.
-              </p>
-            </div>
+    <>
+      <Dialog open={inviting} onOpenChange={open => !open && closeInvite()}>
+        {/* Título e botões ficam parados; só o meio rola, com uma barra fina que não encosta nos cantos */}
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-[1.5rem] p-0 sm:max-w-xl'>
+          <div className='flex flex-col gap-2 px-6 pt-6 pr-14 pb-2 sm:px-8 sm:pt-8 sm:pr-14'>
+            <DialogTitle className='font-heading text-2xl'>
+              {people.length > 0 ? 'Outras lembranças' : 'Convidar para responder'}
+            </DialogTitle>
+            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+              Convide alguém para contar a versão dele ou dela desta lembrança. A pessoa responde pelo próprio link e
+              nunca vê a sua resposta.
+            </DialogDescription>
+          </div>
 
+          <div className='flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-4 [scrollbar-color:var(--color-stone)_transparent] [scrollbar-width:thin] sm:px-8'>
             {people.length > 0 && (
               <ul className='flex flex-col gap-4'>
                 {people.map(collaborator => {
@@ -281,110 +270,7 @@ const ColaboradoresPergunta = ({
               </ul>
             )}
 
-            <AnimatePresence initial={false}>
-              {inviting && (
-                <Collapse key='convite' gap={24} onOpened={revealSubmit}>
-                  <div className='border-border flex flex-col gap-5 rounded-2xl border p-5'>
-                    {others.length > 0 && (
-                      <div className='flex flex-col gap-2'>
-                        <span className='text-sm font-medium'>Quem já colabora com você</span>
-                        <div className='flex flex-wrap gap-2'>
-                          {others.map(collaborator => (
-                            <button
-                              key={collaborator.id}
-                              type='button'
-                              onClick={() => {
-                                setGuestName(collaborator.name)
-                                setGuestEmail(collaborator.email)
-                              }}
-                              className='border-border hover:border-foreground/40 cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors'
-                            >
-                              + {collaborator.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-                      {others.length > 0 && <span className='text-sm font-medium'>Ou convide uma pessoa nova</span>}
-                      <div className='grid gap-4 sm:grid-cols-2'>
-                        <div className='flex flex-col gap-2'>
-                          <Label htmlFor={`colaborador-nome-${questionId}`}>Nome</Label>
-                          <Input
-                            id={`colaborador-nome-${questionId}`}
-                            value={guestName}
-                            onChange={event => setGuestName(event.target.value)}
-                            required
-                            className={fieldClassName}
-                          />
-                        </div>
-                        <div className='flex flex-col gap-2'>
-                          <Label htmlFor={`colaborador-email-${questionId}`}>E-mail</Label>
-                          <Input
-                            id={`colaborador-email-${questionId}`}
-                            type='email'
-                            value={guestEmail}
-                            onChange={event => setGuestEmail(event.target.value)}
-                            required
-                            className={fieldClassName}
-                          />
-                        </div>
-                      </div>
-                      <div className='flex flex-col gap-2'>
-                        <div className='flex items-baseline justify-between gap-4'>
-                          <Label htmlFor={`colaborador-mensagem-${questionId}`}>Mensagem</Label>
-                          {customMessage !== null && (
-                            <button
-                              type='button'
-                              onClick={() => setCustomMessage(null)}
-                              className='text-muted-foreground cursor-pointer text-xs underline underline-offset-4'
-                            >
-                              Voltar à mensagem padrão
-                            </button>
-                          )}
-                        </div>
-                        <textarea
-                          id={`colaborador-mensagem-${questionId}`}
-                          value={message}
-                          onChange={event => setCustomMessage(event.target.value)}
-                          required
-                          className='border-border bg-background focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
-                        />
-                        <p className='text-muted-foreground text-xs'>
-                          Já escrevemos uma mensagem para você. Mude o que quiser.
-                        </p>
-                      </div>
-                      {error && <p className='text-destructive text-sm'>{error}</p>}
-                      <div className='flex items-center gap-4'>
-                        <Button
-                          id='convite-enviar'
-                          type='submit'
-                          variant='honey'
-                          disabled={!guestName.trim() || !isValidEmail(guestEmail)}
-                          className='h-10 scroll-mb-28 px-5'
-                        >
-                          Enviar convite
-                        </Button>
-                        <button
-                          type='button'
-                          onClick={closeInvite}
-                          className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    </form>
-                    {/* Convite simulado: o e-mail não é enviado e o link só abre neste navegador */}
-                    <p className='text-muted-foreground text-xs'>
-                      Protótipo: nenhum e-mail é enviado, e o link só abre neste navegador.
-                    </p>
-                  </div>
-                </Collapse>
-              )}
-            </AnimatePresence>
-
-            {!inviting && sent && (
+            {sent && (
               <p role='status' className='text-muted-foreground text-sm'>
                 Convite enviado para {sent.name}.{' '}
                 {sent.copied
@@ -392,10 +278,109 @@ const ColaboradoresPergunta = ({
                   : 'Se quiser mandar por mensagem, copie o link no card acima.'}
               </p>
             )}
-          </section>
-        </Collapse>
-      )}
-    </AnimatePresence>
+
+            {people.length > 0 && (
+              <h3 className='border-border border-t pt-6 text-base font-medium'>Convidar mais alguém</h3>
+            )}
+            {others.length > 0 && (
+              <div className='flex flex-col gap-2'>
+                <span className='text-sm font-medium'>Quem já colabora com você</span>
+                <div className='flex flex-wrap gap-2'>
+                  {others.map(collaborator => (
+                    <button
+                      key={collaborator.id}
+                      type='button'
+                      onClick={() => {
+                        setGuestName(collaborator.name)
+                        setGuestEmail(collaborator.email)
+                      }}
+                      className='border-border hover:border-foreground/40 cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors'
+                    >
+                      + {collaborator.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <form id={`convite-${questionId}`} onSubmit={handleSubmit} className='flex flex-col gap-4'>
+              {others.length > 0 && <span className='text-sm font-medium'>Ou convide uma pessoa nova</span>}
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <Label htmlFor={`colaborador-nome-${questionId}`}>Nome</Label>
+                  <Input
+                    id={`colaborador-nome-${questionId}`}
+                    value={guestName}
+                    onChange={event => setGuestName(event.target.value)}
+                    required
+                    className={fieldClassName}
+                  />
+                </div>
+                <div className='flex flex-col gap-2'>
+                  <Label htmlFor={`colaborador-email-${questionId}`}>E-mail</Label>
+                  <Input
+                    id={`colaborador-email-${questionId}`}
+                    type='email'
+                    value={guestEmail}
+                    onChange={event => setGuestEmail(event.target.value)}
+                    required
+                    className={fieldClassName}
+                  />
+                </div>
+              </div>
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-baseline justify-between gap-4'>
+                  <Label htmlFor={`colaborador-mensagem-${questionId}`}>Mensagem</Label>
+                  {customMessage !== null && (
+                    <button
+                      type='button'
+                      onClick={() => setCustomMessage(null)}
+                      className='text-muted-foreground cursor-pointer text-xs underline underline-offset-4'
+                    >
+                      Voltar à mensagem padrão
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  id={`colaborador-mensagem-${questionId}`}
+                  value={message}
+                  onChange={event => setCustomMessage(event.target.value)}
+                  required
+                  className='border-input bg-field focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
+                />
+                <p className='text-muted-foreground text-xs'>
+                  Já escrevemos uma mensagem para você. Mude o que quiser.
+                </p>
+              </div>
+              {error && <p className='text-destructive text-sm'>{error}</p>}
+            </form>
+            {/* Convite simulado: o e-mail não é enviado e o link só abre neste navegador */}
+            <p className='text-muted-foreground text-xs'>
+              Protótipo: nenhum e-mail é enviado, e o link só abre neste navegador.
+            </p>
+          </div>
+
+          <div className='border-border/60 flex items-center gap-4 border-t px-6 py-4 sm:px-8'>
+            <Button
+              type='submit'
+              form={`convite-${questionId}`}
+              variant='honey'
+              disabled={!guestName.trim() || !isValidEmail(guestEmail)}
+              className='h-10 px-5'
+            >
+              Enviar convite
+            </Button>
+            <button
+              type='button'
+              onClick={closeInvite}
+              className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+            >
+              {people.length > 0 ? 'Fechar' : 'Cancelar'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

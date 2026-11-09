@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 import Link from 'next/link'
@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
 import { INK, PageView } from '@/components/livro/book-reader'
-import { PAGE_FORMATS, contentSize, paginate } from '@/components/livro/paginate'
+import { PAGE_FORMATS, contentSize, paginate, type Page } from '@/components/livro/paginate'
 
 import { getAudioLinks, getBook } from '@/lib/lvh/api'
 import { PAPER } from '@/lib/lvh/paper'
@@ -62,6 +62,26 @@ const PHOTO_MODES = [
 ] as const
 
 type PhotoMode = (typeof PHOTO_MODES)[number]['value']
+
+// Arquivo da gráfica: o servidor abre esta página com ?grafica=frente ou ?grafica=fundo e imprime o livro
+// duas vezes. A frente traz só texto e fotos, em vetor; o fundo traz o resto (fios, sombras, QR codes),
+// que o motor da gráfica achata em imagem. Quem usa o site nunca vê este modo
+type CamadaGrafica = 'frente' | 'fundo'
+
+const lerCamadaGrafica = (): CamadaGrafica | null => {
+  const camada = new URLSearchParams(window.location.search).get('grafica')
+
+  return camada === 'frente' || camada === 'fundo' ? camada : null
+}
+
+const semAssinatura = () => () => {}
+
+// No miolo impresso, capa, guarda e contracapa não entram: vão para o arquivo da capa. Capa e guarda viram
+// páginas em branco, para cada página continuar do mesmo lado (par ou ímpar) e com o mesmo número
+const paginasDaGrafica = (pages: Page[]): Page[] =>
+  pages
+    .filter(page => page.type !== 'back')
+    .map(page => (page.type === 'cover' || page.type === 'endpaper' ? { type: 'blank' } : page))
 
 // Linhas cinza fazendo as vezes de texto na miniatura
 const TextLines = ({ count }: { count: number }) => (
@@ -219,6 +239,18 @@ const LivroImpressao = () => {
   const [zoomed, setZoomed] = useState<number | null>(null)
   const [cellWidth, setCellWidth] = useState(0)
   const closeZoom = useCallback(() => setZoomed(null), [])
+  const grafica = useSyncExternalStore(semAssinatura, lerCamadaGrafica, () => null)
+
+  // O CSS de impressão de cada camada depende deste atributo (globals.css)
+  useEffect(() => {
+    if (!grafica) return
+
+    document.documentElement.dataset.grafica = grafica
+
+    return () => {
+      delete document.documentElement.dataset.grafica
+    }
+  }, [grafica])
 
   useEffect(() => {
     getBook(user).then(async next => {
@@ -285,8 +317,10 @@ const LivroImpressao = () => {
   const audioCount = Object.keys(audioLinks).length
   const photos = book?.chapters.flatMap(chapter => chapter.entries.flatMap(entry => entry.answer?.photos ?? [])) ?? []
   const zoom = view === 'paginas' ? PAGES_ZOOM : cellWidth / FORMAT.width || 0.3
-  const paperOption = PAPERS.find(option => option.value === paper) ?? PAPERS[0]
-  const photoOption = PHOTO_MODES.find(option => option.value === photoMode) ?? PHOTO_MODES[0]
+  // Para a gráfica, sempre papel branco (o creme vem do próprio papel) e fotos impressas
+  const paperOption = PAPERS.find(option => option.value === (grafica ? 'branco' : paper)) ?? PAPERS[0]
+  const photoOption = PHOTO_MODES.find(option => option.value === (grafica ? 'impressas' : photoMode)) ?? PHOTO_MODES[0]
+  const pages = layout ? (grafica ? paginasDaGrafica(layout.pages) : layout.pages) : []
 
   // A mesma página serve à fileira, à grade, à ampliação e ao PDF; só o tamanho na tela muda.
   // Ampliada, ela não leva a classe do PDF, para não sair duas vezes na impressão
@@ -310,7 +344,7 @@ const LivroImpressao = () => {
         }
       >
         <PageView
-          page={layout.pages[index]}
+          page={pages[index]}
           index={index}
           book={book}
           chapterPages={layout.chapterPages}
@@ -319,7 +353,7 @@ const LivroImpressao = () => {
           single
           audioLinks={links}
           paperColor={paperOption.color}
-          photoSlots={photoMode === 'colar'}
+          photoSlots={photoOption.value === 'colar'}
         />
       </div>
     )
@@ -422,7 +456,7 @@ const LivroImpressao = () => {
               : 'mx-auto grid w-full max-w-7xl pb-16 grid-cols-3 gap-x-6 gap-y-8 px-4 sm:grid-cols-4 sm:px-6 lg:grid-cols-6 lg:px-16'
           )}
         >
-          {layout.pages.map((page, index) => (
+          {pages.map((page, index) => (
             // Um botão por cima da página inteira abre a página ampliada. A página fica inerte:
             // os links do sumário e os botões das fotos não roubam o clique nem o foco
             <div

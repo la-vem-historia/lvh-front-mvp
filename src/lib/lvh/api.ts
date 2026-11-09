@@ -1,11 +1,12 @@
 // Camada de dados do app. Por enquanto tudo é simulado e fica no localStorage do
 // navegador; quando o backend existir, só o miolo destas funções muda.
 
-import { chapters as allChapters } from './perguntas'
+import { chaptersFor } from './perguntas'
 import type {
   Answer,
   AudioRecording,
   AnswerChanges,
+  Billing,
   Book,
   Chapter,
   Collaborator,
@@ -15,8 +16,13 @@ import type {
   Question,
   QuestionContext,
   RoleRequest,
+  NewBookInput,
+  PlanId,
+  Role,
   Share,
   User,
+  UserBook,
+  UserBookChanges,
   UserChanges
 } from './types'
 
@@ -29,6 +35,19 @@ const COLLABORATORS_KEY = 'lvh:collaborators'
 const CONTRIBUTIONS_KEY = 'lvh:contributions'
 const AUDIO_LINKS_KEY = 'lvh:audio-links'
 const BOOKMARKS_KEY = 'lvh:bookmarks'
+const BOOKS_KEY = 'lvh:books'
+const PRINT_INTEREST_KEY = 'lvh:livro-impresso'
+
+// Tudo o que é de um livro (respostas, leitores, colaboradores, voz) fica numa chave com o id dele
+const PER_BOOK_KEYS = [
+  ANSWERS_KEY,
+  BOOKMARKS_KEY,
+  SHARES_KEY,
+  COLLABORATORS_KEY,
+  CONTRIBUTIONS_KEY,
+  AUDIO_LINKS_KEY,
+  PRINT_INTEREST_KEY
+]
 
 const read = <T>(key: string, fallback: T): T => {
   try {
@@ -58,15 +77,109 @@ const nameFromEmail = (email: string) => {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : 'Você'
 }
 
+// Campos que vêm do livro ativo: nunca ficam guardados no usuário
+const BOOK_FIELDS = ['activeBook', 'profile', 'bookName', 'dedication', 'coverColor', 'coverPhoto', 'onboarded'] as const
+
+const stripBookFields = (user: User): User => {
+  const raw = { ...user }
+
+  BOOK_FIELDS.forEach(field => delete raw[field])
+
+  return raw
+}
+
 // Contas que já entraram neste navegador, por e-mail. Sair encerra só a sessão; a conta continua
 // aqui para o próximo login saber que ela existe
 const saveUser = (user: User) => {
+  const raw = stripBookFields(user)
   const accounts = read<Record<string, User>>(ACCOUNTS_KEY, {})
 
-  write(ACCOUNTS_KEY, { ...accounts, [user.email]: user })
+  write(ACCOUNTS_KEY, { ...accounts, [raw.email]: raw })
 
-  return write(USER_KEY, user)
+  return write(USER_KEY, raw)
 }
+
+// Antes havia um livro só, guardado no próprio usuário. Na primeira leitura, a conta vira o
+// primeiro livro e as chaves antigas passam a ter o id dele
+const migrateToBooks = () => {
+  try {
+    if (window.localStorage.getItem(BOOKS_KEY) !== null) return
+  } catch {
+    return
+  }
+
+  const legacy = read<User | null>(USER_KEY, null)
+
+  if (!legacy?.profile) {
+    write(BOOKS_KEY, [])
+
+    return
+  }
+
+  const book: UserBook = {
+    id: crypto.randomUUID(),
+    role: legacy.profile as Role,
+    recipientName: '',
+    recipientGender: 'menino',
+    bookName: legacy.bookName,
+    dedication: legacy.dedication,
+    coverColor: legacy.coverColor,
+    coverPhoto: legacy.coverPhoto,
+    createdAt: new Date().toISOString()
+  }
+
+  PER_BOOK_KEYS.forEach(key => {
+    try {
+      const value = window.localStorage.getItem(key)
+
+      if (value !== null) {
+        window.localStorage.setItem(`${key}:${book.id}`, value)
+        window.localStorage.removeItem(key)
+      }
+    } catch {}
+  })
+
+  write(BOOKS_KEY, [book])
+  saveUser({ ...legacy, activeBookId: book.id })
+}
+
+const readBooks = () => {
+  migrateToBooks()
+
+  return read<UserBook[]>(BOOKS_KEY, [])
+}
+
+const rawUser = () => {
+  migrateToBooks()
+
+  return read<User | null>(USER_KEY, null)
+}
+
+// O usuário que o app enxerga: a conta mais os campos do livro aberto
+const withActiveBook = (user: User): User => {
+  const books = readBooks()
+  const book = books.find(item => item.id === user.activeBookId) ?? books[0]
+
+  return {
+    ...user,
+    activeBookId: book?.id,
+    activeBook: book,
+    profile: book?.role,
+    bookName: book?.bookName,
+    dedication: book?.dedication,
+    coverColor: book?.coverColor,
+    coverPhoto: book?.coverPhoto,
+    onboarded: Boolean(book)
+  }
+}
+
+const activeBookId = () => {
+  const user = rawUser()
+
+  return user ? withActiveBook(user).activeBookId : undefined
+}
+
+const bookKey = (key: string, bookId = activeBookId()) => `${key}:${bookId ?? 'sem-livro'}`
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase()
 
@@ -94,7 +207,7 @@ export async function verifyLoginCode(email: string, code: string): Promise<Logi
 
   saveUser(user)
 
-  return { user, isNew: !existing }
+  return { user: withActiveBook(user), isNew: !existing }
 }
 
 // Contas de exemplo no lugar do OAuth de cada serviço, que entra junto com o backend
@@ -111,35 +224,41 @@ export async function signInWithProvider(provider: LoginProvider): Promise<Login
 
   saveUser(user)
 
-  return { user, isNew: !existing }
+  return { user: withActiveBook(user), isNew: !existing }
 }
 
 export type { LoginProvider }
 
+// Todas as perguntas de um papel, na ordem do livro
+const questionsFor = (role: string | undefined) => chaptersFor(role).flatMap(chapter => chapter.questions)
+
 // Respostas que só existem para um papel (ex.: perguntas de pai). Trocar de papel apaga essas respostas
 const profileOnlyAnswered = (profile: string | undefined, answers: Record<number, Answer>) =>
-  allChapters
-    .flatMap(chapter => chapter.questions)
-    .filter(question => question.profile && question.profile === profile && isAnswered(answers[question.id]))
+  questionsFor(profile)
+    .filter(question => question.profile && isAnswered(answers[question.id]))
     .map(question => question.id)
 
 export async function countProfileOnlyAnswers(profile: string | undefined): Promise<number> {
-  return profileOnlyAnswered(profile, read<Record<number, Answer>>(ANSWERS_KEY, {})).length
+  return profileOnlyAnswered(profile, read<Record<number, Answer>>(bookKey(ANSWERS_KEY), {})).length
 }
 
+// Troca o papel do livro aberto. As respostas que só existem para o papel antigo são apagadas
 export async function changeProfile(profile: string): Promise<User> {
-  const current = read<User | null>(USER_KEY, null)
+  const current = await getCurrentUser()
 
-  if (!current) throw new Error('Sessão expirada. Entre de novo.')
+  if (!current?.activeBook) throw new Error('Sessão expirada. Entre de novo.')
 
-  const answers = read<Record<number, Answer>>(ANSWERS_KEY, {})
+  const key = bookKey(ANSWERS_KEY, current.activeBook.id)
+  const answers = read<Record<number, Answer>>(key, {})
   const lost = profileOnlyAnswered(current.profile, answers)
 
   if (current.profile !== profile && lost.length) {
-    write(ANSWERS_KEY, Object.fromEntries(Object.entries(answers).filter(([id]) => !lost.includes(Number(id)))))
+    write(key, Object.fromEntries(Object.entries(answers).filter(([id]) => !lost.includes(Number(id)))))
   }
 
-  return updateUser({ profile })
+  await updateBook(current.activeBook.id, { role: profile as Role })
+
+  return (await getCurrentUser()) as User
 }
 
 export async function signOut() {
@@ -149,28 +268,223 @@ export async function signOut() {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  return read<User | null>(USER_KEY, null)
+  const user = rawUser()
+
+  return user ? withActiveBook(user) : null
 }
 
+// Campos do livro vão para o livro aberto; o resto fica na conta
 export async function updateUser(changes: UserChanges): Promise<User> {
-  const current = read<User | null>(USER_KEY, null)
+  const current = rawUser()
 
   if (!current) throw new Error('Sessão expirada. Entre de novo.')
 
-  const user = { ...current, ...changes }
+  const { profile, bookName, dedication, coverColor, coverPhoto, ...accountChanges } = changes
+
+  // Ter livro é o que conta como onboarding feito; não é um campo da conta
+  delete accountChanges.onboarded
+  const bookChanges: UserBookChanges = {
+    ...('profile' in changes && { role: profile as Role }),
+    ...('bookName' in changes && { bookName }),
+    ...('dedication' in changes && { dedication }),
+    ...('coverColor' in changes && { coverColor }),
+    ...('coverPhoto' in changes && { coverPhoto })
+  }
+  const bookId = withActiveBook(current).activeBookId
+
+  if (Object.keys(bookChanges).length) {
+    if (bookId) await updateBook(bookId, bookChanges)
+    // Onboarding antigo (app mobile): escolhe só o papel, sem dizer para quem é o livro
+    else if (profile) await createBook({ role: profile as Role, recipientName: '', recipientGender: 'menino' })
+  }
+
+  const user = { ...rawUser()!, ...accountChanges }
 
   if (!saveUser(user)) throw new Error('Não foi possível salvar.')
 
-  return user
+  return withActiveBook(user)
 }
 
+// Livros
+
+export async function getBooks(): Promise<UserBook[]> {
+  return readBooks()
+}
+
+const saveBooks = (books: UserBook[]) => {
+  if (!write(BOOKS_KEY, books)) throw new Error('Não foi possível salvar o livro.')
+}
+
+
+// Respostas de outro livro que valem para o livro novo: as que existem para o papel novo e
+// não falam de quem recebe o livro
+const copyableAnswers = (fromId: string, role: Role) => {
+  const answers = read<Record<number, Answer>>(bookKey(ANSWERS_KEY, fromId), {})
+
+  return questionsFor(role)
+    .filter(question => !question.aboutRecipient && isAnswered(answers[question.id]))
+    .map(question => answers[question.id])
+}
+
+export async function countCopyableAnswers(fromId: string, role: Role): Promise<number> {
+  return copyableAnswers(fromId, role).length
+}
+
+// Cria o livro, abre ele e, se pedido, copia as respostas de outro livro (com fotos e voz)
+export async function createBook({ copyFrom, ...input }: NewBookInput): Promise<User> {
+  const user = rawUser()
+
+  if (!user) throw new Error('Sessão expirada. Entre de novo.')
+
+  if (!(await hasFreeSlot())) {
+    throw new Error('Todas as vagas estão em uso. Conclua um livro ou adicione uma vaga.')
+  }
+
+  const book: UserBook = {
+    ...input,
+    recipientName: input.recipientName.trim(),
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    status: 'em-andamento'
+  }
+
+  saveBooks([...readBooks(), book])
+
+  if (copyFrom) {
+    const now = new Date().toISOString()
+    const copied = Object.fromEntries(
+      copyableAnswers(copyFrom, book.role).map(answer => [answer.questionId, { ...answer, updatedAt: now }])
+    )
+
+    if (!write(bookKey(ANSWERS_KEY, book.id), copied)) {
+      saveBooks(readBooks().filter(item => item.id !== book.id))
+      throw new Error('Não deu para copiar as respostas: o espaço do navegador acabou.')
+    }
+  }
+
+  saveUser({ ...user, activeBookId: book.id })
+
+  return withActiveBook({ ...user, activeBookId: book.id })
+}
+
+export async function updateBook(id: string, changes: UserBookChanges): Promise<UserBook> {
+  const books = readBooks()
+  const current = books.find(book => book.id === id)
+
+  if (!current) throw new Error('Livro não encontrado.')
+
+  const book = { ...current, ...changes }
+
+  saveBooks(books.map(item => (item.id === id ? book : item)))
+
+  return book
+}
+
+export async function setActiveBook(id: string): Promise<User> {
+  const user = rawUser()
+
+  if (!user) throw new Error('Sessão expirada. Entre de novo.')
+
+  saveUser({ ...user, activeBookId: id })
+
+  return withActiveBook({ ...user, activeBookId: id })
+}
+
+// Exclusão definitiva do livro: respostas, leitores, colaboradores e voz somem junto
+export async function deleteBook(id: string): Promise<User> {
+  const user = rawUser()
+
+  if (!user) throw new Error('Sessão expirada. Entre de novo.')
+
+  saveBooks(readBooks().filter(book => book.id !== id))
+  PER_BOOK_KEYS.forEach(key => {
+    try {
+      window.localStorage.removeItem(bookKey(key, id))
+    } catch {}
+  })
+
+  const next = { ...user, activeBookId: user.activeBookId === id ? undefined : user.activeBookId }
+
+  saveUser(next)
+
+  return withActiveBook(next)
+}
+
+// Quantas perguntas cada livro já tem respondidas, para a lista de livros
+export async function countAnsweredByBook(): Promise<Record<string, number>> {
+  return Object.fromEntries(
+    readBooks().map(book => {
+      const answers = read<Record<number, Answer>>(bookKey(ANSWERS_KEY, book.id), {})
+
+      return [book.id, questionsFor(book.role).filter(question => isAnswered(answers[question.id])).length]
+    })
+  )
+}
+
+// Preço por mês: o plano dá uma vaga de livro em andamento; cada vaga a mais custa o valor de extra
+export const planPrices: Record<PlanId, { name: string; base: number; extra: number }> = {
+  essencial: { name: 'Essencial', base: 9.9, extra: 4.9 },
+  completo: { name: 'Completo', base: 29.9, extra: 9.9 }
+}
+
+const isInProgress = (book: UserBook) => book.status !== 'concluido'
+
+const slotInfo = () => {
+  const extraSlots = rawUser()?.extraSlots ?? 0
+
+  return { slots: 1 + extraSlots, extraSlots, inProgress: readBooks().filter(isInProgress).length }
+}
+
+export async function hasFreeSlot(): Promise<boolean> {
+  const { slots, inProgress } = slotInfo()
+
+  return inProgress < slots
+}
+
+export async function getBilling(): Promise<Billing> {
+  const plan = rawUser()?.plan ?? 'completo'
+  const { slots, extraSlots, inProgress } = slotInfo()
+  const { base, extra } = planPrices[plan]
+
+  return {
+    plan,
+    base,
+    extraSlots,
+    extraPrice: extra,
+    total: Math.round((base + extraSlots * extra) * 100) / 100,
+    slots,
+    inProgress
+  }
+}
+
+// Vagas a mais: só tira uma vaga que está livre, nunca a de um livro em andamento
+export async function setExtraSlots(extraSlots: number): Promise<User> {
+  const { inProgress } = slotInfo()
+
+  if (extraSlots < 0 || 1 + extraSlots < inProgress) {
+    throw new Error('Conclua um livro em andamento antes de tirar essa vaga.')
+  }
+
+  return updateUser({ extraSlots })
+}
+
+// Concluir: o livro fica pronto, continua online para quem lê e libera a vaga
+export async function concludeBook(id: string): Promise<UserBook> {
+  return updateBook(id, { status: 'concluido', concludedAt: new Date().toISOString() })
+}
+
+// Reabrir para mudar algo: volta a ocupar uma vaga
+export async function reopenBook(id: string): Promise<UserBook> {
+  if (!(await hasFreeSlot())) {
+    throw new Error('Todas as vagas estão em uso. Conclua outro livro ou adicione uma vaga.')
+  }
+
+  return updateBook(id, { status: 'em-andamento', concludedAt: undefined })
+}
+
+
 export async function getChapters(user: User): Promise<Chapter[]> {
-  return allChapters
-    .map(chapter => ({
-      ...chapter,
-      questions: chapter.questions.filter(question => !question.profile || question.profile === user.profile)
-    }))
-    .filter(chapter => chapter.questions.length > 0)
+  return chaptersFor(user.profile, user.activeBook ?? {})
 }
 
 export async function getQuestionContext(user: User, questionId: number): Promise<QuestionContext | null> {
@@ -214,7 +528,7 @@ export const isAnswered = (answer?: Answer) =>
   Boolean(answer && (answer.text.trim() || answer.photos.length || answer.audio))
 
 export async function getAnswers(): Promise<Record<number, Answer>> {
-  return read<Record<number, Answer>>(ANSWERS_KEY, {})
+  return read<Record<number, Answer>>(bookKey(ANSWERS_KEY), {})
 }
 
 export async function getAnswer(questionId: number): Promise<Answer | undefined> {
@@ -222,38 +536,51 @@ export async function getAnswer(questionId: number): Promise<Answer | undefined>
 }
 
 export async function saveAnswer(questionId: number, changes: AnswerChanges): Promise<Answer> {
-  const answers = read<Record<number, Answer>>(ANSWERS_KEY, {})
+  const answers = read<Record<number, Answer>>(bookKey(ANSWERS_KEY), {})
   const current = answers[questionId] ?? { questionId, text: '', photos: [], updatedAt: '' }
   const answer: Answer = { ...current, ...changes, updatedAt: new Date().toISOString() }
 
-  if (!write(ANSWERS_KEY, { ...answers, [questionId]: answer })) {
+  if (!write(bookKey(ANSWERS_KEY), { ...answers, [questionId]: answer })) {
     throw new Error('Não foi possível salvar. O espaço do navegador pode ter acabado.')
   }
 
   return answer
 }
 
+// Livro impresso pela gráfica parceira: enquanto o pedido não existe, guardamos quem quer ser avisado.
+// Com o backend, esta função vai para uma lista própria (não a dos interessados no lançamento)
+export async function getPrintInterest(): Promise<string | null> {
+  return read<string | null>(bookKey(PRINT_INTEREST_KEY), null)
+}
+
+export async function registerPrintInterest(): Promise<string> {
+  const when = new Date().toISOString()
+
+  write(bookKey(PRINT_INTEREST_KEY), when)
+
+  return when
+}
+
 // Perguntas marcadas para voltar depois (buscar uma foto, lembrar melhor). A mais recente vem primeiro
 export async function getBookmarks(): Promise<number[]> {
-  return read<number[]>(BOOKMARKS_KEY, [])
+  return read<number[]>(bookKey(BOOKMARKS_KEY), [])
 }
 
 export async function setBookmark(questionId: number, marked: boolean): Promise<number[]> {
-  const rest = read<number[]>(BOOKMARKS_KEY, []).filter(id => id !== questionId)
+  const rest = read<number[]>(bookKey(BOOKMARKS_KEY), []).filter(id => id !== questionId)
   const next = marked ? [questionId, ...rest] : rest
 
-  write(BOOKMARKS_KEY, next)
+  write(bookKey(BOOKMARKS_KEY), next)
 
   return next
 }
 
 export async function getBook(user: User): Promise<Book> {
-  const [chapters, answers, collaborators, contributions] = await Promise.all([
-    getChapters(user),
-    getAnswers(),
-    getCollaborators(),
-    getContributions()
-  ])
+  const id = user.activeBookId
+  const chapters = await getChapters(user)
+  const answers = read<Record<number, Answer>>(bookKey(ANSWERS_KEY, id), {})
+  const collaborators = read<Collaborator[]>(bookKey(COLLABORATORS_KEY, id), [])
+  const contributions = read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY, id), [])
   const nameOf = (id: string) => collaborators.find(collaborator => collaborator.id === id)?.name ?? 'Convidado'
 
   const approvedNames = contributions
@@ -286,8 +613,26 @@ export async function getBook(user: User): Promise<Book> {
   }
 }
 
+// Links de leitores, colaboradores e voz valem para o livro em que foram criados, aberto ou não
+const findInBooks = <T>(key: string, match: (item: T) => boolean) => {
+  for (const book of readBooks()) {
+    const item = read<T[]>(bookKey(key, book.id), []).find(match)
+
+    if (item) return { book, item }
+  }
+
+  return undefined
+}
+
+// O dono visto a partir de um livro específico, para montar aquele livro
+const ownerOf = async (bookId: string) => {
+  const owner = rawUser()
+
+  return owner ? withActiveBook({ ...owner, activeBookId: bookId }) : null
+}
+
 export async function getShares(): Promise<Share[]> {
-  return read<Share[]>(SHARES_KEY, [])
+  return read<Share[]>(bookKey(SHARES_KEY), [])
 }
 
 export async function addShare({ name, email }: { name: string; email: string }): Promise<Share> {
@@ -299,7 +644,7 @@ export async function addShare({ name, email }: { name: string; email: string })
     createdAt: new Date().toISOString()
   }
 
-  if (!write(SHARES_KEY, [...read<Share[]>(SHARES_KEY, []), share])) {
+  if (!write(bookKey(SHARES_KEY), [...read<Share[]>(bookKey(SHARES_KEY), []), share])) {
     throw new Error('Não foi possível salvar o convite.')
   }
 
@@ -308,30 +653,30 @@ export async function addShare({ name, email }: { name: string; email: string })
 
 export async function removeShare(id: string) {
   write(
-    SHARES_KEY,
-    read<Share[]>(SHARES_KEY, []).filter(share => share.id !== id)
+    bookKey(SHARES_KEY),
+    read<Share[]>(bookKey(SHARES_KEY), []).filter(share => share.id !== id)
   )
 }
 
 // Leitura por convidado. Simulado: só funciona no mesmo navegador de quem escreveu
 export async function getSharedBook(token: string): Promise<{ book: Book; reader: Share } | null> {
-  const reader = read<Share[]>(SHARES_KEY, []).find(share => share.token === token)
-  const owner = await getCurrentUser()
+  const found = findInBooks<Share>(SHARES_KEY, share => share.token === token)
+  const owner = found && (await ownerOf(found.book.id))
 
-  if (!reader || !owner) return null
+  if (!found || !owner) return null
 
-  return { book: await getBook(owner), reader }
+  return { book: await getBook(owner), reader: found.item }
 }
 
 // Link de cada voz, para o QR code do livro impresso: um código por resposta, que não muda
 // e não revela nada além daquele áudio
 export async function getAudioLinks(questionIds: number[]): Promise<Record<number, string>> {
-  const links = read<Record<number, string>>(AUDIO_LINKS_KEY, {})
+  const links = read<Record<number, string>>(bookKey(AUDIO_LINKS_KEY), {})
   const missing = questionIds.filter(id => !links[id])
 
   if (missing.length) {
     missing.forEach(id => (links[id] = newToken()))
-    write(AUDIO_LINKS_KEY, links)
+    write(bookKey(AUDIO_LINKS_KEY), links)
   }
 
   return Object.fromEntries(questionIds.map(id => [id, links[id]]))
@@ -341,13 +686,20 @@ export async function getAudioLinks(questionIds: number[]): Promise<Record<numbe
 export async function getSharedAudio(
   token: string
 ): Promise<{ author: string; question: string; audio: AudioRecording } | null> {
-  const entry = Object.entries(read<Record<number, string>>(AUDIO_LINKS_KEY, {})).find(([, link]) => link === token)
-  const owner = await getCurrentUser()
+  const found = readBooks()
+    .map(book => ({
+      book,
+      entry: Object.entries(read<Record<number, string>>(bookKey(AUDIO_LINKS_KEY, book.id), {})).find(
+        ([, link]) => link === token
+      )
+    }))
+    .find(item => item.entry)
+  const owner = found && (await ownerOf(found.book.id))
 
-  if (!entry || !owner) return null
+  if (!found?.entry || !owner) return null
 
-  const questionId = Number(entry[0])
-  const audio = (await getAnswer(questionId))?.audio
+  const questionId = Number(found.entry[0])
+  const audio = read<Record<number, Answer>>(bookKey(ANSWERS_KEY, found.book.id), {})[questionId]?.audio
   const question = (await getChapters(owner)).flatMap(chapter => chapter.questions).find(item => item.id === questionId)
 
   if (!audio || !question) return null
@@ -373,7 +725,7 @@ export async function requestRole(email: string, role: string): Promise<RoleRequ
 const newToken = () => crypto.randomUUID().replace(/-/g, '')
 
 export async function getCollaborators(): Promise<Collaborator[]> {
-  return read<Collaborator[]>(COLLABORATORS_KEY, [])
+  return read<Collaborator[]>(bookKey(COLLABORATORS_KEY), [])
 }
 
 // Convida para uma pergunta; se a pessoa já colabora, só libera mais essa pergunta
@@ -388,7 +740,7 @@ export async function inviteCollaborator({
   questionId: number
   message?: string
 }): Promise<Collaborator> {
-  const collaborators = read<Collaborator[]>(COLLABORATORS_KEY, [])
+  const collaborators = read<Collaborator[]>(bookKey(COLLABORATORS_KEY), [])
   const normalized = email.trim().toLowerCase()
   const existing = collaborators.find(collaborator => collaborator.email === normalized)
 
@@ -412,7 +764,7 @@ export async function inviteCollaborator({
     ? collaborators.map(item => (item.id === existing.id ? collaborator : item))
     : [...collaborators, collaborator]
 
-  if (!write(COLLABORATORS_KEY, next)) throw new Error('Não foi possível salvar o convite.')
+  if (!write(bookKey(COLLABORATORS_KEY), next)) throw new Error('Não foi possível salvar o convite.')
 
   return collaborator
 }
@@ -420,8 +772,8 @@ export async function inviteCollaborator({
 // Tira o acesso a uma pergunta; a resposta já dada continua até você apagar
 export async function removeCollaboratorFromQuestion(collaboratorId: string, questionId: number) {
   write(
-    COLLABORATORS_KEY,
-    read<Collaborator[]>(COLLABORATORS_KEY, []).map(collaborator =>
+    bookKey(COLLABORATORS_KEY),
+    read<Collaborator[]>(bookKey(COLLABORATORS_KEY), []).map(collaborator =>
       collaborator.id === collaboratorId
         ? { ...collaborator, questionIds: collaborator.questionIds.filter(id => id !== questionId) }
         : collaborator
@@ -432,48 +784,50 @@ export async function removeCollaboratorFromQuestion(collaboratorId: string, que
 // Remove a pessoa de vez: o link deixa de funcionar e as respostas dela saem do livro
 export async function removeCollaborator(collaboratorId: string) {
   write(
-    COLLABORATORS_KEY,
-    read<Collaborator[]>(COLLABORATORS_KEY, []).filter(collaborator => collaborator.id !== collaboratorId)
+    bookKey(COLLABORATORS_KEY),
+    read<Collaborator[]>(bookKey(COLLABORATORS_KEY), []).filter(collaborator => collaborator.id !== collaboratorId)
   )
   write(
-    CONTRIBUTIONS_KEY,
-    read<Contribution[]>(CONTRIBUTIONS_KEY, []).filter(item => item.collaboratorId !== collaboratorId)
+    bookKey(CONTRIBUTIONS_KEY),
+    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), []).filter(item => item.collaboratorId !== collaboratorId)
   )
 }
 
 export async function getContributions(questionId?: number): Promise<Contribution[]> {
-  const contributions = read<Contribution[]>(CONTRIBUTIONS_KEY, [])
+  const contributions = read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), [])
 
   return questionId === undefined ? contributions : contributions.filter(item => item.questionId === questionId)
 }
 
 export async function setContributionApproval(contributionId: string, approved: boolean) {
   write(
-    CONTRIBUTIONS_KEY,
-    read<Contribution[]>(CONTRIBUTIONS_KEY, []).map(item => (item.id === contributionId ? { ...item, approved } : item))
+    bookKey(CONTRIBUTIONS_KEY),
+    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), []).map(item => (item.id === contributionId ? { ...item, approved } : item))
   )
 }
 
 export async function deleteContribution(contributionId: string) {
   write(
-    CONTRIBUTIONS_KEY,
-    read<Contribution[]>(CONTRIBUTIONS_KEY, []).filter(item => item.id !== contributionId)
+    bookKey(CONTRIBUTIONS_KEY),
+    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY), []).filter(item => item.id !== contributionId)
   )
 }
 
 // Visão do convidado: nunca inclui as respostas de quem convidou
 export async function getCollaboratorView(token: string): Promise<CollaboratorView | null> {
-  const collaborator = read<Collaborator[]>(COLLABORATORS_KEY, []).find(item => item.token === token)
-  const owner = await getCurrentUser()
+  const found = findInBooks<Collaborator>(COLLABORATORS_KEY, item => item.token === token)
+  const owner = found && (await ownerOf(found.book.id))
 
-  if (!collaborator || !owner) return null
+  if (!found || !owner) return null
 
-  const questions = allChapters
+  const collaborator = found.item
+
+  const questions = (await getChapters(owner))
     .flatMap(chapter => chapter.questions)
     .filter(question => collaborator.questionIds.includes(question.id))
 
   const contributions = Object.fromEntries(
-    read<Contribution[]>(CONTRIBUTIONS_KEY, [])
+    read<Contribution[]>(bookKey(CONTRIBUTIONS_KEY, found.book.id), [])
       .filter(item => item.collaboratorId === collaborator.id)
       .map(item => [item.questionId, item])
   )
@@ -482,13 +836,15 @@ export async function getCollaboratorView(token: string): Promise<CollaboratorVi
 }
 
 export async function saveContribution(token: string, questionId: number, text: string): Promise<Contribution> {
-  const collaborator = read<Collaborator[]>(COLLABORATORS_KEY, []).find(item => item.token === token)
+  const found = findInBooks<Collaborator>(COLLABORATORS_KEY, item => item.token === token)
+  const collaborator = found?.item
 
-  if (!collaborator || !collaborator.questionIds.includes(questionId)) {
+  if (!found || !collaborator || !collaborator.questionIds.includes(questionId)) {
     throw new Error('Você não tem mais acesso a esta pergunta.')
   }
 
-  const contributions = read<Contribution[]>(CONTRIBUTIONS_KEY, [])
+  const key = bookKey(CONTRIBUTIONS_KEY, found.book.id)
+  const contributions = read<Contribution[]>(key, [])
   const current = contributions.find(item => item.collaboratorId === collaborator.id && item.questionId === questionId)
   const contribution: Contribution = {
     id: current?.id ?? crypto.randomUUID(),
@@ -503,21 +859,26 @@ export async function saveContribution(token: string, questionId: number, text: 
     ? contributions.map(item => (item.id === current.id ? contribution : item))
     : [...contributions, contribution]
 
-  if (!write(CONTRIBUTIONS_KEY, next)) throw new Error('Não foi possível salvar.')
+  if (!write(key, next)) throw new Error('Não foi possível salvar.')
 
   return contribution
 }
 
 // Cópia de tudo o que a pessoa tem no app, para baixar antes de excluir a conta
 export async function exportMyData() {
+  const per = <T>(key: string, id: string, fallback: T) => read<T>(bookKey(key, id), fallback)
+
   return {
     exportedAt: new Date().toISOString(),
-    user: read<User | null>(USER_KEY, null),
-    answers: read<Record<number, Answer>>(ANSWERS_KEY, {}),
-    bookmarks: read<number[]>(BOOKMARKS_KEY, []),
-    collaborators: read<Collaborator[]>(COLLABORATORS_KEY, []),
-    contributions: read<Contribution[]>(CONTRIBUTIONS_KEY, []),
-    readers: read<Share[]>(SHARES_KEY, [])
+    user: rawUser(),
+    books: readBooks().map(book => ({
+      ...book,
+      answers: per<Record<number, Answer>>(ANSWERS_KEY, book.id, {}),
+      bookmarks: per<number[]>(BOOKMARKS_KEY, book.id, []),
+      collaborators: per<Collaborator[]>(COLLABORATORS_KEY, book.id, []),
+      contributions: per<Contribution[]>(CONTRIBUTIONS_KEY, book.id, []),
+      readers: per<Share[]>(SHARES_KEY, book.id, [])
+    }))
   }
 }
 

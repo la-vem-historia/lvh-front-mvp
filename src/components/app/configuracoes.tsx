@@ -18,15 +18,18 @@ import {
   removeCollaboratorFromQuestion,
   removeShare
 } from '@/lib/lvh/api'
-import { chapters as allChapters } from '@/lib/lvh/perguntas'
-import type { Collaborator, Contribution, Share } from '@/lib/lvh/types'
+import { chaptersFor } from '@/lib/lvh/perguntas'
+import type { Collaborator, Contribution, Share, User } from '@/lib/lvh/types'
 
-const questionText = (id: number) =>
-  allChapters.flatMap(chapter => chapter.questions).find(question => question.id === id)?.text ?? `Pergunta ${id}`
+const questionText = (user: User, id: number) =>
+  chaptersFor(user.profile, user.activeBook ?? {})
+    .flatMap(chapter => chapter.questions)
+    .find(question => question.id === id)?.text ?? `Pergunta ${id}`
 
 const actionClassName = 'cursor-pointer underline underline-offset-4'
 
 const Colaboradores = () => {
+  const user = useUser()
   const [collaborators, setCollaborators] = useState<Collaborator[]>([])
   const [contributions, setContributions] = useState<Contribution[]>([])
   const [copied, setCopied] = useState<string | null>(null)
@@ -94,7 +97,7 @@ const Colaboradores = () => {
                       className='border-border flex items-baseline justify-between gap-4 border-t py-2 text-sm'
                     >
                       <Link href={`/app/pergunta/${questionId}`} className='hover:underline'>
-                        {questionText(questionId)}
+                        {questionText(user, questionId)}
                       </Link>
                       <span className='text-muted-foreground flex shrink-0 gap-4 text-xs'>
                         {contribution

@@ -12,12 +12,15 @@ import Avatar from '@/components/app/avatar'
 import { useUser } from '@/components/app/session'
 
 import { getAnswers, getChapters, isAnswered } from '@/lib/lvh/api'
+import { bookTitle } from '@/lib/lvh/livros'
 import { cn } from '@/lib/utils'
 
 // Cor da etiqueta do papel: a mesma do card escolhido no onboarding
 const roleTagClassName: Record<string, string> = {
   Pai: 'bg-olive text-cream',
-  Mãe: 'bg-lilac text-ink'
+  Mãe: 'bg-lilac text-ink',
+  Avô: 'bg-moss text-cream',
+  Avó: 'bg-clay text-cream'
 }
 
 const iconButtonClassName =
@@ -46,7 +49,7 @@ const IconButton = ({
       aria-current={active ? 'page' : undefined}
       className={cn(
         iconButtonClassName,
-        active ? 'bg-ink text-cream' : 'bg-sand text-foreground hover:bg-stone',
+        active ? 'bg-moss text-cream' : 'bg-sand text-foreground hover:bg-stone',
         disabled && 'text-muted-foreground hover:bg-sand cursor-default',
         className
       )}
@@ -75,14 +78,23 @@ const AppHeader = () => {
 
   const firstName = user.name.trim().split(/\s+/)[0]
   const isAccount = pathname === '/app/conta'
+  // Escrevendo, o cabeçalho vira modo foco: só as abas, sem logo nem conta
+  const focus = pathname.startsWith('/app/pergunta')
+
+  // No onboarding (conta nova e novo livro) não há cabeçalho: nada ali é clicável ainda, e o foco fica nos passos
+  if (pathname === '/app/boas-vindas' || pathname === '/app/livros/novo') return null
 
   return (
     // Mesma barra da landing: 80px, creme translúcido com desfoque e logo grande
     <header className='bg-background/85 sticky top-0 z-50 backdrop-blur print:hidden'>
       <div className='mx-auto grid h-20 max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:px-8'>
-        <Link href='/app' className='w-fit'>
-          <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
-        </Link>
+        {focus ? (
+          <span />
+        ) : (
+          <Link href='/app' className='w-fit'>
+            <Logo className='[&_svg]:h-7 sm:[&_svg]:h-[2.125rem]' />
+          </Link>
+        )}
 
         <nav aria-label='Principal' className='flex items-center gap-2'>
           <IconButton label='Início' active={pathname === '/app'} render={<Link href='/app' />}>
@@ -100,39 +112,56 @@ const AppHeader = () => {
           </IconButton>
         </nav>
 
-        <div className='flex items-center justify-end gap-2'>
-          <IconButton
-            label='Configurações'
-            active={pathname === '/app/configuracoes'}
-            render={<Link href='/app/configuracoes' />}
-          >
-            <SettingsIcon />
-          </IconButton>
-
-          {/* Avatar com o primeiro nome e o papel escolhido; leva à conta */}
-          <Link
-            href='/app/conta'
-            aria-label={`Minha conta, ${user.name}`}
-            aria-current={isAccount ? 'page' : undefined}
-            className={cn(
-              'flex h-10 items-center gap-2 rounded-full p-1 transition-colors duration-200 sm:pr-3',
-              isAccount ? 'bg-ink text-cream' : 'bg-sand hover:bg-stone'
-            )}
-          >
-            <Avatar user={user} className='bg-stone size-8' />
-            <span className='text-sm font-medium max-sm:hidden'>{firstName}</span>
-            {user.profile && (
-              <span
+        {focus ? (
+          <span />
+        ) : (
+          <div className='flex items-center justify-end gap-2'>
+            {/* O livro aberto: leva à lista de livros, onde se troca de livro ou cria outro */}
+            {user.activeBook && (
+              <Link
+                href='/app/livros'
+                aria-current={pathname.startsWith('/app/livros') ? 'page' : undefined}
                 className={cn(
-                  'rounded-full px-2 py-0.5 text-xs font-medium max-sm:hidden',
-                  roleTagClassName[user.profile] ?? 'bg-stone text-foreground'
+                  'flex h-10 items-center rounded-full px-4 text-sm font-medium transition-colors duration-200 max-sm:hidden',
+                  pathname.startsWith('/app/livros') ? 'bg-moss text-cream' : 'bg-sand hover:bg-stone'
                 )}
               >
-                {user.profile}
-              </span>
+                {bookTitle(user.activeBook)}
+              </Link>
             )}
-          </Link>
-        </div>
+            <IconButton
+              label='Configurações'
+              active={pathname === '/app/configuracoes'}
+              render={<Link href='/app/configuracoes' />}
+            >
+              <SettingsIcon />
+            </IconButton>
+
+            {/* Avatar com o primeiro nome e o papel escolhido; leva à conta */}
+            <Link
+              href='/app/conta'
+              aria-label={`Minha conta, ${user.name}`}
+              aria-current={isAccount ? 'page' : undefined}
+              className={cn(
+                'flex h-10 items-center gap-2 rounded-full p-1 transition-colors duration-200 sm:pr-3',
+                isAccount ? 'bg-moss text-cream' : 'bg-sand hover:bg-stone'
+              )}
+            >
+              <Avatar user={user} className='bg-stone size-8' />
+              <span className='text-sm font-medium max-sm:hidden'>{firstName}</span>
+              {user.profile && (
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs font-medium max-sm:hidden',
+                    roleTagClassName[user.profile] ?? 'bg-stone text-foreground'
+                  )}
+                >
+                  {user.profile}
+                </span>
+              )}
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   )
