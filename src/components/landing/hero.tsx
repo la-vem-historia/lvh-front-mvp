@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
-import HeroLivro from '@/components/landing/hero-livro'
+import HeroFotos from '@/components/landing/hero-fotos'
 import { WordsReveal } from '@/components/landing/motion'
 import { TRIAL } from '@/components/landing/teste-gratis'
 
@@ -14,53 +14,57 @@ const reveal = {
 
 const Hero = () => {
   return (
-    // Até 1536px: mesma largura e margens do header, com o texto alinhado ao logo.
-    // Em telas grandes: a margem esquerda (30vw - metade do bloco) volta a centralizar o texto nos 60% da esquerda,
-    // e o livro fica centralizado em todo o espaço que sobra à direita do texto
-    <section className='mx-auto grid w-full max-w-7xl px-4 sm:px-6 lg:min-h-[calc(100svh-5rem)] lg:grid-cols-[minmax(0,36.5rem)_minmax(0,1fr)] lg:gap-16 lg:px-8 2xl:max-w-none 2xl:pr-16 2xl:pl-[calc(30vw-18.25rem)]'>
-      <div className='flex items-center py-16 lg:py-24'>
-        <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
-          <div className='flex flex-col gap-6'>
-            <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
-              Livro de memórias de família
-            </MotionPreset>
-            {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto */}
-            <WordsReveal
-              text={'Tem coisas que só você sabe.\nConte antes que se percam.'}
-              delay={0.15}
-              lineClassName='lg:whitespace-nowrap'
-              className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] sm:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
-            />
-            <MotionPreset
-              {...reveal}
-              component='p'
-              delay={0.55}
-              className='text-muted-foreground max-w-xl text-base text-pretty'
-            >
-              A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só você
-              pode contar, na sua voz.
+    // Um card grande, como uma foto de revista: no desktop a família fica à direita e o texto em cima da parede
+    // calma da esquerda; no celular, onde o 16:9 fica baixo demais, a foto vai em cima e o texto embaixo
+    <section className='px-3 pb-3 sm:px-4 sm:pb-4'>
+      <div className='bg-paper relative overflow-hidden rounded-2xl lg:aspect-video lg:max-h-[calc(100svh-6rem)] lg:min-h-[36rem]'>
+        <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
+
+        {/* Véu claro só atrás do texto, para ele continuar legível em qualquer das fotos */}
+        <div
+          aria-hidden='true'
+          className='from-cream/60 via-cream/25 pointer-events-none absolute inset-y-0 left-0 hidden w-3/5 bg-gradient-to-r to-transparent lg:block'
+        />
+
+        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:w-[50%] lg:px-14 xl:px-20'>
+          <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
+            <div className='flex flex-col gap-6'>
+              <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
+                Livro de memórias de família
+              </MotionPreset>
+              {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto */}
+              <WordsReveal
+                text={'Tem coisas que só você sabe.\nConte antes que se percam.'}
+                delay={0.15}
+                lineClassName='lg:whitespace-nowrap'
+                className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] sm:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
+              />
+              <MotionPreset
+                {...reveal}
+                component='p'
+                delay={0.55}
+                className='text-foreground/80 max-w-xl text-base text-pretty'
+              >
+                A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só
+                você pode contar, na sua voz.
+              </MotionPreset>
+            </div>
+
+            {/* Dois caminhos: começar agora ou descer para entender como funciona. Embaixo, o que o grátis cobre */}
+            <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3'>
+              <div className='flex flex-col gap-3 sm:flex-row'>
+                <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
+                  Comece sua história
+                </Button>
+                <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
+                  Como funciona
+                </Button>
+              </div>
+              <p className='text-foreground/70 text-sm text-pretty'>{TRIAL}.</p>
             </MotionPreset>
           </div>
-
-          {/* Dois caminhos: começar agora ou descer para entender como funciona. Embaixo, o que o grátis cobre */}
-          <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3'>
-            <div className='flex flex-col gap-3 sm:flex-row'>
-              <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
-                Comece sua história
-              </Button>
-              <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
-                Como funciona
-              </Button>
-            </div>
-            <p className='text-muted-foreground text-sm text-pretty'>{TRIAL}.</p>
-          </MotionPreset>
         </div>
       </div>
-
-      {/* Livro de exemplo, com fotos, voz e recado saindo das páginas; abre no hover */}
-      <MotionPreset {...reveal} delay={0.3} className='flex items-center justify-center pb-16 lg:py-10'>
-        <HeroLivro />
-      </MotionPreset>
     </section>
   )
 }
