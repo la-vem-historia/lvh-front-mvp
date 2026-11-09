@@ -50,7 +50,7 @@ const CartaoFrente = ({ months, className }: { months: number; className?: strin
       <Logo className='text-moss [&_svg]:h-[6.5cqw] [&_svg]:w-auto' />
       <div className='flex flex-col items-center gap-[0.2cqw] leading-none'>
         <span className='font-heading text-[11cqw] leading-none tabular-nums'>{months}</span>
-        <span className='text-[3cqw] font-semibold tracking-[0.18em] uppercase'>meses</span>
+        <span className='text-[3cqw] font-semibold tracking-[0.18em] uppercase'>{months === 1 ? 'mês' : 'meses'}</span>
       </div>
       <span className='text-moss/70 text-[2.2cqw] tracking-[0.2em] uppercase'>Presente</span>
     </div>

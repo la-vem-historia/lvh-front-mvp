@@ -6,14 +6,25 @@ import { Button } from '@/components/ui/button'
 import SeloMaisEscolhido from '@/components/presente/selo-mais-escolhido'
 
 import { formatPrice } from '@/lib/lvh/livros'
-import { FEATURED_MONTHS, GIFT_OPTIONS, pricePerMonth, savingsOf, type GiftMonths } from '@/lib/lvh/presente'
+import {
+  FEATURED_MONTHS,
+  GIFT_OPTIONS,
+  monthsLabel,
+  pricePerMonth,
+  savingsOf,
+  type GiftMonths
+} from '@/lib/lvh/presente'
 import { cn } from '@/lib/utils'
 
 // As três opções já escolhíveis na landing: o botão leva para a compra com a opção marcada
 const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (months: GiftMonths) => void }) => {
   return (
     <div className='flex flex-col gap-10'>
-      <div role='radiogroup' aria-label='Quantos meses de presente' className='grid gap-3 pt-3 sm:grid-cols-3'>
+      <div
+        role='radiogroup'
+        aria-label='Quantos meses de presente'
+        className='grid grid-cols-2 gap-3 pt-3 xl:grid-cols-4'
+      >
         {GIFT_OPTIONS.map(option => {
           const selected = months === option.months
 
@@ -32,7 +43,7 @@ const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (m
               )}
             >
               {option.months === FEATURED_MONTHS && <SeloMaisEscolhido />}
-              <span className='font-heading text-2xl'>{option.months} meses</span>
+              <span className='font-heading text-2xl'>{monthsLabel(option.months)}</span>
               <span className='text-base font-medium tabular-nums'>{formatPrice(option.price)}</span>
               <span className='text-muted-foreground text-xs tabular-nums'>
                 {formatPrice(pricePerMonth(option))} por mês
@@ -45,7 +56,7 @@ const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (m
 
       <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
         <Button render={<Link href={`/presente?meses=${months}`} />} nativeButton={false} variant='honey' size='cta'>
-          Dar {months} meses de presente
+          Dar {monthsLabel(months)} de presente
         </Button>
         <Link
           href='/presente/resgatar'

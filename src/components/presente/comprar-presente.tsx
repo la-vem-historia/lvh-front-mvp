@@ -18,6 +18,7 @@ import {
   createGiftCard,
   FEATURED_MONTHS,
   GIFT_OPTIONS,
+  monthsLabel,
   pricePerMonth,
   savingsOf,
   type GiftCard,
@@ -26,8 +27,8 @@ import {
 } from '@/lib/lvh/presente'
 import { cn } from '@/lib/utils'
 
-// O que cabe em duas linhas da mensagem no verso do cartão
-const MESSAGE_MAX = 100
+// Uma mensagem comum cabe em duas linhas no verso do cartão; palavras longas ainda têm a terceira de folga
+const MESSAGE_MAX = 90
 
 const optionClassName = (selected: boolean) =>
   cn(
@@ -189,7 +190,7 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
                 >
                   {item.months === FEATURED_MONTHS && <SeloMaisEscolhido className='left-6 right-auto' />}
                   <span className='flex flex-col gap-1'>
-                    <span className='font-heading text-2xl'>{item.months} meses</span>
+                    <span className='font-heading text-2xl'>{monthsLabel(item.months)}</span>
                     <span className='text-muted-foreground text-sm tabular-nums'>
                       {formatPrice(pricePerMonth(item))} por mês
                       {savingsOf(item) > 0 && ` · ${savingsOf(item)}% a menos`}
@@ -314,7 +315,7 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
               <div className='bg-sand flex flex-col gap-3 rounded-2xl px-6 py-5 text-sm'>
                 <div className='flex items-center justify-between gap-4'>
                   <span>
-                    {months} meses de Lá Vem História para {recipientName || 'quem vai ganhar'}
+                    {monthsLabel(months)} de Lá Vem História para {recipientName || 'quem vai ganhar'}
                   </span>
                   <span className='text-base font-medium tabular-nums'>{formatPrice(option.price)}</span>
                 </div>
@@ -360,7 +361,7 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
           buyerName={buyerName.trim() || undefined}
         />
         <div className='border-border flex items-center justify-between border-t pt-5'>
-          <span className='text-sm'>{months} meses de Lá Vem História</span>
+          <span className='text-sm'>{monthsLabel(months)} de Lá Vem História</span>
           <span className='text-base font-medium tabular-nums'>{formatPrice(option.price)}</span>
         </div>
       </aside>

@@ -12,12 +12,16 @@ const PENDING_KEY = 'lvh:presente-pendente'
 export const MONTHLY_PRICE = 29.9
 
 export const GIFT_OPTIONS = [
+  { months: 1, price: MONTHLY_PRICE },
   { months: 3, price: 84.9 },
   { months: 6, price: 159.9 },
   { months: 12, price: 298.8 }
 ] as const
 
 export type GiftMonths = (typeof GIFT_OPTIONS)[number]['months']
+
+// "1 mês", "6 meses"
+export const monthsLabel = (months: number) => (months === 1 ? '1 mês' : `${months} meses`)
 
 // A opção que leva o selo de mais escolhida e vem marcada por padrão
 export const FEATURED_MONTHS: GiftMonths = 6
@@ -71,7 +75,10 @@ const newCode = () => {
 
 // Aceita o código com ou sem traços, em maiúscula ou minúscula
 export const normalizeCode = (code: string) => {
-  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^LVH/, '')
+  const clean = code
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .replace(/^LVH/, '')
 
   return clean.length === 8 ? `LVH-${clean.slice(0, 4)}-${clean.slice(4)}` : code.trim().toUpperCase()
 }
@@ -81,7 +88,7 @@ export async function createGiftCard(
 ): Promise<GiftCard> {
   const option = GIFT_OPTIONS.find(item => item.months === input.months)
 
-  if (!option) throw new Error('Escolha 3, 6 ou 12 meses.')
+  if (!option) throw new Error('Escolha 1, 3, 6 ou 12 meses.')
 
   const gifts = read()
   let code = newCode()

@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { pageTitleClassName } from '@/components/app/page-heading'
 import CartaoDuplo from '@/components/presente/cartao-duplo'
 
-import { getGiftCard, savePendingGift, type GiftCard } from '@/lib/lvh/presente'
+import { getGiftCard, monthsLabel, savePendingGift, type GiftCard } from '@/lib/lvh/presente'
 
 // Quem ganhou digita o código, vê o presente e cria a conta. O código fica guardado e vale assim que a pessoa entra.
 // Quem já tem conta também pode resgatar em Meus livros
@@ -47,7 +47,7 @@ const ResgatarCodigo = ({ initialCode }: { initialCode: string }) => {
         <div className='flex flex-col gap-3'>
           <p className='text-sm font-medium uppercase'>Você ganhou um presente</p>
           <h1 className={pageTitleClassName}>
-            {gift.buyerName} deu {gift.months} meses para você contar a sua história.
+            {gift.buyerName} deu {monthsLabel(gift.months)} para você contar a sua história.
           </h1>
           <p className='text-muted-foreground text-base text-pretty'>
             Crie a sua conta e comece. Os meses do presente entram sozinhos, e a assinatura só é cobrada depois deles.

@@ -78,7 +78,7 @@ const questions = [
   {
     question: 'Posso dar de presente?',
     answer:
-      'Pode. Você compra um cartão-presente de 3, 6 ou 12 meses, e quanto mais meses, menor o preço por mês. O cartão vai direto para o e-mail de quem ganha, ou chega para você em PDF, para imprimir e entregar em mãos. Quem ganha digita o código e usa tudo pelos meses do presente; a assinatura só é cobrada depois, se a pessoa quiser continuar.'
+      'Pode. Você compra um cartão-presente de 1, 3, 6 ou 12 meses, e quanto mais meses, menor o preço por mês. O cartão vai direto para o e-mail de quem ganha, ou chega para você em PDF, para imprimir e entregar em mãos. Quem ganha digita o código e usa tudo pelos meses do presente; a assinatura só é cobrada depois, se a pessoa quiser continuar.'
   },
   {
     question: 'Posso cancelar?',

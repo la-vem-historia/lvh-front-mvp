@@ -1,6 +1,7 @@
 import Simbolo from '@/components/landing/simbolo'
 
 import { cn } from '@/lib/utils'
+import { monthsLabel } from '@/lib/lvh/presente'
 
 type CartaoVersoProps = {
   recipientName?: string
@@ -24,18 +25,18 @@ const CartaoVerso = ({ recipientName, months, message, buyerName, code, classNam
     <div className='absolute inset-0 flex flex-col px-[7cqw] py-[6cqw]'>
       <div className='flex items-center justify-between gap-[3cqw]'>
         <Simbolo className='text-cream h-[7.6cqw] w-auto -translate-x-[1.6cqw]' />
-        <span className='text-honey text-[2.8cqw] font-semibold tracking-[0.2em] uppercase'>{months} meses</span>
+        <span className='text-honey text-[2.8cqw] font-semibold tracking-[0.2em] uppercase'>{monthsLabel(months)}</span>
       </div>
 
-      <div className='flex min-h-0 flex-1 flex-col gap-[1.6cqw] py-[2.8cqw]'>
+      <div className='flex min-h-0 flex-1 flex-col gap-[1.4cqw] py-[2.2cqw]'>
         <p className='font-heading text-[6.4cqw] leading-[1.1] text-balance'>
           {recipientName ? `Para ${recipientName}` : 'Para você'}
         </p>
         {message ? (
-          <p className='font-heading line-clamp-2 text-[3.4cqw] leading-snug break-words italic'>“{message}”</p>
+          <p className='font-heading line-clamp-3 text-[3.4cqw] leading-snug break-words italic'>“{message}”</p>
         ) : (
           <p className='text-cream/70 text-[2.7cqw] leading-snug text-pretty'>
-            {months} meses para contar a sua história e ver ela virar um livro.
+            {monthsLabel(months)} para contar a sua história e ver ela virar um livro.
           </p>
         )}
         {buyerName && <p className='text-cream/80 text-[2.6cqw]'>Com carinho, {buyerName}</p>}

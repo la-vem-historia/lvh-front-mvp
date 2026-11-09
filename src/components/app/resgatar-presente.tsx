@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRefreshUser } from '@/components/app/session'
 
-import { formatGiftDate, redeemGiftCard } from '@/lib/lvh/presente'
+import { formatGiftDate, monthsLabel, redeemGiftCard } from '@/lib/lvh/presente'
 
 // Presente na conta: mostra até quando a assinatura está paga e deixa digitar um código novo.
 // Um segundo código soma os meses ao fim do primeiro
@@ -33,7 +33,7 @@ const ResgatarPresente = ({ giftUntil, onChange }: { giftUntil?: string; onChang
       onChange()
       setCode('')
       setSuccess(
-        `${gift.buyerName} deu ${gift.months} meses para você. A assinatura está paga até ${formatGiftDate(until)}.`
+        `${gift.buyerName} deu ${monthsLabel(gift.months)} para você. A assinatura está paga até ${formatGiftDate(until)}.`
       )
     } catch (reason) {
       setError((reason as Error).message)
