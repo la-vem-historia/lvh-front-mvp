@@ -8,6 +8,7 @@ import {
   BookOpenIcon,
   CheckIcon,
   ChevronDownIcon,
+  HouseIcon,
   LibraryIcon,
   LogOutIcon,
   MessageCircleIcon,
@@ -28,7 +29,7 @@ import Logo from '@/components/shadcn-studio/logo'
 import Avatar from '@/components/app/avatar'
 import { useRefreshUser, useUser } from '@/components/app/session'
 
-import { getBooks, setActiveBook, signOut } from '@/lib/lvh/api'
+import { getAnswers, getBooks, getChapters, isAnswered, setActiveBook, signOut } from '@/lib/lvh/api'
 import type { UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -144,14 +145,28 @@ const AccountMenu = ({ active }: { active: boolean }) => {
   )
 }
 
-// As duas visões do mesmo livro, numa pill só: onde se escreve e o que está sendo construído
+// Os três lugares do livro, numa pill só: o painel, onde se escreve e o que está sendo construído.
+// Perguntas leva direto à próxima pergunta sem resposta, para continuar de onde parou
 const Views = ({ pathname, className }: { pathname: string; className?: string }) => {
+  const user = useUser()
+  const [nextQuestionId, setNextQuestionId] = useState<number | null>(null)
+
+  // Recalcula a cada troca de página: depois de responder, a próxima já é outra
+  useEffect(() => {
+    Promise.all([getChapters(user), getAnswers()]).then(([chapters, answers]) => {
+      const next = chapters.flatMap(chapter => chapter.questions).find(question => !isAnswered(answers[question.id]))
+
+      setNextQuestionId(next?.id ?? null)
+    })
+  }, [user, pathname])
+
   const views = [
+    { label: 'Início', href: '/app', Icon: HouseIcon, active: pathname === '/app' },
     {
       label: 'Perguntas',
-      href: '/app',
+      href: nextQuestionId ? `/app/pergunta/${nextQuestionId}` : '/app',
       Icon: MessageCircleIcon,
-      active: pathname === '/app' || pathname.startsWith('/app/pergunta')
+      active: pathname.startsWith('/app/pergunta')
     },
     {
       label: 'Livro',
@@ -165,7 +180,7 @@ const Views = ({ pathname, className }: { pathname: string; className?: string }
     <nav aria-label='Principal' className={cn('bg-sand flex rounded-full p-1', className)}>
       {views.map(({ label, href, Icon, active }) => (
         <Link
-          key={href}
+          key={label}
           href={href}
           aria-current={active ? 'page' : undefined}
           className={cn(
