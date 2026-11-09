@@ -65,7 +65,7 @@ const OuvirVoz = ({ token }: { token: string }) => {
                 type='button'
                 onClick={toggle}
                 aria-label={playing ? 'Pausar' : `Ouvir a voz de ${shared.author}`}
-                className='bg-honey text-ink flex size-20 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105'
+                className='bg-honey text-foreground flex size-20 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105'
               >
                 {playing ? (
                   <PauseIcon className='size-7' fill='currentColor' />

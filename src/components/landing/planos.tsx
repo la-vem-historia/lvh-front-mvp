@@ -32,7 +32,7 @@ const plans = [
     name: 'Essencial',
     description: 'Para quem quer contar a história só escrevendo.',
     price: 9.9,
-    card: 'bg-lilac text-ink',
+    card: 'bg-lilac text-foreground',
     line: 'border-ink/20',
     button: 'default' as const,
     features: [
@@ -97,7 +97,7 @@ const Planos = () => {
                 onClick={() => setBilling(option)}
                 className={cn(
                   'flex h-11 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors',
-                  billing === option ? 'bg-ink text-cream' : 'text-foreground hover:bg-stone/60'
+                  billing === option ? 'bg-foreground text-cream' : 'text-foreground hover:bg-stone/60'
                 )}
               >
                 {option === 'mensal' ? 'Mensal' : 'Anual'}
@@ -105,7 +105,7 @@ const Planos = () => {
                   <span
                     className={cn(
                       'rounded-full px-2 py-0.5 text-xs font-semibold',
-                      billing === option ? 'bg-honey text-ink' : 'bg-moss text-cream'
+                      billing === option ? 'bg-honey text-foreground' : 'bg-moss text-cream'
                     )}
                   >
                     2 meses grátis
@@ -121,13 +121,13 @@ const Planos = () => {
                 key={plan.name}
                 {...reveal}
                 delay={0.1 * (index + 1)}
-                className={`${plan.card} flex flex-col gap-8 rounded-[1.5rem] p-8 transition-[translate,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgb(34_34_34/0.6)] sm:p-10`}
+                className={`${plan.card} flex flex-col gap-8 rounded-2xl p-8 transition-[translate,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgb(34_34_34/0.6)] sm:p-10`}
               >
                 <div className='flex flex-col gap-2'>
                   <div className='flex items-center justify-between gap-4'>
                     <h3 className='font-heading text-display'>{plan.name}</h3>
                     {plan.badge && (
-                      <span className='bg-cream text-ink rounded-full px-3 py-1 text-xs font-medium'>{plan.badge}</span>
+                      <span className='bg-cream text-foreground rounded-full px-3 py-1 text-xs font-medium'>{plan.badge}</span>
                     )}
                   </div>
                   <p className='text-base'>{plan.description}</p>
@@ -181,7 +181,7 @@ const Planos = () => {
                   // para a elevação no hover aparecer junto com a do card
                   className={
                     plan.button === 'default'
-                      ? 'bg-ink hover:bg-[#2c2c2c] hover:shadow-[0_12px_24px_-10px_rgb(0_0_0/0.75)]!'
+                      ? 'bg-foreground hover:bg-ink hover:shadow-[0_12px_24px_-10px_rgb(0_0_0/0.75)]!'
                       : undefined
                   }
                 >

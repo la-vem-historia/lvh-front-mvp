@@ -71,8 +71,8 @@ const ToolButton = ({
           aria-disabled={disabled}
           onClick={() => !disabled && onClick()}
           className={cn(
-            'flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-[1.375rem]',
-            pressed ? 'bg-ink text-cream' : 'hover:bg-background',
+            'flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-5',
+            pressed ? 'bg-foreground text-cream' : 'hover:bg-background',
             disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
             className
           )}
@@ -131,14 +131,14 @@ const VoiceNote = ({ audio, onRemove }: { audio: AudioRecording; onRemove: () =>
         type='button'
         onClick={toggle}
         aria-label={playing ? 'Pausar a sua voz' : 'Ouvir a sua voz'}
-        className='bg-honey text-ink flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[#f0b43c]'
+        className='bg-honey text-foreground flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-honey-strong'
       >
         {playing ? <PauseIcon className='size-4 fill-current' /> : <PlayIcon className='ml-0.5 size-4 fill-current' />}
       </button>
       <div className='flex min-w-0 flex-1 flex-col gap-1.5'>
         <span className='text-sm font-medium'>Sua voz</span>
         <div className='bg-sand h-1 overflow-hidden rounded-full'>
-          <div className='bg-ink h-full rounded-full' style={{ width: `${progress * 100}%` }} />
+          <div className='bg-foreground h-full rounded-full' style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
       <span className='text-muted-foreground shrink-0 text-xs tabular-nums'>
@@ -645,7 +645,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
       <Dialog open={removeOpen} onOpenChange={setRemoveOpen}>
         <DialogContent
           showCloseButton={false}
-          className='bg-cream flex flex-col gap-6 rounded-[1.5rem] p-6 sm:max-w-sm sm:p-8'
+          className='bg-cream flex flex-col gap-6 rounded-2xl p-6 sm:max-w-sm sm:p-8'
         >
           <div className='flex flex-col gap-2'>
             <DialogTitle className={overlayTitleClassName}>

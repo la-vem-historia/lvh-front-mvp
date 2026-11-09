@@ -77,7 +77,7 @@ const BookCover = ({ title = DEFAULT_COVER_TITLE, author, color = 'verde', photo
         <div className='flex flex-1 flex-col items-center justify-center gap-[5cqw]'>
           {photo && (
             <div
-              className='w-[46cqw] -rotate-2 bg-[#fbf7ee] p-[1.6cqw] pb-[5cqw] shadow-[0_0.8cqw_2cqw_rgb(0_0_0/0.35)]'
+              className='w-[46cqw] -rotate-2 bg-page-photo p-[1.6cqw] pb-[5cqw] shadow-[0_0.8cqw_2cqw_rgb(0_0_0/0.35)]'
               aria-hidden='true'
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

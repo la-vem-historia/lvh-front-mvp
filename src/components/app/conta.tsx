@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 // Papéis disponíveis, com a mesma cor do card escolhido no onboarding
 const roles = [
   { value: 'Pai', hint: 'As perguntas falam com você como pai.', card: 'bg-olive text-cream', topic: 'paternidade', grand: false },
-  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-ink', topic: 'maternidade', grand: false },
+  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-foreground', topic: 'maternidade', grand: false },
   { value: 'Avô', hint: 'As perguntas falam com você como avô.', card: 'bg-moss text-cream', topic: 'avós', grand: true },
   { value: 'Avó', hint: 'As perguntas falam com você como avó.', card: 'bg-clay text-cream', topic: 'avós', grand: true }
 ]
@@ -182,7 +182,7 @@ const Papel = () => {
       )}
 
       {choosing && (
-        <div className='border-border flex flex-col gap-5 rounded-[1.5rem] border p-6'>
+        <div className='border-border flex flex-col gap-5 rounded-2xl border p-6'>
           <div className='flex flex-col gap-3'>
             <span className='text-sm font-medium'>Contar como</span>
             <div className='flex flex-wrap gap-2'>
@@ -287,7 +287,7 @@ const Login = () => {
 
       <div className='flex flex-col gap-3'>
         <span className='text-sm font-medium'>Contas conectadas</span>
-        <ul className='border-border flex flex-col rounded-[1.5rem] border'>
+        <ul className='border-border flex flex-col rounded-2xl border'>
           {providers.map(({ provider, label, Icon }) => {
             const isConnected = connected.includes(provider)
 

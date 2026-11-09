@@ -168,7 +168,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
           title={item.label}
           onClick={() => chooseScene(item.id)}
           className={cn(
-            'size-9 cursor-pointer rounded-full ring-offset-2 ring-offset-[#2a2420] transition-[box-shadow,scale] hover:scale-110',
+            'size-9 cursor-pointer rounded-full ring-offset-2 ring-offset-night transition-[box-shadow,scale] hover:scale-110',
             cena === item.id ? 'ring-2 ring-white' : 'ring-1 ring-white/25'
           )}
           style={item.swatch}
@@ -218,7 +218,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
         <p
           className={cn(
             'pointer-events-none absolute inset-x-0 top-0 truncate px-48 pt-7 text-center text-sm transition-opacity duration-500 max-md:hidden',
-            scene.light ? 'text-[#2a2420]/75' : 'text-white/80 [text-shadow:0_1px_3px_rgb(0_0_0/0.5)]',
+            scene.light ? 'text-night/75' : 'text-white/80 [text-shadow:0_1px_3px_rgb(0_0_0/0.5)]',
             visible ? 'opacity-100' : 'opacity-0'
           )}
         >
@@ -267,7 +267,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
                   <Popover.Popup
                     onPointerEnter={() => (hovering.current = true)}
                     onPointerLeave={() => (hovering.current = false)}
-                    className='flex w-[19rem] flex-col gap-5 rounded-3xl bg-[#2a2420]/90 p-5 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.7)] backdrop-blur-xl outline-none'
+                    className='flex w-[19rem] flex-col gap-5 rounded-3xl bg-night/90 p-5 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.7)] backdrop-blur-xl outline-none'
                   >
                     <section className='flex flex-col gap-3'>
                       <p className={sectionTitleClassName}>Fundo</p>
@@ -299,7 +299,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
                             onClick={() => choosePaginas(value)}
                             className={cn(
                               'flex-1 cursor-pointer rounded-full px-3 py-2 text-sm transition-colors',
-                              paginas === value ? 'bg-white text-[#2a2420]' : 'text-white/80 hover:text-white'
+                              paginas === value ? 'bg-white text-night' : 'text-white/80 hover:text-white'
                             )}
                           >
                             {label}

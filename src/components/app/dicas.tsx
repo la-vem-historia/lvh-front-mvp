@@ -149,7 +149,7 @@ const Dicas = ({ answers, nextQuestionId }: { answers: Record<number, Answer>; n
     <section
       aria-roledescription='carrossel'
       aria-label='Dicas'
-      className='bg-sand flex flex-col gap-4 rounded-[1.5rem] p-4 sm:flex-row sm:items-center sm:gap-6 sm:py-4 sm:pr-4 sm:pl-6'
+      className='bg-sand flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:gap-6 sm:py-4 sm:pr-4 sm:pl-6'
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -194,7 +194,7 @@ const Dicas = ({ answers, nextQuestionId }: { answers: Record<number, Answer>; n
                 type='button'
                 onClick={() => go(-1)}
                 aria-label='Dica anterior'
-                className='hover:bg-background flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors'
+                className='hover:bg-background flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors'
               >
                 <ChevronLeftIcon className='size-4' />
               </button>
@@ -205,7 +205,7 @@ const Dicas = ({ answers, nextQuestionId }: { answers: Record<number, Answer>; n
                 type='button'
                 onClick={() => go(1)}
                 aria-label='Próxima dica'
-                className='hover:bg-background flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors'
+                className='hover:bg-background flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors'
               >
                 <ChevronRightIcon className='size-4' />
               </button>
@@ -217,7 +217,7 @@ const Dicas = ({ answers, nextQuestionId }: { answers: Record<number, Answer>; n
             onClick={() => updateUser({ checklistHidden: true })}
             aria-label='Esconder as dicas'
             title='Esconder as dicas'
-            className='text-muted-foreground hover:bg-background hover:text-foreground flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors'
+            className='text-muted-foreground hover:bg-background hover:text-foreground flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors'
           >
             <XIcon className='size-4' />
           </button>

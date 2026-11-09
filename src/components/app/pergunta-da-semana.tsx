@@ -55,7 +55,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
   if (question === undefined) return null
 
   return (
-    <div className='border-border overflow-hidden rounded-[1.5rem] border'>
+    <div className='border-border overflow-hidden rounded-2xl border'>
       <dl className='bg-sand text-muted-foreground grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-6 py-4 text-xs'>
         <dt>De</dt>
         <dd className='text-foreground'>Lá Vem História</dd>

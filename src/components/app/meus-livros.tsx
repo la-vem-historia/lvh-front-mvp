@@ -80,7 +80,7 @@ const Concluido = ({ book, onClose }: { book: UserBook; onClose: () => void }) =
   }, [book])
 
   return (
-    <div className='bg-moss text-cream flex flex-col gap-5 rounded-[1.5rem] p-6 sm:p-8'>
+    <div className='bg-moss text-cream flex flex-col gap-5 rounded-2xl p-6 sm:p-8'>
       <PartyPopperIcon className='size-7' aria-hidden='true' />
       <div className='flex flex-col gap-2'>
         <h2 className='font-heading text-2xl text-balance'>
@@ -178,7 +178,7 @@ const Livros = ({
           const isConfirming = confirming?.id === book.id
 
           return (
-            <li key={book.id} className='border-border flex flex-col gap-4 rounded-[1.5rem] border p-5 sm:p-6'>
+            <li key={book.id} className='border-border flex flex-col gap-4 rounded-2xl border p-5 sm:p-6'>
               <div className='flex flex-wrap items-start justify-between gap-4'>
                 <div className='flex flex-col gap-1'>
                   <span className='flex flex-wrap items-center gap-2'>
@@ -186,7 +186,7 @@ const Livros = ({
                     <span
                       className={cn(
                         'rounded-full px-2.5 py-0.5 text-xs font-medium',
-                        isDone ? 'bg-honey text-ink' : 'bg-sand text-foreground'
+                        isDone ? 'bg-honey text-foreground' : 'bg-sand text-foreground'
                       )}
                     >
                       {isDone ? 'Concluído' : 'Em andamento'}
@@ -378,7 +378,7 @@ const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => voi
 
       <div className='flex flex-col gap-3'>
         <span className='text-sm font-medium'>Sua mensalidade</span>
-        <ul className='border-border flex flex-col rounded-[1.5rem] border'>
+        <ul className='border-border flex flex-col rounded-2xl border'>
           <li className='flex items-center justify-between gap-4 px-5 py-4 text-sm'>
             <span>
               Plano {planPrices[billing.plan].name}

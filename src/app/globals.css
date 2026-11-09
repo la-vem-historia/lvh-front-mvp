@@ -22,6 +22,19 @@
   --color-olive: var(--lvh-olive);
   --color-umber: var(--lvh-umber);
   --color-poppy: var(--lvh-poppy);
+  /* Papel do livro: tinta e tons das páginas, iguais na leitura, na prévia e na impressão */
+  --color-night: var(--lvh-night);
+  --color-page: var(--lvh-page);
+  --color-page-photo: var(--lvh-page-photo);
+  --color-page-line: var(--lvh-page-line);
+  --color-page-muted: var(--lvh-page-muted);
+  --color-page-subtle: var(--lvh-page-subtle);
+  --color-page-faint: var(--lvh-page-faint);
+  /* Botões de ícone: 40px (size-10) quando estão soltos na tela; 32px (size-8) só dentro de outro controle,
+     como a barra de zoom do livro ou um item de menu */
+  /* Hover dos botões cheios: um tom abaixo da cor do botão */
+  --color-moss-strong: var(--lvh-moss-strong);
+  --color-honey-strong: var(--lvh-honey-strong);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
@@ -117,6 +130,7 @@
   --lvh-paper: #fcf9ee;
   --lvh-sand: #f2efe3;
   --lvh-stone: #dad9cd;
+  /* Preto do texto e dos botões é --lvh-text (#333); ink é só o tom de hover, um pouco mais escuro */
   --lvh-ink: #222222;
   --lvh-cream: #fffef2;
   --lvh-text: #333333;
@@ -132,6 +146,15 @@
   --lvh-lilac: #bcb1e4;
   --lvh-olive: #849539;
   --lvh-umber: #645e4f;
+  --lvh-night: #2a2420;
+  --lvh-page: #fdfbf6;
+  --lvh-page-photo: #fbf7ee;
+  --lvh-page-line: #e5dccb;
+  --lvh-page-muted: #6b6156;
+  --lvh-page-subtle: #8a7f72;
+  --lvh-page-faint: #9a8f80;
+  --lvh-moss-strong: #3c4d3a;
+  --lvh-honey-strong: #f0b43c;
   /* Vermelho de papoula, quente e puxado para o coral: marca as perguntas guardadas sem parecer erro */
   --lvh-poppy: #e0533d;
 

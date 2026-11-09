@@ -51,7 +51,7 @@ const Snippet = ({ text, at, length }: { text: string; at: number; length: numbe
     <>
       {start > 0 && '…'}
       {text.slice(start, at)}
-      <mark className='bg-honey/80 rounded-[3px] px-0.5 text-[#2a2420]'>{text.slice(at, at + length)}</mark>
+      <mark className='bg-honey/80 rounded-[3px] px-0.5 text-night'>{text.slice(at, at + length)}</mark>
       {text.slice(at + length, end)}
       {end < text.length && '…'}
     </>
@@ -103,7 +103,7 @@ const IndiceLivro = ({ pages, current, onJump, onClose }: IndiceLivroProps) => {
     <div
       role='dialog'
       aria-label='Índice do livro'
-      className='pointer-events-auto absolute top-16 left-3 z-20 flex max-h-[calc(100%-5rem)] w-[22rem] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl bg-[#2a2420]/92 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.7)] backdrop-blur-xl sm:top-20 sm:left-5 sm:max-h-[calc(100%-6.5rem)]'
+      className='pointer-events-auto absolute top-16 left-3 z-20 flex max-h-[calc(100%-5rem)] w-[22rem] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-3xl bg-night/92 text-white shadow-[0_24px_60px_-20px_rgb(0_0_0/0.7)] backdrop-blur-xl sm:top-20 sm:left-5 sm:max-h-[calc(100%-6.5rem)]'
       onKeyDown={event => {
         // Esc fecha só o índice, sem fechar o livro
         if (event.key === 'Escape') {

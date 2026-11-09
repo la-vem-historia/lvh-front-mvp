@@ -154,7 +154,7 @@ const ColaboradoresPergunta = ({
     <>
       <Dialog open={inviting} onOpenChange={open => !open && closeInvite()}>
         {/* Título e botões ficam parados; só o meio rola, com uma barra fina que não encosta nos cantos */}
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-[1.5rem] p-0 sm:max-w-xl'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-xl'>
           <div className='flex flex-col gap-2 px-6 pt-6 pr-14 pb-2 sm:px-8 sm:pt-8 sm:pr-14'>
             <DialogTitle className={overlayTitleClassName}>
               {people.length > 0 ? 'Outras lembranças' : 'Convidar para responder'}

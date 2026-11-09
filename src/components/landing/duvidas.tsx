@@ -210,7 +210,7 @@ const Duvidas = () => {
       </div>
 
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-2xl p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
             <DialogTitle className={overlayTitleClassName}>Ainda com dúvida?</DialogTitle>
             <DialogDescription className={overlayDescriptionClassName}>

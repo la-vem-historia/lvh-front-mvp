@@ -99,18 +99,18 @@ const PageExample = ({ photo, mode }: { photo: string; mode: PhotoMode }) => (
     className='flex h-[124px] w-[88px] shrink-0 flex-col gap-2 rounded-[2px] px-2.5 py-3 shadow-[0_2px_8px_rgb(50_38_24/0.18)]'
     style={{ backgroundColor: PAPER }}
   >
-    <span className='h-[3px] w-3/4 rounded-full bg-[#8a7f72]' />
+    <span className='h-[3px] w-3/4 rounded-full bg-page-subtle' />
     <TextLines count={3} />
     <span className='flex flex-1 items-center justify-center'>
       {mode === 'impressas' ? (
-        <span className='-rotate-2 bg-[#fdfbf6] p-[3px] shadow-[0_1px_3px_rgb(60_45_30/0.25)]'>
+        <span className='-rotate-2 bg-page p-[3px] shadow-[0_1px_3px_rgb(60_45_30/0.25)]'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photo} alt='' className='h-9 w-12 object-cover' />
         </span>
       ) : (
         // A foto de papel chegando ao quadro, ainda torta, como na hora de colar
         <span className='relative flex h-[42px] w-[54px] items-center justify-center border border-dashed border-[#a99a82]'>
-          <span className='absolute top-[-9px] left-[14px] rotate-[8deg] bg-[#fdfbf6] p-[2px] shadow-[0_4px_8px_rgb(60_45_30/0.3)]'>
+          <span className='absolute top-[-9px] left-[14px] rotate-[8deg] bg-page p-[2px] shadow-[0_4px_8px_rgb(60_45_30/0.3)]'>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo} alt='' className='h-8 w-11 object-cover' />
           </span>

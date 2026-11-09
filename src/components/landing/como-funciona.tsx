@@ -128,14 +128,14 @@ const ComoFunciona = () => {
           delay={0.15}
           className='lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1 lg:self-center'
         >
-          <div className='bg-moss relative rounded-[1.5rem] p-5 sm:p-10 lg:p-12 [perspective:2000px]'>
+          <div className='bg-moss relative rounded-2xl p-5 sm:p-10 lg:p-12 [perspective:2000px]'>
             <div className='bg-cream overflow-hidden rounded-xl shadow-[0_40px_70px_-30px_rgb(0_0_0/0.55)] ring-1 ring-black/10 transition-transform duration-700 ease-out lg:[transform:rotateY(-6deg)] lg:hover:[transform:rotateY(0deg)]'>
               {/* Barra do navegador, de enfeite, para a imagem ler como uma tela e não como botões */}
               <div aria-hidden='true' className='bg-stone/70 flex items-center gap-4 px-4 py-2.5'>
                 <span className='flex gap-1.5'>
-                  <span className='bg-ink/20 size-2.5 rounded-full' />
-                  <span className='bg-ink/20 size-2.5 rounded-full' />
-                  <span className='bg-ink/20 size-2.5 rounded-full' />
+                  <span className='bg-foreground/20 size-2.5 rounded-full' />
+                  <span className='bg-foreground/20 size-2.5 rounded-full' />
+                  <span className='bg-foreground/20 size-2.5 rounded-full' />
                 </span>
                 <span className='bg-cream/80 text-muted-foreground mx-auto flex max-w-xs min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1 text-[0.6875rem]'>
                   <LockIcon className='size-2.5 shrink-0' />

@@ -209,7 +209,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
           </p>
         </div>
         <div className='grid gap-4 sm:grid-cols-2'>
-          <div className='border-border flex flex-col justify-between gap-6 rounded-[1.5rem] border p-6'>
+          <div className='border-border flex flex-col justify-between gap-6 rounded-2xl border p-6'>
             <div className='flex flex-col gap-2'>
               <span className='font-heading text-2xl'>Concluir o atual</span>
               <span className='text-muted-foreground text-sm text-pretty'>
@@ -226,7 +226,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
               Ir para Meus livros
             </Button>
           </div>
-          <div className='border-border flex flex-col justify-between gap-6 rounded-[1.5rem] border p-6'>
+          <div className='border-border flex flex-col justify-between gap-6 rounded-2xl border p-6'>
             <div className='flex flex-col gap-2'>
               <span className='font-heading text-2xl'>Escrever dois ao mesmo tempo</span>
               <span className='text-muted-foreground text-sm text-pretty'>
@@ -426,7 +426,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
       </form>
 
       <Dialog open={aboutMore} onOpenChange={setAboutMore}>
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-2xl p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
             <DialogTitle className={overlayTitleClassName}>Um livro para cada pessoa</DialogTitle>
             <DialogDescription className={overlayDescriptionClassName}>
