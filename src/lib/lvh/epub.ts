@@ -23,13 +23,32 @@ const paragraphs = (text: string) =>
     .map(line => `<p>${escapeXml(line)}</p>`)
     .join('\n')
 
-const slug = (text: string) =>
+// Nome do arquivo: "A minha história, de Moreno para Lara.epub". Alguns envios para o Kindle mostram o nome
+// do arquivo no lugar do título, e quem escreve mais de um livro precisa de um nome diferente para cada um.
+// Mantém acento e espaço; tira só o que algum sistema não aceita. Longo demais, corta pelo fim (o título fica)
+const MAX_FILENAME = 100
+
+const clean = (text: string) =>
   text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .normalize('NFC')
+    .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const epubFilename = (title: string, author: string, recipient: string) => {
+  const parts = [clean(title) || 'Livro']
+  const by = clean(author)
+  const to = clean(recipient)
+
+  if (by) parts.push(`, de ${by}`)
+  if (to) parts.push(`${by ? '' : ','} para ${to}`)
+
+  let name = parts.join('')
+
+  if (name.length > MAX_FILENAME) name = name.slice(0, MAX_FILENAME).replace(/[\s,]+\S*$/, '')
+
+  return `${name.replace(/^\.+|\.+$/g, '')}.epub`
+}
 
 // Lado maior das fotos: nítido numa tela de tablet, sem deixar o arquivo pesado
 const PHOTO_MAX = 1600
@@ -466,6 +485,6 @@ ${spine.join('\n')}
 
   return {
     blob: new Blob([zipped as BlobPart], { type: 'application/epub+zip' }),
-    filename: `${slug(title) || 'livro'}.epub`
+    filename: epubFilename(title, book.author, info.recipientName)
   }
 }
