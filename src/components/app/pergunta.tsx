@@ -506,7 +506,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             onChange={event => updateText(event.target.value)}
             aria-label='Sua resposta'
             placeholder={`Conte como se estivesse falando com ${user.activeBook ? recipientOf(user.activeBook) : 'a sua família'}…`}
-            className='placeholder:text-muted-foreground/70 min-h-0 w-full flex-1 resize-none overflow-y-auto bg-transparent px-6 pt-6 font-(family-name:--font-fell) text-xl leading-relaxed outline-none sm:px-8 sm:pt-8 sm:text-2xl'
+            className='placeholder:text-muted-foreground/70 min-h-0 w-full flex-1 scrollbar-musgo resize-none overflow-y-auto bg-transparent px-6 pt-6 font-(family-name:--font-fell) text-xl leading-relaxed outline-none sm:px-8 sm:pt-8 sm:text-2xl'
           />
 
           {/* Anexos ficam dentro do cartão, logo acima das ferramentas: quem grava ou adiciona uma foto
