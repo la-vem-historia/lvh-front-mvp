@@ -23,7 +23,7 @@ const reveal = {
 
 const CONTACT_EMAIL = 'oi@lavemhistoria.com.br'
 
-// Perguntas na ordem em que costumam aparecer: primeiro o medo de escrever, depois privacidade, livro e preço
+// Perguntas na ordem em que costumam aparecer: primeiro o medo de escrever, depois onde ler e quem lê, livro e preço
 const questions = [
   {
     question: 'Preciso saber escrever bem?',
@@ -41,9 +41,19 @@ const questions = [
       'Pode. No plano Completo, você dita e o texto aparece sozinho, ou grava a sua voz. A gravação fica junto da resposta e toca dentro do livro, para a família ouvir a história contada por você.'
   },
   {
-    question: 'Quem consegue ler o meu livro?',
+    question: 'Onde dá para ler o livro?',
     answer:
-      'Só quem você convidar. Cada pessoa recebe um link pessoal, e você pode tirar o acesso de qualquer uma quando quiser.'
+      'Em vários lugares. Direto no navegador do celular, do tablet ou do computador, virando as páginas como num livro. Você também baixa o livro em EPUB, o formato dos livros digitais, e lê no Kindle, no app Livros do iPhone, iPad e Mac, no Google Play Livros ou no Kobo. E, no plano Completo, ainda tem o PDF para imprimir.'
+  },
+  {
+    question: 'Para quem posso mandar o livro?',
+    answer:
+      'Para quem você quiser, sem limite de leitores: filhos, netos, irmãos, amigos. O livro é fechado, então só lê quem você convidar, e você tira o acesso de qualquer pessoa quando quiser. Não precisa esperar terminar: a família já pode ler enquanto você escreve.'
+  },
+  {
+    question: 'Como a pessoa convidada lê o livro?',
+    answer:
+      'Ela recebe um link pessoal, confirma o e-mail com um código e abre o livro no navegador, sem senha e sem instalar nada. Cada resposta nova aparece no livro dela sozinha, e as gravações tocam ali mesmo. Se preferir, você manda o EPUB para ela ler no Kindle ou no celular.'
   },
   {
     question: 'A família pode ajudar a contar?',
