@@ -2,7 +2,18 @@
 
 import { useState } from 'react'
 
-import { CheckIcon } from 'lucide-react'
+import {
+  AudioLinesIcon,
+  BookOpenIcon,
+  ImageIcon,
+  MessageCircleQuestionMarkIcon,
+  MicIcon,
+  PrinterIcon,
+  Share2Icon,
+  TabletSmartphoneIcon,
+  UsersIcon
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 import Link from 'next/link'
 
@@ -32,16 +43,17 @@ const MONTHLY = 29.9
 const ANNUAL_PER_MONTH = 24.9
 const ANNUAL = Math.round(ANNUAL_PER_MONTH * 12 * 100) / 100
 
-const features = [
-  'Mais de 300 perguntas guiadas',
-  'Livro digital com capa, sumário e capítulos',
-  'Fotos ilimitadas ao lado das histórias',
-  'Gravação de voz que toca dentro do livro',
-  'Ditado: fale e o texto aparece',
-  'Convide a família para responder junto',
-  'Leitura para quantas pessoas você quiser',
-  'EPUB para Kindle e outros leitores',
-  'PDF pronto para imprimir'
+// Cada item com o ícone do que ele faz, em vez do mesmo check repetido
+const features: { label: string; Icon: LucideIcon }[] = [
+  { label: 'Mais de 300 perguntas guiadas', Icon: MessageCircleQuestionMarkIcon },
+  { label: 'Livro digital com capa, sumário e capítulos', Icon: BookOpenIcon },
+  { label: 'Fotos ilimitadas ao lado das histórias', Icon: ImageIcon },
+  { label: 'Gravação de voz que toca dentro do livro', Icon: MicIcon },
+  { label: 'Ditado: fale e o texto aparece', Icon: AudioLinesIcon },
+  { label: 'Convide a família para responder junto', Icon: UsersIcon },
+  { label: 'Leitura para quantas pessoas você quiser', Icon: Share2Icon },
+  { label: 'EPUB para Kindle e outros leitores', Icon: TabletSmartphoneIcon },
+  { label: 'PDF pronto para imprimir', Icon: PrinterIcon }
 ]
 
 const Planos = () => {
@@ -135,10 +147,10 @@ const Planos = () => {
             </div>
 
             <ul className='grid content-start sm:grid-cols-2 sm:gap-x-8'>
-              {features.map(feature => (
-                <li key={feature} className='border-cream/25 flex items-start gap-3 border-t py-3 text-sm'>
-                  <CheckIcon aria-hidden='true' className='mt-0.5 size-4 shrink-0' />
-                  <span className='text-pretty'>{feature}</span>
+              {features.map(({ label, Icon }) => (
+                <li key={label} className='border-cream/25 flex items-start gap-3 border-t py-3 text-sm'>
+                  <Icon aria-hidden='true' className='mt-0.5 size-4 shrink-0' strokeWidth={1.75} />
+                  <span className='text-pretty'>{label}</span>
                 </li>
               ))}
             </ul>
