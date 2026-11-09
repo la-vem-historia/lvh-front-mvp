@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { KeyboardEvent } from 'react'
 
 import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
-import { ChevronDownIcon, LockIcon } from 'lucide-react'
+import { LockIcon } from 'lucide-react'
 
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
@@ -54,63 +53,132 @@ const steps: { title: string; text: string; image: StaticImageData; alt: string;
 ]
 
 // Leitores do livro que aparecem flutuando em volta da janela no passo de compartilhar.
-// Posição em % do painel verde, para acompanhar qualquer largura
+// Posição em % da janela do navegador, para acompanhar qualquer largura
 const readers = [
-  { image: voImage, position: 'left-[2%] top-[68%]', delay: '0s' },
-  { image: vovoImage, position: 'left-[9%] top-[84%]', delay: '1.2s' },
-  { image: maeImage, position: 'left-[21%] top-[76%]', delay: '0.6s' },
-  { image: jovemImage, position: 'right-[12%] top-[84%]', delay: '1.8s' },
-  { image: paiImage, position: 'right-[3%] top-[70%]', delay: '0.9s' }
+  { image: voImage, position: '-left-[6%] top-[62%]', delay: '0s' },
+  { image: vovoImage, position: 'left-[3%] top-[84%]', delay: '1.2s' },
+  { image: maeImage, position: 'left-[16%] top-[94%]', delay: '0.6s' },
+  { image: jovemImage, position: 'right-[8%] top-[90%]', delay: '1.8s' },
+  { image: paiImage, position: '-right-[5%] top-[70%]', delay: '0.9s' }
 ]
 
 // O passo em que os leitores aparecem
 const SHARE_STEP = 2
 
+// A janela do navegador com a tela do passo; as três telas ficam empilhadas e trocam com um fade.
+// Sem moldura em volta: só a janela, com uma sombra longa e suave, como um objeto sobre a página
+const Janela = ({ active }: { active: number }) => (
+  <div className='relative'>
+    <div className='bg-cream overflow-hidden rounded-xl shadow-[0_60px_120px_-40px_rgb(50_38_24/0.45),0_24px_48px_-24px_rgb(50_38_24/0.3)] ring-1 ring-black/5'>
+      {/* Barra do navegador, de enfeite, para a imagem ler como uma tela e não como botões */}
+      <div aria-hidden='true' className='bg-stone/70 flex items-center gap-4 px-4 py-2.5'>
+        <span className='flex gap-1.5'>
+          <span className='bg-foreground/20 size-2.5 rounded-full' />
+          <span className='bg-foreground/20 size-2.5 rounded-full' />
+          <span className='bg-foreground/20 size-2.5 rounded-full' />
+        </span>
+        <span className='bg-cream/80 text-muted-foreground mx-auto flex max-w-xs min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1 text-[0.6875rem]'>
+          <LockIcon className='size-2.5 shrink-0' />
+          <span className='truncate'>{steps[active].url}</span>
+        </span>
+        <span className='w-[2.625rem]' />
+      </div>
+      <div className='relative aspect-[4/3]'>
+        {steps.map((step, index) => (
+          <Image
+            key={step.title}
+            src={step.image}
+            alt={index === active ? step.alt : ''}
+            aria-hidden={index !== active}
+            sizes='(min-width: 1024px) 45vw, 90vw'
+            placeholder='blur'
+            className={cn(
+              'pointer-events-none absolute inset-0 size-full object-cover transition-[opacity,scale] duration-500 ease-out select-none',
+              index === active ? 'scale-100 opacity-100' : 'scale-[1.015] opacity-0'
+            )}
+          />
+        ))}
+      </div>
+    </div>
+
+    {/* Quem lê o livro: entram um a um quando o passo de compartilhar está na tela e ficam flutuando */}
+    {readers.map((reader, index) => (
+      <span
+        key={reader.position}
+        aria-hidden='true'
+        style={{ transitionDelay: active === SHARE_STEP ? `${index * 90}ms` : '0ms' }}
+        className={cn(
+          'pointer-events-none absolute z-10 transition-[opacity,scale] duration-500 ease-out',
+          reader.position,
+          active === SHARE_STEP ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
+        )}
+      >
+        <span style={{ animationDelay: reader.delay }} className='animate-float block motion-reduce:animate-none'>
+          <Image
+            src={reader.image}
+            alt=''
+            sizes='72px'
+            className='border-cream size-12 rounded-full border-[1.5px] object-cover shadow-[0_14px_28px_-12px_rgb(0_0_0/0.6)] sm:size-16 lg:size-[4.5rem]'
+          />
+        </span>
+      </span>
+    ))}
+  </div>
+)
+
+// Como funciona, contado com o scroll: no desktop a seção fica presa na tela enquanto a pessoa rola, e cada trecho
+// da rolagem acende um passo (título à esquerda, tela no meio, texto à direita). No celular, os passos vêm empilhados
 const ComoFunciona = () => {
   const [active, setActive] = useState(0)
-  const tabs = useRef<(HTMLButtonElement | null)[]>([])
-  const section = useRef<HTMLElement>(null)
-  // Os passos avançam sozinhos só com a seção na tela. O mouse em cima pausa a contagem; depois de um clique,
-  // quem manda é a pessoa e eles param de avançar
-  const [inView, setInView] = useState(false)
-  const [hovering, setHovering] = useState(false)
-  const [chosen, setChosen] = useState(false)
+  const track = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const element = section.current
+    let frame = 0
+
+    const update = () => {
+      const element = track.current
+
+      if (!element) return
+
+      const { top, height } = element.getBoundingClientRect()
+      const scrollable = height - window.innerHeight
+      const progress = scrollable > 0 ? Math.min(Math.max(-top / scrollable, 0), 0.999) : 0
+
+      setActive(Math.floor(progress * steps.length))
+    }
+
+    const onScroll = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  // Clicar num título rola até o trecho daquele passo
+  const goTo = (index: number) => {
+    const element = track.current
 
     if (!element) return
 
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.4 })
+    const scrollable = element.offsetHeight - window.innerHeight
+    const top = element.getBoundingClientRect().top + window.scrollY
 
-    observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [])
-
-  const choose = (index: number) => {
-    setActive(index)
-    setChosen(true)
-  }
-
-  // Setas mudam de passo, como numa lista de abas
-  const handleKeyDown = (event: KeyboardEvent) => {
-    const moves: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }
-    const move = moves[event.key]
-
-    if (!move) return
-
-    event.preventDefault()
-    const next = (active + move + steps.length) % steps.length
-
-    choose(next)
-    tabs.current[next]?.focus()
+    window.scrollTo({ top: top + (scrollable * (index + 0.5)) / steps.length, behavior: 'smooth' })
   }
 
   return (
-    <section ref={section} id='como-funciona' className='scroll-mt-24'>
-      <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-12 lg:px-16 lg:py-32'>
-        <MotionPreset {...reveal} className='flex flex-col gap-4 lg:col-span-5'>
+    <section id='como-funciona' className='scroll-mt-24 overflow-x-clip'>
+      <div className='mx-auto flex max-w-7xl flex-col gap-4 px-4 pt-24 sm:px-6 lg:px-16 lg:pt-32'>
+        <MotionPreset {...reveal} className='flex max-w-2xl flex-col gap-4'>
           <p className='text-sm font-medium uppercase'>Como funciona</p>
           <WordsReveal
             as='h2'
@@ -121,180 +189,63 @@ const ComoFunciona = () => {
             Três passos simples. Alguns minutos por semana, pensando em quem vai ler.
           </p>
         </MotionPreset>
+      </div>
 
-        {/* Janela do navegador com a tela do passo escolhido. Cada tela é um recorte aproximado
-            do que importa no passo; as três ficam empilhadas e trocam com um fade */}
-        <MotionPreset
-          {...reveal}
-          delay={0.15}
-          className='lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1 lg:self-center'
-        >
-          <div className='bg-moss relative rounded-2xl p-5 sm:p-10 lg:p-12 [perspective:2000px]'>
-            <div className='bg-cream overflow-hidden rounded-xl shadow-[0_40px_70px_-30px_rgb(0_0_0/0.55)] ring-1 ring-black/10 transition-transform duration-700 ease-out lg:[transform:rotateY(-6deg)] lg:hover:[transform:rotateY(0deg)]'>
-              {/* Barra do navegador, de enfeite, para a imagem ler como uma tela e não como botões */}
-              <div aria-hidden='true' className='bg-stone/70 flex items-center gap-4 px-4 py-2.5'>
-                <span className='flex gap-1.5'>
-                  <span className='bg-foreground/20 size-2.5 rounded-full' />
-                  <span className='bg-foreground/20 size-2.5 rounded-full' />
-                  <span className='bg-foreground/20 size-2.5 rounded-full' />
-                </span>
-                <span className='bg-cream/80 text-muted-foreground mx-auto flex max-w-xs min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1 text-[0.6875rem]'>
-                  <LockIcon className='size-2.5 shrink-0' />
-                  <span className='truncate'>{steps[active].url}</span>
-                </span>
-                <span className='w-[2.625rem]' />
-              </div>
-              <div
-                id='como-funciona-tela'
-                role='tabpanel'
-                aria-labelledby={`como-funciona-passo-${active}`}
-                className='relative aspect-[4/3]'
-              >
-                {steps.map((step, index) => (
-                  <Image
-                    key={step.title}
-                    src={step.image}
-                    alt={index === active ? step.alt : ''}
-                    aria-hidden={index !== active}
-                    sizes='(min-width: 1024px) 40vw, 90vw'
-                    placeholder='blur'
+      {/* Desktop: trilho alto que dá o tempo de rolagem; o conteúdo fica preso no meio da tela */}
+      <div ref={track} className='relative hidden lg:block' style={{ height: `${steps.length * 90}vh` }}>
+        <div className='sticky top-20 flex h-[calc(100svh-5rem)] items-center'>
+          <div className='mx-auto grid w-full max-w-7xl grid-cols-12 items-center gap-8 px-16'>
+            <ol className='col-span-3 flex flex-col gap-10'>
+              {steps.map((step, index) => (
+                <li key={step.title}>
+                  <button
+                    type='button'
+                    onClick={() => goTo(index)}
+                    aria-current={index === active ? 'step' : undefined}
                     className={cn(
-                      'pointer-events-none absolute inset-0 size-full object-cover transition-[opacity,scale] duration-500 ease-out select-none',
-                      index === active ? 'scale-100 opacity-100' : 'scale-[1.015] opacity-0'
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Quem lê o livro: entram um a um quando o passo de compartilhar está aberto e ficam flutuando */}
-            {readers.map((reader, index) => (
-              <span
-                key={reader.position}
-                aria-hidden='true'
-                style={{ transitionDelay: active === SHARE_STEP ? `${index * 90}ms` : '0ms' }}
-                className={cn(
-                  'pointer-events-none absolute z-10 transition-[opacity,scale] duration-500 ease-out',
-                  reader.position,
-                  active === SHARE_STEP ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
-                )}
-              >
-                <span
-                  style={{ animationDelay: reader.delay }}
-                  className='animate-float block motion-reduce:animate-none'
-                >
-                  <Image
-                    src={reader.image}
-                    alt=''
-                    sizes='72px'
-                    className='border-cream size-12 rounded-full border-[1.5px] object-cover shadow-[0_14px_28px_-12px_rgb(0_0_0/0.6)] sm:size-16 lg:size-[4.5rem]'
-                  />
-                </span>
-              </span>
-            ))}
-          </div>
-        </MotionPreset>
-
-        {/* Os passos são abas em forma de cartão: o escolhido abre o texto e mostra a tela na janela ao lado.
-            Os outros ficam fechados, com seta, e ganham fundo no hover, para ficar claro que dá para clicar */}
-        <div
-          role='tablist'
-          aria-label='Passos do Lá Vem História'
-          aria-orientation='vertical'
-          onKeyDown={handleKeyDown}
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-          className='flex flex-col gap-2 lg:col-span-5'
-        >
-          {steps.map((step, index) => {
-            const selected = index === active
-
-            return (
-              <MotionPreset key={step.title} {...reveal} delay={0.1 * (index + 1)}>
-                <button
-                  ref={element => {
-                    tabs.current[index] = element
-                  }}
-                  type='button'
-                  role='tab'
-                  id={`como-funciona-passo-${index}`}
-                  aria-selected={selected}
-                  aria-controls='como-funciona-tela'
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => choose(index)}
-                  className={cn(
-                    'group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl border px-5 py-4 text-left transition-colors duration-300',
-                    selected
-                      ? 'bg-paper border-border shadow-[0_18px_40px_-28px_rgb(60_45_30/0.45)]'
-                      : 'hover:bg-sand border-transparent'
-                  )}
-                >
-                  <span className='flex items-center gap-4'>
-                    <span
-                      aria-hidden='true'
-                      className={cn(
-                        'flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums transition-colors',
-                        selected ? 'bg-moss text-cream' : 'border-border text-muted-foreground border'
-                      )}
-                    >
-                      {index + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        'font-heading flex-1 text-xl transition-colors',
-                        selected ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'
-                      )}
-                    >
-                      {step.title}
-                    </span>
-                    <ChevronDownIcon
-                      aria-hidden='true'
-                      className={cn(
-                        'text-muted-foreground size-5 shrink-0 transition-transform duration-300',
-                        selected && 'rotate-180 opacity-0'
-                      )}
-                    />
-                  </span>
-
-                  {/* Texto abre e fecha animando a altura */}
-                  <span
-                    className={cn(
-                      'grid transition-[grid-template-rows] duration-500 ease-out',
-                      selected ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                      'font-heading cursor-pointer text-left text-[1.75rem] leading-tight text-balance transition-colors duration-500',
+                      index === active ? 'text-foreground' : 'text-foreground/20 hover:text-foreground/40'
                     )}
                   >
-                    <span className='overflow-hidden'>
-                      <span className='text-muted-foreground block pt-3 pl-12 text-base leading-relaxed'>
-                        {step.text}
-                      </span>
-                    </span>
-                  </span>
+                    {step.title}
+                  </button>
+                </li>
+              ))}
+            </ol>
 
-                  {/* Contagem até o próximo passo; some para quem prefere menos movimento */}
-                  {selected && !chosen && (
-                    <span
-                      aria-hidden='true'
-                      className='bg-border/50 absolute inset-x-5 bottom-0 h-0.5 motion-reduce:hidden'
-                    >
-                      <span
-                        key={active}
-                        onAnimationEnd={() => setActive(current => (current + 1) % steps.length)}
-                        className={cn(
-                          'bg-moss animate-step-progress block h-full origin-left',
-                          (!inView || hovering) && '[animation-play-state:paused]'
-                        )}
-                      />
-                    </span>
-                  )}
-                </button>
-              </MotionPreset>
-            )
-          })}
+            <div className='col-span-6 px-4'>
+              <Janela active={active} />
+            </div>
+
+            <div className='col-span-3 flex flex-col gap-8'>
+              {/* key: o texto novo entra com um fade a cada passo */}
+              <div key={active} className='animate-in fade-in slide-in-from-bottom-2 flex flex-col gap-3 duration-500'>
+                <span className='text-muted-foreground text-sm tabular-nums'>
+                  {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+                </span>
+                <p className='text-muted-foreground text-base leading-relaxed text-pretty'>{steps[active].text}</p>
+              </div>
+              <Cta>Responder a primeira pergunta</Cta>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <MotionPreset {...reveal} delay={0.4} className='lg:col-span-5'>
-          <Cta>Responder a primeira pergunta</Cta>
-        </MotionPreset>
+      {/* Celular e tablet: os três passos empilhados, cada um com a sua tela */}
+      <div className='mx-auto flex max-w-2xl flex-col gap-16 px-4 pt-12 pb-24 sm:px-6 lg:hidden'>
+        {steps.map((step, index) => (
+          <MotionPreset key={step.title} {...reveal} className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-2'>
+              <span className='text-muted-foreground text-sm tabular-nums'>
+                {String(index + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+              </span>
+              <h3 className='font-heading text-2xl text-balance'>{step.title}</h3>
+              <p className='text-muted-foreground text-base leading-relaxed text-pretty'>{step.text}</p>
+            </div>
+            <Janela active={index} />
+          </MotionPreset>
+        ))}
+        <Cta>Responder a primeira pergunta</Cta>
       </div>
     </section>
   )
