@@ -145,7 +145,7 @@ const OndeLer = () => (
         ))}
       </ul>
 
-      <MotionPreset {...reveal} delay={0.2}>
+      <MotionPreset {...reveal} delay={0.2} className='flex justify-center'>
         <Cta>Criar o livro da família</Cta>
       </MotionPreset>
     </div>
