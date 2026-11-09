@@ -87,7 +87,6 @@ const OndeLer = () => (
           É o mesmo livro em qualquer lugar. Quem você convidar lê na tela que tiver à mão, e você pode ter o livro
           também em papel.
         </p>
-        <Cta className='mt-4'>Criar o livro da família</Cta>
       </MotionPreset>
 
       <ul className='grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -119,6 +118,10 @@ const OndeLer = () => (
           </MotionPreset>
         ))}
       </ul>
+
+      <MotionPreset {...reveal} delay={0.2}>
+        <Cta>Criar o livro da família</Cta>
+      </MotionPreset>
     </div>
   </section>
 )
