@@ -26,7 +26,7 @@ const Hero = () => {
           className='from-cream/60 via-cream/25 pointer-events-none absolute inset-y-0 left-0 hidden w-3/5 bg-gradient-to-r to-transparent lg:block'
         />
 
-        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:w-[50%] lg:px-14 xl:px-20'>
+        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
           <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
             <div className='flex flex-col gap-6'>
               <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
