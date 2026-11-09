@@ -36,26 +36,27 @@ const Estampa = () => (
   </svg>
 )
 
-// Frente do cartão-presente, em proporção de cartão de crédito: a estampa e a faixa mel com a marca e os meses.
+// Frente do cartão-presente, em proporção de cartão de crédito: a faixa mel com a marca e os meses e a estampa.
 // Sem moldura nem sombra: quem usa decide se ela flutua, gira ou vai para a impressão
 const CartaoFrente = ({ months, className }: { months: number; className?: string }) => (
   <div
     className={cn(
-      '@container relative grid aspect-[85.6/54] w-full grid-cols-[68fr_32fr] overflow-hidden rounded-[5%/8%] [print-color-adjust:exact]',
+      '@container relative grid aspect-[85.6/54] w-full grid-cols-[32fr_68fr] overflow-hidden rounded-[5%/8%] [print-color-adjust:exact]',
       className
     )}
   >
-    <div className='relative'>
-      <Estampa />
-    </div>
-
-    <div className='bg-honey text-foreground flex flex-col items-center justify-between py-[6cqw]'>
-      <Logo className='[&_svg]:h-[6.5cqw] [&_svg]:w-auto' />
-      <div className='flex flex-col items-center leading-none'>
+    {/* Faixa mel à esquerda, com a marca e os meses em verde-musgo */}
+    <div className='bg-honey text-moss flex flex-col items-center justify-between py-[6cqw]'>
+      <Logo className='text-moss [&_svg]:h-[6.5cqw] [&_svg]:w-auto' />
+      <div className='flex flex-col items-center gap-[0.2cqw] leading-none'>
         <span className='font-heading text-[11cqw] leading-none tabular-nums'>{months}</span>
         <span className='text-[3cqw] font-semibold tracking-[0.18em] uppercase'>meses</span>
       </div>
-      <span className='text-foreground/70 text-[2.2cqw] tracking-[0.2em] uppercase'>Presente</span>
+      <span className='text-moss/70 text-[2.2cqw] tracking-[0.2em] uppercase'>Presente</span>
+    </div>
+
+    <div className='relative'>
+      <Estampa />
     </div>
   </div>
 )

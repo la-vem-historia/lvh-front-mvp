@@ -8,9 +8,15 @@ const PresenteHeader = () => (
     <Link href='/' className='w-fit'>
       <Logo className='[&_svg]:h-[2.125rem]' />
     </Link>
-    <Link href='/#presente' className='text-muted-foreground hover:text-foreground text-sm transition-colors'>
-      Voltar ao site
-    </Link>
+    {/* O cartão manda resgatar em /presente: quem chega com um código acha o caminho aqui */}
+    <nav className='flex items-center gap-6 text-sm'>
+      <Link href='/presente/resgatar' className='text-foreground underline underline-offset-4'>
+        Resgatar presente
+      </Link>
+      <Link href='/#presente' className='text-muted-foreground hover:text-foreground transition-colors'>
+        Voltar ao site
+      </Link>
+    </nav>
   </header>
 )
 
