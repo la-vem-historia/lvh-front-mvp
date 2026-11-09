@@ -661,14 +661,16 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             <Button
               type='button'
               variant='ghost'
-              className='hover:bg-sand h-11 px-5'
+              size='lg'
+              className='hover:bg-sand'
               onClick={() => setRemoveOpen(false)}
             >
               Cancelar
             </Button>
             <Button
               type='button'
-              className='bg-destructive hover:bg-destructive/90 h-11 px-5 text-white'
+              variant='destructive'
+              size='lg'
               onClick={() => {
                 if (confirmRemove?.kind === 'audio') removeAudio()
                 if (confirmRemove?.kind === 'photo') removePhoto(confirmRemove.index)
@@ -701,7 +703,8 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               render={<Link href={`/app/pergunta/${previous.id}`} />}
               nativeButton={false}
               variant='ghost'
-              className='hover:bg-sand h-12 gap-2 px-4'
+              size='lg'
+              className='hover:bg-sand px-4'
             >
               <ArrowLeftIcon />
               Anterior
@@ -717,7 +720,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               render={<Link href={`/app/pergunta/${next.id}`} />}
               nativeButton={false}
               variant='honey'
-              className='h-12 gap-2 px-5'
+              size='lg'
             >
               <span className='flex gap-1 pointer-coarse:hidden max-sm:hidden'>
                 <Kbd>{modifier}</Kbd>
@@ -727,7 +730,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               <ArrowRightIcon />
             </Button>
           ) : (
-            <Button render={<Link href='/app' />} nativeButton={false} variant='honey' className='h-12 px-5'>
+            <Button render={<Link href='/app' />} nativeButton={false} variant='honey' size='lg'>
               Voltar aos capítulos
             </Button>
           )}

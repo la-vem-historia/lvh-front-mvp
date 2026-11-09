@@ -52,7 +52,7 @@ type Media = { path: string; code: string }
 
 export async function buildBookZip(book: Book, info: UserBook): Promise<{ blob: Blob; filename: string }> {
   const { zipSync, strToU8 } = await import('fflate')
-  const title = `Livro ${bookTitle(info).replace(/^Para/, 'para')}`
+  const title = bookTitle(info)
   const files: Record<string, Uint8Array> = {}
   const photos: Record<string, Media[]> = {}
   const audios: Record<number, Media> = {}

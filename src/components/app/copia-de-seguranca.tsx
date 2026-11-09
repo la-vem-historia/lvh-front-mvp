@@ -7,6 +7,7 @@ import { DownloadIcon, UploadIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { useRefreshUser } from '@/components/app/session'
+import { textLinkClassName } from '@/components/app/page-heading'
 
 import {
   exportMyData,
@@ -107,14 +108,14 @@ const CopiaDeSeguranca = () => {
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex flex-wrap gap-3'>
-        <Button type='button' variant='outline' className='h-10 gap-2 border px-5' onClick={download}>
+        <Button type='button' variant='outline' size='md' onClick={download}>
           <DownloadIcon className='size-4' aria-hidden='true' />
           Baixar cópia
         </Button>
         <Button
           type='button'
           variant='outline'
-          className='h-10 gap-2 border px-5'
+          size='md'
           onClick={() => input.current?.click()}
         >
           <UploadIcon className='size-4' aria-hidden='true' />
@@ -174,8 +175,8 @@ const CopiaDeSeguranca = () => {
           <div className='flex flex-wrap items-center gap-3'>
             <Button
               type='button'
-              variant={mode === 'substituir' ? 'default' : 'moss'}
-              className='h-10 px-5'
+              variant={mode === 'substituir' ? 'destructive' : 'moss'}
+              size='md'
               disabled={pending}
               onClick={restore}
             >
@@ -184,7 +185,7 @@ const CopiaDeSeguranca = () => {
             <button
               type='button'
               onClick={cancel}
-              className='text-muted-foreground hover:text-foreground cursor-pointer text-sm underline underline-offset-4'
+              className={textLinkClassName}
             >
               Cancelar
             </button>

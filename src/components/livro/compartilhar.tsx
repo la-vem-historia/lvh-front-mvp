@@ -13,8 +13,6 @@ import { overlayDescriptionClassName, overlayTitleClassName } from '@/components
 import { addShare, getShares, removeShare } from '@/lib/lvh/api'
 import type { Share } from '@/lib/lvh/types'
 
-const fieldClassName = 'bg-field h-12 px-5 text-base'
-
 const linkFor = (share: Share) => `${window.location.origin}/ler/${share.token}`
 
 const Compartilhar = () => {
@@ -85,11 +83,11 @@ const Compartilhar = () => {
         <form onSubmit={handleSubmit} className='border-border flex flex-col gap-4 border-t p-6'>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='convite-nome'>Nome</Label>
-            <Input id='convite-nome' name='name' required className={fieldClassName} />
+            <Input id='convite-nome' name='name' required />
           </div>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='convite-email'>E-mail</Label>
-            <Input id='convite-email' name='email' type='email' required className={fieldClassName} />
+            <Input id='convite-email' name='email' type='email' required />
           </div>
           {error && <p className='text-destructive text-sm'>{error}</p>}
           <Button type='submit' variant='honey' size='cta' className='w-full'>

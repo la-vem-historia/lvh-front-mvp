@@ -30,15 +30,9 @@ import Avatar from '@/components/app/avatar'
 import { useRefreshUser, useUser } from '@/components/app/session'
 
 import { getAnswers, getBooks, getChapters, isAnswered, setActiveBook, signOut } from '@/lib/lvh/api'
+import { bookTitle } from '@/lib/lvh/livros'
 import type { UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
-
-// "Livro da Lara", "Livro do Tom"; sem nome, "Livro da família"
-const bookLabel = (book: UserBook) => {
-  const name = book.recipientName.trim()
-
-  return name ? `Livro ${book.recipientGender === 'menina' ? 'da' : 'do'} ${name}` : 'Livro da família'
-}
 
 const menuClassName = 'min-w-56 rounded-2xl p-1.5'
 const itemClassName = 'gap-2.5 rounded-xl px-3 py-2.5 text-sm'
@@ -74,14 +68,14 @@ const BookSelector = ({ active }: { active: boolean }) => {
         )}
       >
         <BookIcon className='size-4 shrink-0' strokeWidth={1.75} aria-hidden='true' />
-        <span className='truncate'>{bookLabel(user.activeBook)}</span>
+        <span className='truncate'>{bookTitle(user.activeBook)}</span>
         <ChevronDownIcon className='size-4 shrink-0 opacity-70' aria-hidden='true' />
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' sideOffset={8} className={menuClassName}>
         {books.map(book => (
           <DropdownMenuItem key={book.id} onClick={() => open(book.id)} className={itemClassName}>
             <CheckIcon className={cn('size-4', book.id !== user.activeBook?.id && 'invisible')} aria-hidden='true' />
-            {bookLabel(book)}
+            {bookTitle(book)}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator className='mx-1.5' />

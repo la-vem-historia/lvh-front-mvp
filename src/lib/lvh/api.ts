@@ -1,7 +1,7 @@
 // Camada de dados do app. Por enquanto tudo é simulado e fica no localStorage do
 // navegador; quando o backend existir, só o miolo destas funções muda.
 
-import { DEFAULT_COVER_TITLE } from './livros'
+import { bookTitle, DEFAULT_COVER_TITLE } from './livros'
 import { chaptersFor } from './perguntas'
 import type {
   Answer,
@@ -968,9 +968,7 @@ export function summarizeBackup(backup: Backup): BackupSummary {
     answers: answers.length,
     voices: answers.filter(answer => answer.audio).length,
     photos: answers.reduce((total, answer) => total + (answer.photos?.length ?? 0), 0),
-    bookTitles: backup.books.map(book =>
-      book.recipientName?.trim() ? `Livro ${book.recipientGender === 'menina' ? 'da' : 'do'} ${book.recipientName.trim()}` : 'Livro da família'
-    )
+    bookTitles: backup.books.map(book => bookTitle({ recipientName: book.recipientName ?? '', recipientGender: book.recipientGender }))
   }
 }
 

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import Logo from '@/components/shadcn-studio/logo'
-import { pageTitleClassName } from '@/components/app/page-heading'
+import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 export const metadata: Metadata = {
   title: 'Conta excluída | Lá Vem História',
@@ -31,7 +31,7 @@ export default function ContaExcluidaPage() {
           <Button render={<Link href='/' />} nativeButton={false} variant='honey' size='cta'>
             Voltar para o início
           </Button>
-          <Link href='/entrar' className='text-muted-foreground text-sm underline underline-offset-4'>
+          <Link href='/entrar' className={textLinkClassName}>
             Criar uma conta nova
           </Link>
         </div>

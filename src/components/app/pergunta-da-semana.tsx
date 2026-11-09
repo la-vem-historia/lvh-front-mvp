@@ -75,7 +75,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
                 render={<Link href={`/app/pergunta/${question.id}`} />}
                 nativeButton={false}
                 variant='honey'
-                className='h-12 px-6'
+                size='lg'
               >
                 Responder esta pergunta
               </Button>
@@ -83,7 +83,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
                 render={<Link href={RANDOM_QUESTION_HREF} />}
                 nativeButton={false}
                 variant='outline'
-                className='h-12 px-6'
+                size='lg'
               >
                 Responder uma pergunta aleatória
               </Button>

@@ -1100,7 +1100,7 @@ const BookReader = ({
             <Button
               id='livro-anterior'
               variant='outline'
-              className='h-12 gap-2 px-5'
+              size='lg'
               onClick={previous}
               disabled={!layout || flipping || spreadIndex === 0}
             >
@@ -1157,7 +1157,7 @@ const BookReader = ({
             <Button
               id='livro-proxima'
               variant='honey'
-              className='h-12 gap-2 px-5'
+              size='lg'
               // Na capa, "Abrir o livro" leva ao modo de leitura quando ele existe
               onClick={isCover && onOpenImmersive ? onOpenImmersive : next}
               disabled={!layout || flipping || spreadIndex >= spreads.length - 1}

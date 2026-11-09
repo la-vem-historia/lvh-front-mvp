@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import AvisePapeis from '@/components/app/avise-papeis'
-import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 import { useRefreshUser, useUser } from '@/components/app/session'
 
 import { countCopyableAnswers, createBook, getBilling, getBooks, setExtraSlots } from '@/lib/lvh/api'
-import { bookTitle, formatPrice } from '@/lib/lvh/livros'
+import { formatPrice, bookTitleInline } from '@/lib/lvh/livros'
 import type { Billing, RecipientGender, Role, UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -197,13 +197,13 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
 
   // Sem vaga livre: antes do formulário, as duas saídas. Concluir o livro atual ou pagar uma vaga a mais
   if (newBook && billing && billing.inProgress >= billing.slots) {
-    const current = inProgress.map(book => bookTitle(book).replace(/^Para/, 'para')).join(' e ')
+    const current = inProgress.map(book => bookTitleInline(book)).join(' e o ')
 
     return (
       <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 px-4 pt-30 pb-10 sm:px-6 lg:pt-36 lg:pb-16'>
         <div className='flex flex-col gap-3'>
           <span className={eyebrowClassName}>Novo livro</span>
-          <h1 className={pageTitleClassName}>Você já está escrevendo o livro {current}.</h1>
+          <h1 className={pageTitleClassName}>Você já está escrevendo o {current}.</h1>
           <p className='text-muted-foreground text-base text-pretty'>
             A assinatura inclui um livro em andamento por vez. Para começar outro agora, escolha um caminho.
           </p>
@@ -259,7 +259,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             placeholder={feminine ? 'Ex.: Ana' : 'Ex.: Tom'}
             autoComplete='off'
             autoFocus
-            className='bg-field h-12 max-w-sm px-5 text-base'
+            className='max-w-sm'
           />
         </div>
       )
@@ -343,7 +343,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
           </Choice>
           {copySources.map(book => (
             <Choice key={book.id} name='copy-from' checked={copyFrom === book.id} onChange={() => setCopyFrom(book.id)}>
-              Aproveitar do livro {bookTitle(book).replace(/^Para/, 'para')}
+              Aproveitar do {bookTitleInline(book)}
               <span className='opacity-70'>
                 · {copyable[book.id] ?? 0} {copyable[book.id] === 1 ? 'resposta' : 'respostas'}
               </span>
@@ -411,7 +411,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
               <button
                 type='button'
                 onClick={() => setStepIndex(index - 1)}
-                className='text-muted-foreground hover:text-foreground cursor-pointer text-base underline underline-offset-4 transition-colors'
+                className={textLinkClassName}
               >
                 Voltar
               </button>

@@ -6,19 +6,17 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Textarea } from '@/components/ui/textarea'
 import { useUpdateUser, useUser } from '@/components/app/session'
 import BookCover, { coverColors } from '@/components/livro/book-cover'
 import DedicationPreview from '@/components/livro/dedication-preview'
-import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
+import { overlayDescriptionClassName, overlayTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 import { getAnswers } from '@/lib/lvh/api'
 import { DEFAULT_COVER_TITLE } from '@/lib/lvh/livros'
 import { resizeImage } from '@/lib/lvh/media'
 import type { CoverColor } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
-
-// Mesmo campo do resto do app (cadastro, conta, convites): fonte do texto, 16px, 48px de altura
-const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 const DEDICATION_EXAMPLE = 'Para os meus netos, Pedro e Luísa.'
 
@@ -100,7 +98,6 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
                 value={coverTitle}
                 onChange={event => setCoverTitle(event.target.value)}
                 placeholder={DEFAULT_COVER_TITLE}
-                className={fieldClassName}
               />
               <p className='text-muted-foreground text-xs text-pretty'>
                 Por exemplo: A minha história, A história da minha vida, Lembranças da vó Lena.
@@ -115,7 +112,6 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
                 onChange={event => setBookName(event.target.value)}
                 placeholder={user.name}
                 required
-                className={fieldClassName}
               />
               <p className='text-muted-foreground text-xs text-pretty'>
                 Pode ser o seu nome completo, só o primeiro nome ou um apelido, como Vó Lena ou Tio Beto.
@@ -137,13 +133,12 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
               placeholder={DEDICATION_EXAMPLE}
               className='mx-auto w-full max-w-80'
             />
-            <textarea
+            <Textarea
               value={dedication}
               onChange={event => setDedication(event.target.value)}
               aria-label='Dedicatória'
               placeholder={DEDICATION_EXAMPLE}
               rows={3}
-              className='border-input bg-field placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-none rounded-3xl border px-5 py-4 text-base outline-none focus-visible:ring-3'
             />
           </section>
 
@@ -246,7 +241,7 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
             <button
               type='button'
               onClick={() => onOpenChange(false)}
-              className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+              className={textLinkClassName}
             >
               Cancelar
             </button>

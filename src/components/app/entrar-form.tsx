@@ -25,8 +25,6 @@ import { CADASTRO_EMAIL_KEY } from '@/lib/lvh/cadastro'
 import { isTeam, type LeadResult } from '@/lib/lvh/pre-abertura'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-field h-12 px-5 text-base'
-
 // Mesma entrada suave dos blocos da landing
 const reveal = {
   fade: true,
@@ -222,7 +220,6 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
                 type='email'
                 autoComplete='email'
                 required
-                className={fieldClassName}
               />
             </div>
             {error && <p className='text-destructive text-sm'>{error}</p>}
@@ -327,7 +324,6 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
               autoComplete='given-name'
               autoFocus
               required
-              className={fieldClassName}
             />
           </div>
           <Button type='submit' variant='honey' size='cta' disabled={pending === 'nome'} className='mt-2 w-full'>
@@ -384,7 +380,6 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
               required
               ref={emailInput}
               defaultValue={email}
-              className={fieldClassName}
             />
           </div>
           {error && <p className='text-destructive text-sm'>{error}</p>}

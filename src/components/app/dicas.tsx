@@ -182,7 +182,7 @@ const Dicas = ({ answers, nextQuestionId }: { answers: Record<number, Answer>; n
           render={<Link href={dica.href} />}
           nativeButton={false}
           variant='outline'
-          className='h-10 border px-5 text-sm'
+          size='md'
         >
           {dica.action}
         </Button>

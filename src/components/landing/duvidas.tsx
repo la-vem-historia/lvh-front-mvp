@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
+import { Textarea } from '@/components/ui/textarea'
 import { WordsReveal } from '@/components/landing/motion'
 import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
@@ -75,8 +76,6 @@ const questions = [
   }
 ]
 
-const fieldClassName = 'bg-field h-12 px-5 text-base'
-
 // Formulário de dúvidas: guarda a mensagem em /api/contato, e a equipe responde por e-mail
 const Contato = () => {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -129,39 +128,16 @@ const Contato = () => {
       <div className='grid gap-4 sm:grid-cols-2'>
         <div className='flex flex-col gap-2'>
           <Label htmlFor='contato-nome'>Nome</Label>
-          <Input
-            id='contato-nome'
-            name='name'
-            autoComplete='name'
-            maxLength={120}
-            required
-            className={fieldClassName}
-          />
+          <Input id='contato-nome' name='name' autoComplete='name' maxLength={120} required />
         </div>
         <div className='flex flex-col gap-2'>
           <Label htmlFor='contato-email'>E-mail</Label>
-          <Input
-            id='contato-email'
-            name='email'
-            type='email'
-            autoComplete='email'
-            maxLength={254}
-            required
-            className={fieldClassName}
-          />
+          <Input id='contato-email' name='email' type='email' autoComplete='email' maxLength={254} required />
         </div>
       </div>
       <div className='flex flex-col gap-2'>
         <Label htmlFor='contato-mensagem'>Sua dúvida</Label>
-        <textarea
-          id='contato-mensagem'
-          name='message'
-          required
-          minLength={5}
-          maxLength={4000}
-          rows={4}
-          className='border-input bg-field placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none focus-visible:ring-3'
-        />
+        <Textarea id='contato-mensagem' name='message' required minLength={5} maxLength={4000} rows={4} />
       </div>
       {/* Isca para robôs: fica escondida e quem preenche é descartado em silêncio */}
       <input type='text' name='site' tabIndex={-1} autoComplete='off' aria-hidden='true' className='hidden' />

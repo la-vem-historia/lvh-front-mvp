@@ -195,9 +195,9 @@ const ExcluirConta = () => (
   <Button
     render={<Link href='/app/excluir-conta' />}
     nativeButton={false}
-    variant='outline'
+    variant='destructiveOutline'
     size='cta'
-    className='border-destructive/40 text-destructive hover:bg-destructive w-fit hover:text-white'
+    className='w-fit'
   >
     Excluir conta
   </Button>
@@ -223,7 +223,7 @@ const DicasConfig = () => {
   return (
     <div className='flex flex-col items-start gap-3'>
       <p className='text-muted-foreground text-sm'>Você escondeu as dicas da home.</p>
-      <Button type='button' variant='outline' className='h-10 px-5' onClick={show}>
+      <Button type='button' variant='outline' size='md' onClick={show}>
         Mostrar de novo na home
       </Button>
     </div>

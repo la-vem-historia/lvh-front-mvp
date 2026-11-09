@@ -9,7 +9,7 @@ import { ArrowLeftIcon, DownloadIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { pageTitleClassName } from '@/components/app/page-heading'
+import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 import {
   deleteAccount,
@@ -120,7 +120,7 @@ const ExcluirConta = () => {
             </div>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-wrap items-center gap-4'>
-                <Button type='button' variant='outline' className='bg-background h-10 gap-2 px-5' onClick={download}>
+                <Button type='button' variant='outline' size='md' onClick={download}>
                   <DownloadIcon />
                   Baixar meus dados
                 </Button>
@@ -135,7 +135,7 @@ const ExcluirConta = () => {
                   render={<Link href='/app/livro/imprimir' />}
                   nativeButton={false}
                   variant='outline'
-                  className='bg-background h-10 gap-2 px-5'
+                  size='md'
                 >
                   <DownloadIcon />
                   Baixar o livro em PDF
@@ -158,7 +158,7 @@ const ExcluirConta = () => {
             <Button type='button' size='cta' disabled={!ready} onClick={() => setStep('confirmar')}>
               Continuar
             </Button>
-            <Link href='/app/configuracoes' className='text-muted-foreground text-sm underline underline-offset-4'>
+            <Link href='/app/configuracoes' className={textLinkClassName}>
               Cancelar e manter a conta
             </Link>
           </div>
@@ -186,7 +186,7 @@ const ExcluirConta = () => {
               onChange={event => setTyped(event.target.value)}
               autoComplete='off'
               autoFocus
-              className='bg-field h-12 max-w-xs px-4 text-base'
+              className='max-w-xs'
             />
           </div>
 
@@ -196,11 +196,11 @@ const ExcluirConta = () => {
               size='cta'
               disabled={typed.trim().toUpperCase() !== CONFIRMATION_WORD || deleting}
               onClick={confirm}
-              className='bg-destructive hover:bg-destructive/90 text-white'
+              variant='destructive'
             >
               Excluir minha conta para sempre
             </Button>
-            <Link href='/app/configuracoes' className='text-muted-foreground text-sm underline underline-offset-4'>
+            <Link href='/app/configuracoes' className={textLinkClassName}>
               Cancelar e manter a conta
             </Link>
           </div>
