@@ -5,6 +5,7 @@ import ComoFunciona from '@/components/landing/como-funciona'
 import Duvidas from '@/components/landing/duvidas'
 import Hero from '@/components/landing/hero'
 import OLivro from '@/components/landing/o-livro'
+import OndeLer from '@/components/landing/onde-ler'
 import Planos from '@/components/landing/planos'
 import Rodape from '@/components/landing/rodape'
 import { MotionRoot } from '@/components/landing/motion'
@@ -25,6 +26,7 @@ export default function Home() {
           <Hero />
           <ComoFunciona />
           <OLivro />
+          <OndeLer />
           <Planos />
           <Duvidas />
         </main>
