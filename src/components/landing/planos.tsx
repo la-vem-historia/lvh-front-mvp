@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import { TRIAL } from '@/components/landing/teste-gratis'
 
 import { cn } from '@/lib/utils'
 
@@ -60,9 +61,7 @@ const Planos = () => {
               className='font-heading text-display text-balance'
             />
           </div>
-          <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-            Sem fidelidade. Você cria a conta grátis e assina quando quiser.
-          </p>
+          <p className='text-muted-foreground max-w-xl text-base text-pretty'>{TRIAL}. Depois, sem fidelidade.</p>
         </MotionPreset>
 
         <div className='flex flex-col items-center gap-10'>
@@ -131,7 +130,7 @@ const Planos = () => {
                 size='cta'
                 className='mt-auto w-full'
               >
-                Cadastre-se grátis
+                Testar grátis
               </Button>
             </div>
 

@@ -75,7 +75,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
                 render={<Link href='/entrar?modo=criar' />}
                 nativeButton={false}
               >
-                Cadastre-se grátis
+                Teste grátis
               </Button>
             </div>
           </div>

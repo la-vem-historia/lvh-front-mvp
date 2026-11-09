@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import HeroLivro from '@/components/landing/hero-livro'
 import { WordsReveal } from '@/components/landing/motion'
+import { TRIAL } from '@/components/landing/teste-gratis'
 
 const reveal = {
   fade: true,
@@ -41,14 +42,17 @@ const Hero = () => {
             </MotionPreset>
           </div>
 
-          {/* Dois caminhos: criar a conta agora ou descer para entender como funciona */}
-          <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3 sm:flex-row'>
-            <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
-              Cadastre-se grátis
-            </Button>
-            <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
-              Como funciona
-            </Button>
+          {/* Dois caminhos: começar agora ou descer para entender como funciona. Embaixo, o que o grátis cobre */}
+          <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-3 sm:flex-row'>
+              <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
+                Comece sua história
+              </Button>
+              <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
+                Como funciona
+              </Button>
+            </div>
+            <p className='text-muted-foreground text-sm text-pretty'>{TRIAL}.</p>
           </MotionPreset>
         </div>
       </div>

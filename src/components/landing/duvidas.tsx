@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { Textarea } from '@/components/ui/textarea'
 import { WordsReveal } from '@/components/landing/motion'
+import { TRIAL_ANSWERS, TRIAL_DAYS } from '@/components/landing/teste-gratis'
 import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 const reveal = {
@@ -69,6 +70,10 @@ const questions = [
     question: 'Quanto custa?',
     answer:
       'No anual, R$ 24,90 por mês: R$ 298,80 cobrados de uma vez, o mesmo que ganhar dois meses. No mensal, R$ 29,90 por mês, sem fidelidade. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online sem custo e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
+  },
+  {
+    question: 'Como funciona o teste grátis?',
+    answer: `Você cria a conta e usa tudo, com voz, fotos e família respondendo junto, por ${TRIAL_DAYS} dias ou até ${TRIAL_ANSWERS} respostas, o que vier primeiro. Depois, assina para continuar. Nada do que você escreveu no teste se perde.`
   },
   {
     question: 'Posso cancelar?',
