@@ -17,7 +17,7 @@ const Hero = () => {
     // Um card grande, de ponta a ponta, como uma foto de revista. A altura segue o 16:9 da largura, sem passar da tela: no desktop a família fica à direita e o texto em cima da parede
     // calma da esquerda; no celular, onde o 16:9 fica baixo demais, a foto vai em cima e o texto embaixo
     <section className='px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6'>
-      <div className='bg-paper relative w-full overflow-hidden rounded-2xl lg:h-[min(56.25vw,calc(100svh-6rem))] lg:min-h-[36rem]'>
+      <div className='bg-paper relative w-full overflow-hidden rounded-2xl lg:h-[min(calc(56.25vw-4rem),calc(100svh-10rem))] lg:min-h-[32rem]'>
         <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
 
         {/* Véu claro só atrás do texto, para ele continuar legível em qualquer das fotos */}

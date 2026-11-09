@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/lib/utils'
 
+import cama from '@/assets/landing/hero/cama.jpg'
 import cozinha from '@/assets/landing/hero/cozinha.jpg'
 import sofa from '@/assets/landing/hero/sofa.jpg'
 
@@ -20,6 +21,10 @@ const FOTOS: { src: StaticImageData; alt: string }[] = [
   {
     src: cozinha,
     alt: 'Pai e filho rindo à mesa da cozinha, com dois cafés, enquanto o pai aponta uma página do livro de capa verde'
+  },
+  {
+    src: cama,
+    alt: 'Mãe e filha recostadas na cama, abraçadas, sorrindo enquanto leem o livro de capa verde numa tarde de chuva'
   }
 ]
 
@@ -28,12 +33,22 @@ const INTERVALO = 7000
 // Troca com um fade lento; quem pediu menos movimento fica na primeira foto
 const HeroFotos = ({ className }: { className?: string }) => {
   const [active, setActive] = useState(0)
+  const images = useRef<(HTMLImageElement | null)[]>([])
 
   useEffect(() => {
     if (FOTOS.length < 2) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const timer = window.setInterval(() => setActive(current => (current + 1) % FOTOS.length), INTERVALO)
+    // Só troca para uma foto que já terminou de baixar; senão apareceria o borrão do placeholder.
+    // Se a próxima ainda não chegou, tenta de novo no ciclo seguinte
+    const timer = window.setInterval(() => {
+      setActive(current => {
+        const next = (current + 1) % FOTOS.length
+        const image = images.current[next]
+
+        return image?.complete && image.naturalWidth ? next : current
+      })
+    }, INTERVALO)
 
     return () => window.clearInterval(timer)
   }, [])
@@ -47,6 +62,11 @@ const HeroFotos = ({ className }: { className?: string }) => {
           alt={index === active ? foto.alt : ''}
           aria-hidden={index !== active}
           priority={index === 0}
+          // As outras baixam logo depois da primeira, sem esperar a troca
+          loading={index === 0 ? undefined : 'eager'}
+          ref={element => {
+            images.current[index] = element
+          }}
           placeholder='blur'
           sizes='100vw'
           className={cn(
