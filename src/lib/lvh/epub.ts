@@ -23,6 +23,15 @@ const paragraphs = (text: string) =>
     .map(line => `<p>${escapeXml(line)}</p>`)
     .join('\n')
 
+// A pergunta nunca fica sozinha no pé da página: ela e o primeiro parágrafo da resposta vão num bloco que
+// não se divide, e o resto da resposta segue normal. O Kindle ignora o "break-after: avoid" do título,
+// mas respeita o "page-break-inside: avoid" de um bloco
+const questionStart = (question: string, answer: string) => {
+  const [first = '', ...rest] = paragraphs(answer).split('\n').filter(Boolean)
+
+  return `<div class="question-start">\n<h2>${escapeXml(question)}</h2>\n${first}\n</div>${rest.length ? `\n${rest.join('\n')}` : ''}`
+}
+
 // Nome do arquivo: "A minha história, de Moreno para Lara.epub". Alguns envios para o Kindle mostram o nome
 // do arquivo no lugar do título, e quem escreve mais de um livro precisa de um nome diferente para cada um.
 // Mantém acento e espaço; tira só o que algum sistema não aceita. Longo demais, corta pelo fim (o título fica)
@@ -254,6 +263,7 @@ const STYLE = `body { margin: 0 5%; line-height: 1.5; }
 h1, h2, h3 { font-weight: normal; line-height: 1.2; page-break-after: avoid; break-after: avoid; }
 h1 { font-size: 1.9em; margin: 2em 0 0.3em; text-align: center; }
 h2 { font-size: 1.2em; font-weight: bold; line-height: 1.3; text-align: left; hyphens: none; -webkit-hyphens: none; margin: 2.6em 0 0.9em; }
+.question-start { page-break-inside: avoid; break-inside: avoid; }
 .number { display: block; font-size: 0.75em; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.6em; opacity: 0.6; }
 .chapter h1 { margin-bottom: 1.8em; }
 p { margin: 0 0 0.8em; text-indent: 0; }
@@ -367,7 +377,7 @@ export async function buildBookEpub(
         .join('\n')
 
       sections.push(
-        `<section>\n<h2>${escapeXml(question.text)}</h2>\n${paragraphs(answer?.text ?? '')}\n${figures.join('\n')}\n${voice}\n${memories}\n</section>`
+        `<section>\n${questionStart(question.text, answer?.text ?? '')}\n${figures.join('\n')}\n${voice}\n${memories}\n</section>`
       )
     }
 
