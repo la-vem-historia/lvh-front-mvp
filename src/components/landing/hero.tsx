@@ -1,13 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import { PlayIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
+import HeroLivro from '@/components/landing/hero-livro'
 import { WordsReveal } from '@/components/landing/motion'
 import { TRIAL } from '@/components/landing/teste-gratis'
-
-import heroFoto from '@/assets/landing/hero-livro-foto.jpg'
 
 const reveal = {
   fade: true,
@@ -60,43 +57,9 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* O livro de verdade: impresso na frente e, atrás, o mesmo livro aberto no iPad, que é o que já existe hoje.
-          As bordas da foto somem no creme da página, para o livro parecer estar em cima dela */}
+      {/* Livro de exemplo, com fotos, voz e recado saindo das páginas; abre no hover */}
       <MotionPreset {...reveal} delay={0.3} className='flex items-center justify-center pb-16 lg:py-10'>
-        <div className='relative w-full max-w-[40rem]'>
-          <Image
-            src={heroFoto}
-            alt='O livro “A minha história”, de Maria Oliveira, em capa dura de tecido verde com letras douradas, sobre uma toalha de linho, com um iPad atrás mostrando o mesmo livro aberto, uma foto antiga de um casal e óculos de leitura'
-            priority
-            placeholder='blur'
-            sizes='(min-width: 1024px) 45vw, 100vw'
-            className='h-auto w-full'
-            style={{
-              maskImage:
-                'linear-gradient(to right, transparent, black 14%, black 86%, transparent), linear-gradient(to bottom, transparent, black 14%, black 86%, transparent)',
-              maskComposite: 'intersect',
-              WebkitMaskComposite: 'source-in'
-            }}
-          />
-
-          {/* A voz que vem junto com o livro: o que o papel sozinho não tem */}
-          <div
-            aria-hidden='true'
-            className='bg-cream/95 absolute bottom-[14%] left-[3%] flex items-center gap-2.5 rounded-full py-1.5 pr-4 pl-1.5 sm:gap-3 sm:py-2 sm:pr-5 sm:pl-2 shadow-[0_14px_30px_-14px_rgb(40_30_20/0.45)] backdrop-blur-sm [--drift-delay:0s] [--drift-duration:9s] [--drift-x:0px] [--drift-y:-6px] [animation:keepsake-drift_var(--drift-duration)_ease-in-out_var(--drift-delay)_infinite] motion-reduce:[animation:none]'
-          >
-            <span className='bg-earth text-cream flex size-7 items-center sm:size-9 justify-center rounded-full'>
-              <PlayIcon className='ml-0.5 size-3.5 fill-current sm:size-4' />
-            </span>
-            <span className='flex flex-col gap-1'>
-              <span className='font-heading text-page-muted text-xs italic sm:text-sm'>A voz de Maria · 1:24</span>
-              <span className='flex h-3 items-center gap-[2px]'>
-                {[4, 8, 5, 10, 7, 12, 6, 9, 4, 11, 7, 5, 9, 6, 3, 8, 5, 4].map((height, index) => (
-                  <span key={index} className='bg-page-subtle/70 w-[2px] rounded-full' style={{ height }} />
-                ))}
-              </span>
-            </span>
-          </div>
-        </div>
+        <HeroLivro />
       </MotionPreset>
     </section>
   )
