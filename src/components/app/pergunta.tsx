@@ -566,28 +566,23 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             <p className='text-destructive px-6 pt-3 text-sm sm:px-8'>{recorder.error ?? error}</p>
           )}
 
-          <div id='ferramentas' className='flex scroll-mt-40 items-center justify-between gap-3 p-4 sm:p-5'>
-            {dictation.supported ? (
-              <div className='flex min-w-0 items-center gap-3'>
+          {/* Todas as ferramentas à esquerda: o canto direito fica livre, onde a mão procura o "próxima" */}
+          <div id='ferramentas' className='flex scroll-mt-40 items-center gap-3 p-4 sm:p-5'>
+            {dictation.supported && (
+              <>
                 <ToolButton
                   label={dictation.listening ? 'Parar ditado' : 'Ditar: fale e o texto aparece'}
                   pressed={dictation.listening}
                   onClick={dictation.listening ? dictation.stop : dictation.start}
-                  className={cn(!dictation.listening && 'bg-sand hover:bg-stone/60')}
+                  className={cn('shrink-0', !dictation.listening && 'bg-sand hover:bg-stone/60')}
                 >
                   <MicIcon />
                 </ToolButton>
-                {dictation.listening && (
-                  <span role='status' className='text-muted-foreground truncate text-sm'>
-                    Ouvindo… o texto aparece no fim de cada frase.
-                  </span>
-                )}
-              </div>
-            ) : (
-              <span />
+                <span aria-hidden='true' className='bg-border h-6 w-px shrink-0' />
+              </>
             )}
 
-            <div className='bg-sand flex items-center gap-1 rounded-full p-1'>
+            <div className='bg-sand flex shrink-0 items-center gap-1 rounded-full p-1'>
               {recorder.supported && !audio && (
                 <ToolButton
                   label={recorder.recording ? 'Parar gravação' : 'Gravar sua voz'}
@@ -630,6 +625,11 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
                 )}
               </ToolButton>
             </div>
+            {dictation.listening && (
+              <span role='status' className='text-muted-foreground min-w-0 truncate text-sm'>
+                Ouvindo… o texto aparece no fim de cada frase.
+              </span>
+            )}
             <input
               ref={fileInput}
               type='file'
