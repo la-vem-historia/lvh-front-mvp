@@ -118,7 +118,7 @@ const Janela = ({ active }: { active: number }) => (
             src={reader.image}
             alt=''
             sizes='72px'
-            className='border-cream size-12 rounded-full border-[1.5px] object-cover shadow-[0_14px_28px_-12px_rgb(0_0_0/0.6)] sm:size-16 lg:size-[4.5rem]'
+            className='size-12 rounded-full object-cover shadow-[0_14px_28px_-12px_rgb(0_0_0/0.6)] sm:size-16 lg:size-[4.5rem]'
           />
         </span>
       </span>
