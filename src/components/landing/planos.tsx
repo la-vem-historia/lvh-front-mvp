@@ -60,7 +60,7 @@ const Planos = () => {
             />
           </div>
           <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-            Um plano só, com tudo, sem fidelidade. Você cria a conta grátis e assina quando quiser.
+            Sem fidelidade. Você cria a conta grátis e assina quando quiser.
           </p>
         </MotionPreset>
 
@@ -101,7 +101,7 @@ const Planos = () => {
           >
             <div className='flex flex-col gap-8'>
               <div className='flex flex-col gap-2'>
-                <h3 className='font-heading text-display'>Tudo incluído</h3>
+                <h3 className='font-heading text-display'>Lá Vem História</h3>
                 <p className='text-base text-pretty'>
                   A história contada do seu jeito, com imagem, voz e a família junto.
                 </p>
