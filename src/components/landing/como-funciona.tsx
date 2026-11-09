@@ -126,11 +126,27 @@ const Janela = ({ active }: { active: number }) => (
   </div>
 )
 
-// Como funciona, contado com o scroll: no desktop a seção fica presa na tela enquanto a pessoa rola, e cada trecho
-// da rolagem acende um passo (título à esquerda, tela no meio, texto à direita). No celular, os passos vêm empilhados
+// Como funciona, contado com o scroll: no desktop a seção fica presa na tela e cada passo ocupa um trecho da rolagem,
+// com o texto à esquerda e a tela à direita. A roda do mouse avança um passo por vez e segura um instante em cada um,
+// para nenhuma tela passar sem ser vista. No celular, os passos vêm empilhados
+const PAUSA = 1100
+
 const ComoFunciona = () => {
   const [active, setActive] = useState(0)
   const track = useRef<HTMLDivElement>(null)
+  const current = useRef(0)
+
+  // Posição de rolagem do meio do trecho de cada passo
+  const positionOf = (index: number) => {
+    const element = track.current
+
+    if (!element) return 0
+
+    const scrollable = element.offsetHeight - window.innerHeight
+    const top = element.getBoundingClientRect().top + window.scrollY
+
+    return top + (scrollable * (index + 0.5)) / steps.length
+  }
 
   useEffect(() => {
     let frame = 0
@@ -143,8 +159,10 @@ const ComoFunciona = () => {
       const { top, height } = element.getBoundingClientRect()
       const scrollable = height - window.innerHeight
       const progress = scrollable > 0 ? Math.min(Math.max(-top / scrollable, 0), 0.999) : 0
+      const next = Math.floor(progress * steps.length)
 
-      setActive(Math.floor(progress * steps.length))
+      current.current = next
+      setActive(next)
     }
 
     const onScroll = () => {
@@ -163,17 +181,38 @@ const ComoFunciona = () => {
     }
   }, [])
 
-  // Clicar num título rola até o trecho daquele passo
-  const goTo = (index: number) => {
-    const element = track.current
+  // Com a seção presa na tela, cada gesto da roda leva a um passo só, e as próximas rodadas esperam a pausa.
+  // No primeiro passo subindo e no último descendo, a rolagem volta a ser normal
+  useEffect(() => {
+    let lockedUntil = 0
 
-    if (!element) return
+    const onWheel = (event: WheelEvent) => {
+      const element = track.current
 
-    const scrollable = element.offsetHeight - window.innerHeight
-    const top = element.getBoundingClientRect().top + window.scrollY
+      if (!element || window.innerWidth < 1024 || Math.abs(event.deltaY) < 4) return
 
-    window.scrollTo({ top: top + (scrollable * (index + 0.5)) / steps.length, behavior: 'smooth' })
-  }
+      const { top, bottom } = element.getBoundingClientRect()
+      const pinned = top <= 1 && bottom >= window.innerHeight - 1
+
+      if (!pinned) return
+
+      const direction = event.deltaY > 0 ? 1 : -1
+      const next = current.current + direction
+
+      if (next < 0 || next >= steps.length) return
+
+      event.preventDefault()
+
+      if (Date.now() < lockedUntil) return
+
+      lockedUntil = Date.now() + PAUSA
+      window.scrollTo({ top: positionOf(next), behavior: 'smooth' })
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+
+    return () => window.removeEventListener('wheel', onWheel)
+  }, [])
 
   return (
     <section id='como-funciona' className='scroll-mt-24 overflow-x-clip'>
@@ -191,44 +230,32 @@ const ComoFunciona = () => {
         </MotionPreset>
       </div>
 
-      {/* Desktop: trilho alto que dá o tempo de rolagem; o conteúdo fica preso no meio da tela */}
-      <div ref={track} className='relative hidden lg:block' style={{ height: `${steps.length * 90}vh` }}>
-        <div className='sticky top-20 flex h-[calc(100svh-5rem)] items-center'>
-          <div className='mx-auto grid w-full max-w-7xl grid-cols-12 items-center gap-8 px-16'>
-            <ol className='col-span-3 flex flex-col gap-10'>
-              {steps.map((step, index) => (
-                <li key={step.title}>
-                  <button
-                    type='button'
-                    onClick={() => goTo(index)}
-                    aria-current={index === active ? 'step' : undefined}
-                    className={cn(
-                      'font-heading cursor-pointer text-left text-[1.75rem] leading-tight text-balance transition-colors duration-500',
-                      index === active ? 'text-foreground' : 'text-foreground/20 hover:text-foreground/40'
-                    )}
-                  >
-                    {step.title}
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            <div className='col-span-6 px-4'>
-              <Janela active={active} />
+      {/* Desktop: trilho alto, uma tela de rolagem por passo; o conteúdo fica preso no meio da tela */}
+      <div ref={track} className='relative hidden lg:block' style={{ height: `${steps.length * 100}vh` }}>
+        <div className='sticky top-0 flex h-svh items-center'>
+          <div className='mx-auto grid w-full max-w-7xl grid-cols-12 items-center gap-12 px-16'>
+            {/* key: o texto do passo entra com um fade suave a cada troca */}
+            <div
+              key={active}
+              aria-live='polite'
+              className='animate-in fade-in slide-in-from-bottom-3 col-span-4 flex flex-col gap-5 duration-700'
+            >
+              <span className='text-muted-foreground text-sm tracking-wide tabular-nums'>
+                {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+              </span>
+              <h3 className='font-heading text-[2.5rem] leading-[1.1] text-balance'>{steps[active].title}</h3>
+              <p className='text-muted-foreground text-lg leading-relaxed text-pretty'>{steps[active].text}</p>
             </div>
 
-            <div className='col-span-3 flex flex-col gap-8'>
-              {/* key: o texto novo entra com um fade a cada passo */}
-              <div key={active} className='animate-in fade-in slide-in-from-bottom-2 flex flex-col gap-3 duration-500'>
-                <span className='text-muted-foreground text-sm tabular-nums'>
-                  {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
-                </span>
-                <p className='text-muted-foreground text-base leading-relaxed text-pretty'>{steps[active].text}</p>
-              </div>
-              <Cta>Responder a primeira pergunta</Cta>
+            <div className='col-span-7 col-start-6'>
+              <Janela active={active} />
             </div>
           </div>
         </div>
+      </div>
+
+      <div className='mx-auto hidden max-w-7xl px-16 pb-24 lg:block'>
+        <Cta>Responder a primeira pergunta</Cta>
       </div>
 
       {/* Celular e tablet: os três passos empilhados, cada um com a sua tela */}
