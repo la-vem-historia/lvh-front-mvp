@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { useUpdateUser, useUser } from '@/components/app/session'
 import BookCover, { coverColors } from '@/components/livro/book-cover'
 import DedicationPreview from '@/components/livro/dedication-preview'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 import { getAnswers } from '@/lib/lvh/api'
 import { DEFAULT_COVER_TITLE } from '@/lib/lvh/livros'
@@ -72,8 +73,8 @@ const Personalizar = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='bg-background w-full gap-0 overflow-y-auto sm:max-w-lg'>
         <SheetHeader className='gap-3 p-6 pt-10'>
-          <SheetTitle className='font-heading text-display font-normal'>Personalizar o livro</SheetTitle>
-          <SheetDescription className='text-base'>
+          <SheetTitle className={overlayTitleClassName}>Personalizar o livro</SheetTitle>
+          <SheetDescription className={overlayDescriptionClassName}>
             O título, quem assina, a dedicatória e a capa. Dá para mudar quando quiser, aqui mesmo.
           </SheetDescription>
         </SheetHeader>

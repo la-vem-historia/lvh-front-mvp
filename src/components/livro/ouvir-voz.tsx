@@ -57,7 +57,7 @@ const OuvirVoz = ({ token }: { token: string }) => {
           <>
             <div className='flex flex-col gap-4'>
               <p className={eyebrowClassName}>Do livro de {shared.author}</p>
-              <h1 className='font-heading text-display-lg text-balance'>{shared.question}</h1>
+              <h1 className={pageTitleClassName}>{shared.question}</h1>
             </div>
 
             <div className='flex items-center gap-5'>

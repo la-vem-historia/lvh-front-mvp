@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 const reveal = {
   fade: true,
@@ -235,8 +236,8 @@ const Duvidas = () => {
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
         <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
-            <DialogTitle className='font-heading text-2xl'>Ainda com dúvida?</DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogTitle className={overlayTitleClassName}>Ainda com dúvida?</DialogTitle>
+            <DialogDescription className={overlayDescriptionClassName}>
               Escreva para a gente e respondemos no seu e-mail. Se preferir, mande para{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className='text-foreground underline underline-offset-4'>
                 {CONTACT_EMAIL}

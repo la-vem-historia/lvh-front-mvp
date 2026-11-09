@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import ColaboradoresPergunta from '@/components/app/colaboradores-pergunta'
 import Lightbox from '@/components/app/lightbox'
-import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
 import { recipientOf } from '@/lib/lvh/livros'
 import { useDictation } from '@/components/app/use-dictation'
@@ -648,10 +648,10 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
           className='bg-cream flex flex-col gap-6 rounded-[1.5rem] p-6 sm:max-w-sm sm:p-8'
         >
           <div className='flex flex-col gap-2'>
-            <DialogTitle className='font-heading text-2xl'>
+            <DialogTitle className={overlayTitleClassName}>
               {confirmRemove?.kind === 'audio' ? 'Remover a gravação?' : 'Remover a foto?'}
             </DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogDescription className={overlayDescriptionClassName}>
               {confirmRemove?.kind === 'audio'
                 ? 'A sua voz sai desta resposta e do livro. Não dá para desfazer.'
                 : 'A foto e a legenda saem desta resposta e do livro. Não dá para desfazer.'}

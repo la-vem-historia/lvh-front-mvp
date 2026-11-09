@@ -6,6 +6,11 @@ import { cn } from '@/lib/utils'
 export const pageTitleClassName =
   'font-heading text-[2rem] leading-[1.1] font-semibold tracking-[-0.01em] text-balance lg:text-[2.25rem]'
 
+// Título e descrição de janelas (Dialog) e painéis laterais (Sheet): o mesmo nos dois, um degrau abaixo
+// do título de página e em peso regular, como os títulos de seção
+export const overlayTitleClassName = 'font-heading text-2xl font-normal text-balance'
+export const overlayDescriptionClassName = 'text-muted-foreground text-base text-pretty'
+
 // Etiqueta curta acima dos títulos, em caixa alta como nas seções da landing
 export const eyebrowClassName = 'text-sm font-medium uppercase'
 

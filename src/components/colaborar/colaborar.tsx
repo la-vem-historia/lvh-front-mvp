@@ -50,7 +50,7 @@ const ContributionField = ({ token, question, initial }: { token: string; questi
   return (
     <article className='border-border flex flex-col gap-4 border-t pt-8'>
       <div className='flex items-start justify-between gap-6'>
-        <h2 className='font-heading text-display text-balance'>{question.text}</h2>
+        <h2 className={pageTitleClassName}>{question.text}</h2>
         <span role='status' className='text-muted-foreground shrink-0 pt-3 text-xs'>
           {statusLabel[status]}
         </span>

@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 // Passo a passo para levar o EPUB até cada leitor. Os caminhos seguem os menus em português
 // de cada serviço; se algum mudar de nome, é aqui que se ajusta
@@ -48,8 +49,8 @@ const ComoLerEpub = ({ open, onOpenChange, onDownload }: ComoLerEpubProps) => (
   <Sheet open={open} onOpenChange={onOpenChange}>
     <SheetContent className='bg-background w-full gap-0 overflow-y-auto sm:max-w-md'>
       <SheetHeader className='gap-3 p-6 pt-10'>
-        <SheetTitle className='font-heading text-display font-normal'>Ler no leitor digital</SheetTitle>
-        <SheetDescription className='text-base'>
+        <SheetTitle className={overlayTitleClassName}>Ler no leitor digital</SheetTitle>
+        <SheetDescription className={overlayDescriptionClassName}>
           O EPUB é o formato dos livros digitais. Baixe o arquivo e mande para o aparelho em que você costuma ler.
         </SheetDescription>
       </SheetHeader>

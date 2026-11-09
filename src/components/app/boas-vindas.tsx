@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import AvisePapeis from '@/components/app/avise-papeis'
-import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useRefreshUser, useUser } from '@/components/app/session'
 
 import { countCopyableAnswers, createBook, getBilling, getBooks, setExtraSlots } from '@/lib/lvh/api'
@@ -428,8 +428,8 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
       <Dialog open={aboutMore} onOpenChange={setAboutMore}>
         <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
-            <DialogTitle className='font-heading text-2xl'>Um livro para cada pessoa</DialogTitle>
-            <DialogDescription className='text-muted-foreground text-base text-pretty'>
+            <DialogTitle className={overlayTitleClassName}>Um livro para cada pessoa</DialogTitle>
+            <DialogDescription className={overlayDescriptionClassName}>
               Depois de começar este primeiro livro, você pode criar quantos quiser: um para cada filho ou neto, com
               respostas pensadas para cada um.
             </DialogDescription>

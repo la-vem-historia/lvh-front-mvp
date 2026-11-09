@@ -9,7 +9,7 @@ import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon, FileIcon, LayoutGridI
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
 import { INK, PageView } from '@/components/livro/book-reader'
 import { PAGE_FORMATS, contentSize, paginate, type Page } from '@/components/livro/paginate'
@@ -524,8 +524,8 @@ const LivroImpressao = () => {
           className='bg-background w-full gap-0 overflow-y-auto sm:max-w-md print:hidden'
         >
           <SheetHeader className='gap-3 p-6 pt-10'>
-            <SheetTitle className='font-heading text-display font-normal'>Antes de salvar</SheetTitle>
-            <SheetDescription className='text-base'>
+            <SheetTitle className={overlayTitleClassName}>Antes de salvar</SheetTitle>
+            <SheetDescription className={overlayDescriptionClassName}>
               Escolha como o livro sai no papel. As páginas ao lado mudam enquanto você escolhe.
             </SheetDescription>
           </SheetHeader>

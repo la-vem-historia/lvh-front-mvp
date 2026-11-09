@@ -10,6 +10,7 @@ import { useUpdateUser, useUser } from '@/components/app/session'
 import { collaboratorLink } from '@/components/app/colaboradores-pergunta'
 import PerguntaDaSemana from '@/components/app/pergunta-da-semana'
 import CopiaDeSeguranca from '@/components/app/copia-de-seguranca'
+import { pageTitleClassName } from '@/components/app/page-heading'
 
 import {
   getCollaborators,
@@ -231,7 +232,7 @@ const DicasConfig = () => {
 
 const Configuracoes = () => (
   <div className='mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:px-16 lg:py-16'>
-    <h1 className='text-sm font-medium uppercase'>Configurações</h1>
+    <h1 className={pageTitleClassName}>Configurações</h1>
 
     <Section
       id='pergunta-da-semana'

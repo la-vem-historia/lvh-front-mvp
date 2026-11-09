@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useUser } from '@/components/app/session'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 import {
   deleteContribution,
@@ -156,10 +157,10 @@ const ColaboradoresPergunta = ({
         {/* Título e botões ficam parados; só o meio rola, com uma barra fina que não encosta nos cantos */}
         <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-[1.5rem] p-0 sm:max-w-xl'>
           <div className='flex flex-col gap-2 px-6 pt-6 pr-14 pb-2 sm:px-8 sm:pt-8 sm:pr-14'>
-            <DialogTitle className='font-heading text-2xl'>
+            <DialogTitle className={overlayTitleClassName}>
               {people.length > 0 ? 'Outras lembranças' : 'Convidar para responder'}
             </DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogDescription className={overlayDescriptionClassName}>
               Convide alguém para contar a versão dele ou dela desta lembrança. A pessoa responde pelo próprio link e
               nunca vê a sua resposta.
             </DialogDescription>

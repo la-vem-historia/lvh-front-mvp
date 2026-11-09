@@ -14,6 +14,7 @@ import Avatar from '@/components/app/avatar'
 import Section from '@/components/app/section'
 import { useUpdateUser, useUser } from '@/components/app/session'
 import { AppleIcon, FacebookIcon, GoogleIcon } from '@/components/app/social-icons'
+import { pageTitleClassName } from '@/components/app/page-heading'
 
 import { changeProfile, countProfileOnlyAnswers, signOut, type LoginProvider } from '@/lib/lvh/api'
 import { resizeImage } from '@/lib/lvh/media'
@@ -339,7 +340,7 @@ const SairDaConta = () => {
 // Capa, nome na capa e dedicatória ficam na página do livro, em Personalizar
 const MinhaConta = () => (
   <div className='mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:px-16 lg:py-16'>
-    <h1 className='text-sm font-medium uppercase'>Minha conta</h1>
+    <h1 className={pageTitleClassName}>Minha conta</h1>
 
     <Section title='Perfil' description='A sua foto e o seu nome, como aparecem no app.'>
       <Perfil />

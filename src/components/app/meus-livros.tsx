@@ -9,6 +9,7 @@ import { PartyPopperIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Section from '@/components/app/section'
 import { useRefreshUser, useUpdateUser, useUser } from '@/components/app/session'
+import { pageTitleClassName } from '@/components/app/page-heading'
 
 import {
   concludeBook,
@@ -429,7 +430,7 @@ const MeusLivros = () => {
 
   return (
     <div className='mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:px-16 lg:py-16'>
-      <h1 className='text-sm font-medium uppercase'>Meus livros</h1>
+      <h1 className={pageTitleClassName}>Meus livros</h1>
 
       <Section
         title='Livros'

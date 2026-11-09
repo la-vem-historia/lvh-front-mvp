@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 import { addShare, getShares, removeShare } from '@/lib/lvh/api'
 import type { Share } from '@/lib/lvh/types'
@@ -75,8 +76,8 @@ const Compartilhar = () => {
       </SheetTrigger>
       <SheetContent className='bg-background w-full gap-0 overflow-y-auto sm:max-w-md'>
         <SheetHeader className='gap-3 p-6 pt-10'>
-          <SheetTitle className='font-heading text-display font-normal'>Quem pode ler</SheetTitle>
-          <SheetDescription className='text-base'>
+          <SheetTitle className={overlayTitleClassName}>Quem pode ler</SheetTitle>
+          <SheetDescription className={overlayDescriptionClassName}>
             O livro é fechado: só lê quem você convidar, pelo link pessoal. Você pode tirar o acesso quando quiser.
           </SheetDescription>
         </SheetHeader>
