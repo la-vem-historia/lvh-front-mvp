@@ -23,7 +23,7 @@ const Hero = () => {
         {/* No desktop o texto fica sobre a foto: um escuro leve na imagem inteira dá contraste para o texto branco */}
         <div aria-hidden='true' className='pointer-events-none absolute inset-0 hidden bg-black/20 lg:block' />
 
-        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
+        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[48%] lg:pr-12 lg:pl-28 xl:w-[44%] xl:pr-16 xl:pl-32'>
           <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
             <div className='flex flex-col gap-6'>
               <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
