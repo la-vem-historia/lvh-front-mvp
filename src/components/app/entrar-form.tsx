@@ -85,7 +85,12 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
       body: JSON.stringify({ email: address })
     })
 
-    if (!response.ok) throw new Error('Não conseguimos guardar o seu e-mail agora. Tente de novo em instantes.')
+    if (!response.ok) {
+      // Mensagem do servidor quando existe (ex.: muitas tentativas seguidas); senão, a genérica
+      const body = await response.json().catch(() => null)
+
+      throw new Error(body?.error ?? 'Não conseguimos guardar o seu e-mail agora. Tente de novo em instantes.')
+    }
 
     return (await response.json()) as LeadResult
   }
