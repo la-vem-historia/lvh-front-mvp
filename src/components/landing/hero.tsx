@@ -20,7 +20,10 @@ const Hero = () => {
       <div className='bg-paper relative w-full overflow-hidden rounded-2xl lg:h-[min(calc(56.25vw-4rem),calc(100svh-10rem))] lg:min-h-[32rem]'>
         <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
 
-        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
+        {/* No desktop o texto fica sobre a foto: um escuro leve na imagem inteira dá contraste para o texto branco */}
+        <div aria-hidden='true' className='pointer-events-none absolute inset-0 hidden bg-black/10 lg:block' />
+
+        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
           <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
             <div className='flex flex-col gap-6'>
               <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
@@ -37,7 +40,7 @@ const Hero = () => {
                 {...reveal}
                 component='p'
                 delay={0.55}
-                className='text-foreground/80 max-w-xl text-base text-pretty'
+                className='text-foreground/80 max-w-xl text-base text-pretty lg:text-white'
               >
                 A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só
                 você pode contar, na sua voz.
@@ -47,14 +50,26 @@ const Hero = () => {
             {/* Dois caminhos: começar agora ou descer para entender como funciona. Embaixo, o que o grátis cobre */}
             <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3'>
               <div className='flex flex-col gap-3 sm:flex-row'>
-                <Button render={<Link href='/entrar?modo=criar' />} nativeButton={false} variant='honey' size='cta'>
+                <Button
+                  render={<Link href='/entrar?modo=criar' />}
+                  nativeButton={false}
+                  variant='honey'
+                  size='cta'
+                  className='lg:text-foreground lg:bg-white lg:hover:bg-white/90'
+                >
                   Comece sua história
                 </Button>
-                <Button render={<a href='#como-funciona' />} nativeButton={false} variant='outline' size='cta'>
+                <Button
+                  render={<a href='#como-funciona' />}
+                  nativeButton={false}
+                  variant='outline'
+                  size='cta'
+                  className='lg:border-white lg:bg-transparent lg:text-white lg:hover:bg-white/10 lg:hover:text-white'
+                >
                   Como funciona
                 </Button>
               </div>
-              <p className='text-foreground/70 text-sm text-pretty'>{TRIAL}.</p>
+              <p className='text-foreground/70 text-sm text-pretty lg:text-white/90'>{TRIAL}.</p>
             </MotionPreset>
           </div>
         </div>
