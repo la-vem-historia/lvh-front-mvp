@@ -33,21 +33,21 @@ const steps: { title: string; text: string; image: StaticImageData; alt: string;
     title: 'Responda pensando em quem vai ler',
     text: 'Toda semana chega uma pergunta que a sua neta talvez nunca tenha feito: como era a sua infância, como você conheceu o amor da sua vida, o que aprendeu no trabalho. Você responde no seu tempo, como se estivesse contando para ela.',
     image: responderImage,
-    alt: 'A pergunta “Como era o lugar onde você morava quando era criança?” respondida no computador, com os botões Ditar, Gravar sua voz e Adicionar foto',
-    url: 'lavemhistoria.com.br/app/pergunta/2'
+    alt: 'A pergunta “Como era a casa onde você passou a infância?” respondida no computador, com os botões Ditar, Gravar sua voz e Adicionar foto',
+    url: 'lavemhistoria.com.br/app/pergunta/1032'
   },
   {
     title: 'Acrescente fotos e voz',
     text: 'Junte fotos antigas às respostas e, se preferir falar a escrever, grave a sua voz. Cada lembrança fica guardada do jeito que ela merece.',
     image: fotosEVozImage,
     alt: 'Resposta com uma gravação de voz de 1 minuto e 34 segundos e uma foto antiga de uma criança num triciclo vermelho, com legenda',
-    url: 'lavemhistoria.com.br/app/pergunta/4'
+    url: 'lavemhistoria.com.br/app/pergunta/1034'
   },
   {
     title: 'Entregue o livro para quem você escreveu',
     text: 'Suas histórias viram um livro digital. Só lê quem você convidar, e você pode tirar o acesso de qualquer pessoa quando quiser.',
     image: compartilharImage,
-    alt: 'O livro “A vida de Maria” aberto em duas páginas, com a foto do triciclo, a voz da Maria e as respostas da infância',
+    alt: 'O livro de Maria aberto em duas páginas sobre a mesa, com as respostas da infância, a foto do triciclo e a voz da Maria',
     url: 'lavemhistoria.com.br/ler/a-vida-de-maria'
   }
 ]
@@ -234,17 +234,44 @@ const ComoFunciona = () => {
       <div ref={track} className='relative hidden lg:block' style={{ height: `${steps.length * 100}vh` }}>
         <div className='sticky top-0 flex h-svh items-center'>
           <div className='mx-auto grid w-full max-w-7xl grid-cols-12 items-center gap-12 px-16'>
-            {/* key: o texto do passo entra com um fade suave a cada troca */}
-            <div
-              key={active}
-              aria-live='polite'
-              className='animate-in fade-in slide-in-from-bottom-3 col-span-4 flex flex-col gap-5 duration-700'
-            >
-              <span className='text-muted-foreground text-sm tracking-wide tabular-nums'>
-                {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
-              </span>
-              <h3 className='font-heading text-[2.5rem] leading-[1.1] text-balance'>{steps[active].title}</h3>
-              <p className='text-foreground/80 text-base text-pretty'>{steps[active].text}</p>
+            {/* self-start: o bloco fica preso no topo da coluna, alinhado com o topo da janela; título e texto
+                crescem só para baixo, então o número e os indicadores não mudam de lugar entre os passos */}
+            <div className='col-span-4 flex flex-col gap-5 self-start'>
+              {/* Número do passo e, embaixo, os indicadores: um traço por passo, o atual preenchido; dá para clicar e pular direto */}
+              <div className='flex flex-col gap-2'>
+                <span className='text-muted-foreground text-sm tracking-wide tabular-nums'>
+                  {String(active + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+                </span>
+                <div className='flex gap-1.5'>
+                  {steps.map((step, index) => (
+                    <button
+                      key={step.title}
+                      type='button'
+                      aria-label={`Passo ${index + 1}: ${step.title}`}
+                      aria-current={index === active ? 'step' : undefined}
+                      onClick={() => window.scrollTo({ top: positionOf(index), behavior: 'smooth' })}
+                      className='group py-2'
+                    >
+                      <span
+                        className={cn(
+                          'block h-0.5 rounded-full transition-[width,background-color] duration-500 ease-out',
+                          index === active ? 'bg-foreground w-10' : 'bg-foreground/20 group-hover:bg-foreground/40 w-5'
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* key: o texto do passo entra com um fade suave a cada troca */}
+              <div
+                key={active}
+                aria-live='polite'
+                className='animate-in fade-in slide-in-from-bottom-3 flex flex-col gap-5 duration-700'
+              >
+                <h3 className='font-heading text-[2.5rem] leading-[1.1] text-balance'>{steps[active].title}</h3>
+                <p className='text-foreground/80 text-base text-pretty'>{steps[active].text}</p>
+              </div>
             </div>
 
             <div className='col-span-7 col-start-6'>

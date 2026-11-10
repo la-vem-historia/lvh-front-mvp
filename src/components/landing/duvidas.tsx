@@ -69,7 +69,7 @@ const questions = [
   {
     question: 'Quanto custa?',
     answer:
-      'No anual, R$ 24,90 por mês: R$ 298,80 cobrados de uma vez, o mesmo que ganhar dois meses. No mensal, R$ 29,90 por mês, sem fidelidade. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online sem custo e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
+      'No anual, R$ 24,90 por mês: R$ 298,80 cobrados de uma vez, o mesmo que ganhar dois meses. No mensal, R$ 29,90 por mês, sem fidelidade. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online para leitura, sem custo, e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
   },
   {
     question: 'Como funciona o teste grátis?',
@@ -81,9 +81,19 @@ const questions = [
       'Pode. Você compra um cartão-presente de 1, 3, 6 ou 12 meses, e quanto mais meses, menor o preço por mês. O cartão vai direto para o e-mail de quem ganha, ou chega para você em PDF, para imprimir e entregar em mãos. Quem ganha digita o código e usa tudo pelos meses do presente; a assinatura só é cobrada depois, se a pessoa quiser continuar.'
   },
   {
+    question: 'Terminei o livro. E agora?',
+    answer:
+      'Agora ele continua vivo. A vida não para, e sempre aparece uma história nova, uma lembrança que tinha ficado de fora ou um detalhe que vale corrigir. Enquanto a assinatura estiver ativa, a gente manda um lembrete de tempos em tempos e convida você a rever as suas respostas, revisitar as fotos e as gravações e acrescentar o que faltou, para o livro estar sempre em dia com a sua história.'
+  },
+  {
     question: 'Posso cancelar?',
     answer:
-      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'
+      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez. Quando a assinatura termina, o livro fica fechado para edição.'
+  },
+  {
+    question: 'O que acontece se eu cancelar minha assinatura?',
+    answer:
+      'O livro fica fechado para edição: não dá mais para escrever, corrigir respostas, trocar fotos, gravar ou mudar a capa. Mas as histórias continuam suas. Você pode baixar tudo o que escreveu quando quiser, e as respostas, fotos e gravações só são apagadas se você decidir excluir a conta.'
   },
   {
     question: 'Funciona no celular?',
