@@ -8,7 +8,7 @@ import type { StaticImageData } from 'next/image'
 import { cn } from '@/lib/utils'
 
 import cama from '@/assets/landing/hero/cama.jpg'
-import cozinha from '@/assets/landing/hero/cozinha.jpg'
+import biblioteca from '@/assets/landing/hero/biblioteca.jpg'
 import sofa from '@/assets/landing/hero/sofa.jpg'
 
 // Fotos do hero, que se alternam devagar. Todas seguem a mesma regra: a família à direita
@@ -19,8 +19,8 @@ const FOTOS: { src: StaticImageData; alt: string }[] = [
     alt: 'Avó, mãe e neta sentadas juntinhas no sofá da sala, rindo enquanto leem o livro de capa verde no colo da avó'
   },
   {
-    src: cozinha,
-    alt: 'Pai e filho rindo à mesa da cozinha, com dois cafés, enquanto o pai aponta uma página do livro de capa verde'
+    src: biblioteca,
+    alt: 'Num cantinho de leitura cercado de livros, num dia de chuva, o avô lê em voz alta o livro de capa verde para o neto, que se apoia na poltrona'
   },
   {
     src: cama,
