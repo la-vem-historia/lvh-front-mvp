@@ -60,8 +60,8 @@ const CartaoDuplo = ({ className, ...card }: CartaoDuploProps) => {
             aria-checked={lado === option}
             onClick={() => setLado(option)}
             className={cn(
-              'h-9 cursor-pointer rounded-full px-5 text-sm capitalize transition-colors',
-              lado === option ? 'bg-moss text-cream font-bold' : 'text-foreground/75 hover:text-foreground font-medium'
+              'h-9 cursor-pointer rounded-full px-5 text-sm font-medium capitalize transition-colors',
+              lado === option ? 'bg-moss text-cream' : 'text-foreground/75 hover:text-foreground'
             )}
           >
             {option}
