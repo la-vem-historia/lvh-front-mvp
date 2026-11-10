@@ -21,7 +21,7 @@ const Hero = () => {
         <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
 
         {/* No desktop o texto fica sobre a foto: um escuro leve na imagem inteira dá contraste para o texto branco */}
-        <div aria-hidden='true' className='pointer-events-none absolute inset-0 hidden bg-black/10 lg:block' />
+        <div aria-hidden='true' className='pointer-events-none absolute inset-0 hidden bg-black/20 lg:block' />
 
         <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[44%] lg:px-12 xl:w-[40%] xl:px-16'>
           <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
