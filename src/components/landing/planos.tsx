@@ -87,8 +87,8 @@ const Planos = () => {
                 aria-checked={billing === option}
                 onClick={() => setBilling(option)}
                 className={cn(
-                  'flex h-11 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors',
-                  billing === option ? 'bg-moss text-cream' : 'text-foreground hover:bg-stone/60'
+                  'flex h-11 cursor-pointer items-center gap-2 rounded-full px-5 text-sm transition-colors',
+                  billing === option ? 'bg-moss text-cream font-bold' : 'text-foreground hover:bg-stone/60 font-medium'
                 )}
               >
                 {option === 'mensal' ? 'Mensal' : 'Anual'}

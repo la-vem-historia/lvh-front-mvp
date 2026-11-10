@@ -22,10 +22,34 @@ import { cn } from '@/lib/utils'
 
 // Papéis disponíveis, com a mesma cor do card escolhido no onboarding
 const roles = [
-  { value: 'Pai', hint: 'As perguntas falam com você como pai.', card: 'bg-olive text-cream', topic: 'paternidade', grand: false },
-  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-foreground', topic: 'maternidade', grand: false },
-  { value: 'Avô', hint: 'As perguntas falam com você como avô.', card: 'bg-moss text-cream', topic: 'avós', grand: true },
-  { value: 'Avó', hint: 'As perguntas falam com você como avó.', card: 'bg-clay text-cream', topic: 'avós', grand: true }
+  {
+    value: 'Pai',
+    hint: 'As perguntas falam com você como pai.',
+    card: 'bg-olive text-cream',
+    topic: 'paternidade',
+    grand: false
+  },
+  {
+    value: 'Mãe',
+    hint: 'As perguntas falam com você como mãe.',
+    card: 'bg-lilac text-foreground',
+    topic: 'maternidade',
+    grand: false
+  },
+  {
+    value: 'Avô',
+    hint: 'As perguntas falam com você como avô.',
+    card: 'bg-moss text-cream',
+    topic: 'avós',
+    grand: true
+  },
+  {
+    value: 'Avó',
+    hint: 'As perguntas falam com você como avó.',
+    card: 'bg-clay text-cream',
+    topic: 'avós',
+    grand: true
+  }
 ]
 
 // Perfil: foto (salva na hora) e o nome que aparece no app
@@ -172,11 +196,7 @@ const Papel = () => {
       )}
 
       {!choosing && (
-        <button
-          type='button'
-          onClick={() => setChoosing(true)}
-          className={cn(textLinkClassName, 'w-fit')}
-        >
+        <button type='button' onClick={() => setChoosing(true)} className={cn(textLinkClassName, 'w-fit')}>
           Escolhi o papel errado. E agora?
         </button>
       )}
@@ -195,7 +215,7 @@ const Papel = () => {
                   className={cn(
                     'cursor-pointer rounded-full border px-5 py-2 text-sm transition-colors',
                     target === role.value
-                      ? 'bg-moss text-cream border-moss'
+                      ? 'bg-moss text-cream border-moss font-bold'
                       : 'border-border hover:border-foreground/40'
                   )}
                 >
@@ -245,11 +265,7 @@ const Papel = () => {
             >
               {target ? `Trocar para ${target.toLowerCase()}` : 'Escolha um papel'}
             </Button>
-            <button
-              type='button'
-              onClick={cancel}
-              className={textLinkClassName}
-            >
+            <button type='button' onClick={cancel} className={textLinkClassName}>
               Cancelar
             </button>
           </div>

@@ -299,7 +299,7 @@ const LeituraImersiva = ({ book, caption, onClose }: LeituraImersivaProps) => {
                             onClick={() => choosePaginas(value)}
                             className={cn(
                               'flex-1 cursor-pointer rounded-full px-3 py-2 text-sm transition-colors',
-                              paginas === value ? 'bg-white text-night' : 'text-white/80 hover:text-white'
+                              paginas === value ? 'bg-white text-night font-bold' : 'text-white/80 hover:text-white'
                             )}
                           >
                             {label}

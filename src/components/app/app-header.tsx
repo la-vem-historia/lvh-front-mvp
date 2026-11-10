@@ -63,8 +63,8 @@ const BookSelector = ({ active }: { active: boolean }) => {
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          'flex h-10 min-w-0 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors duration-200',
-          active ? 'bg-moss text-cream' : 'bg-sand hover:bg-stone data-popup-open:bg-stone'
+          'flex h-10 min-w-0 cursor-pointer items-center gap-2 rounded-full px-4 text-sm transition-colors duration-200',
+          active ? 'bg-moss text-cream font-bold' : 'bg-sand hover:bg-stone data-popup-open:bg-stone font-medium'
         )}
       >
         <BookIcon className='size-4 shrink-0' strokeWidth={1.75} aria-hidden='true' />
@@ -178,8 +178,10 @@ const Views = ({ pathname, className }: { pathname: string; className?: string }
           href={href}
           aria-current={active ? 'page' : undefined}
           className={cn(
-            'flex h-9 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-colors duration-200',
-            active ? 'bg-moss text-cream' : 'text-foreground/75 hover:text-foreground hover:bg-stone'
+            'flex h-9 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm transition-colors duration-200',
+            active
+              ? 'bg-moss text-cream font-bold'
+              : 'font-medium text-foreground/75 hover:text-foreground hover:bg-stone'
           )}
         >
           <Icon className='size-4' strokeWidth={1.75} aria-hidden='true' />

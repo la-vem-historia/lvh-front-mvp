@@ -79,12 +79,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
               >
                 Responder esta pergunta
               </Button>
-              <Button
-                render={<Link href={RANDOM_QUESTION_HREF} />}
-                nativeButton={false}
-                variant='outline'
-                size='lg'
-              >
+              <Button render={<Link href={RANDOM_QUESTION_HREF} />} nativeButton={false} variant='outline' size='lg'>
                 Responder uma pergunta aleatória
               </Button>
             </div>
@@ -155,7 +150,9 @@ const PerguntaDaSemana = () => {
                   onClick={() => change({ day })}
                   className={cn(
                     'h-10 min-w-14 cursor-pointer rounded-full border px-4 text-sm transition-colors',
-                    reminder.day === day ? 'bg-moss text-cream border-moss' : 'border-border hover:border-foreground/40'
+                    reminder.day === day
+                      ? 'bg-moss text-cream border-moss font-bold'
+                      : 'border-border hover:border-foreground/40'
                   )}
                 >
                   {weekday.short}
