@@ -88,7 +88,7 @@ const questions = [
   {
     question: 'Posso cancelar?',
     answer:
-      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez. Quando a assinatura termina, o livro fica fechado para edição.'
+      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'
   },
   {
     question: 'O que acontece se eu cancelar minha assinatura?',
