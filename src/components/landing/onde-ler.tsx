@@ -95,8 +95,8 @@ const Moldura = ({ Icon, alt }: Pick<Forma, 'Icon' | 'alt'>) => (
 // As formas de ler o livro, num bento: cada uma com a foto de alguém lendo daquele jeito
 const OndeLer = () => (
   <section id='onde-ler' className='scroll-mt-24'>
-    <div className='mx-auto flex max-w-7xl flex-col gap-12 px-4 py-24 sm:px-6 lg:gap-16 lg:px-16 lg:py-32'>
-      <MotionPreset {...reveal} className='flex max-w-2xl flex-col gap-4'>
+    <div className='mx-auto flex max-w-7xl flex-col gap-12 px-4 py-24 max-md:gap-8 max-md:py-16 sm:px-6 lg:gap-16 lg:px-16 lg:py-32'>
+      <MotionPreset {...reveal} className='flex max-w-2xl flex-col gap-4 max-md:text-center'>
         <p className='text-sm font-medium uppercase'>Onde ler</p>
         <WordsReveal
           as='h2'
@@ -109,16 +109,23 @@ const OndeLer = () => (
         </p>
       </MotionPreset>
 
-      <ul className='grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+      {/* No celular os cards viram um carrossel de deslizar para o lado: 24px de margem e entre os cards, e 32px do próximo na borda */}
+      <ul className='grid auto-rows-fr gap-4 max-md:-mx-4 max-md:flex max-md:snap-x max-md:snap-mandatory max-md:scroll-px-6 max-md:gap-6 max-md:overflow-x-auto max-md:px-6 max-md:[scrollbar-width:none] sm:grid-cols-2 lg:grid-cols-3 max-md:[&::-webkit-scrollbar]:hidden'>
         {formas.map(({ title, text, Icon, image, alt, focus, soon, area }, index) => (
           <MotionPreset
             key={title}
             component='li'
             {...reveal}
             delay={0.08 * index}
-            className={cn('bg-sand flex flex-col overflow-hidden rounded-2xl', area, index === 4 && 'sm:col-span-2')}
+            className={cn(
+              // No carrossel os cards fora da tela não chegam a "entrar na tela" de cima para baixo; sem isto,
+              // o card que espia na borda ficaria invisível até ser arrastado. Então, no celular, eles já aparecem prontos
+              'bg-sand flex flex-col overflow-hidden rounded-2xl max-md:w-[calc(100%-2rem)] max-md:shrink-0 max-md:snap-start max-md:transform-none! max-md:opacity-100!',
+              area,
+              index === 4 && 'sm:col-span-2'
+            )}
           >
-            <div className='relative min-h-56 flex-1'>
+            <div className='relative min-h-56 flex-1 max-md:aspect-[4/3] max-md:min-h-0 max-md:flex-none'>
               {image ? (
                 <Image
                   src={image}
@@ -137,7 +144,7 @@ const OndeLer = () => (
               )}
               {soon && <EmBreve />}
             </div>
-            <div className='flex flex-col gap-1 p-6 pt-4'>
+            <div className='flex flex-col gap-1 p-6 pt-4 max-md:p-5 max-md:pt-4 max-md:text-center'>
               <h3 className='text-base font-medium'>{title}</h3>
               <p className='text-muted-foreground text-sm text-pretty'>{text}</p>
             </div>
