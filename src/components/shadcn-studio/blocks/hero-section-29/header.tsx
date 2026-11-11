@@ -85,7 +85,7 @@ const Header = ({ navigationData, className }: HeaderProps) => {
             <Button
               variant='outline'
               size='cta'
-              className='min-w-0'
+              className='min-w-0 max-md:h-11 max-md:px-5'
               render={<Link href='/entrar' />}
               nativeButton={false}
             >
@@ -94,7 +94,8 @@ const Header = ({ navigationData, className }: HeaderProps) => {
 
             <HeroNavigation02SmallScreen
               navigationData={navigationData}
-              triggerClassName='size-12 bg-background/80 text-foreground hover:bg-background'
+              cta={{ title: 'Cadastre-se grátis', href: '/entrar?modo=criar' }}
+              triggerClassName='size-12 max-md:size-11 bg-background/80 text-foreground hover:bg-background'
             />
           </div>
         </div>

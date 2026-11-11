@@ -15,32 +15,34 @@ const reveal = {
 const Hero = () => {
   return (
     // Um card grande, de ponta a ponta, como uma foto de revista. A altura segue o 16:9 da largura, sem passar da tela: no desktop a família fica à direita e o texto em cima da parede
-    // calma da esquerda; no celular, onde o 16:9 fica baixo demais, a foto vai em cima e o texto embaixo
-    <section className='px-3 pb-3 sm:px-4 sm:pb-4 lg:px-6 lg:pb-6'>
-      <div className='bg-paper relative w-full overflow-hidden rounded-2xl lg:h-[min(calc(56.25vw-4rem),calc(100svh-10rem))] lg:min-h-[32rem]'>
-        <HeroFotos className='aspect-[4/3] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
+    // calma da esquerda; no celular, onde o 16:9 fica baixo demais, a foto vai em cima e o texto embaixo.
+    // Celular (até 767px): sem o card. A foto vira um bloco arredondado com 16px de margem e o texto vem centralizado embaixo
+    <section className='px-3 pb-3 max-md:px-4 max-md:pt-[18px] max-md:pb-[61px] sm:px-4 sm:pb-4 lg:px-6 lg:pb-6'>
+      <div className='bg-paper relative w-full overflow-hidden rounded-2xl max-md:overflow-visible max-md:rounded-none max-md:bg-transparent lg:h-[min(calc(56.25vw-4rem),calc(100svh-10rem))] lg:min-h-[32rem]'>
+        <HeroFotos className='aspect-[4/3] max-md:aspect-[370/246] max-md:rounded-[16px] sm:aspect-video lg:absolute lg:inset-0 lg:aspect-auto' />
 
         {/* No desktop o texto fica sobre a foto: um escuro leve na imagem inteira dá contraste para o texto branco */}
         <div aria-hidden='true' className='pointer-events-none absolute inset-0 hidden bg-black/20 lg:block' />
 
-        <div className='relative flex items-center px-5 py-10 sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[48%] lg:pr-12 lg:pl-28 xl:w-[44%] xl:pr-16 xl:pl-32'>
-          <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10'>
-            <div className='flex flex-col gap-6'>
+        <div className='relative flex items-center px-5 py-10 max-md:px-0 max-md:pt-[33px] max-md:pb-0 max-md:text-center sm:px-8 lg:absolute lg:text-white lg:inset-y-0 lg:left-0 lg:w-[48%] lg:pr-12 lg:pl-28 xl:w-[44%] xl:pr-16 xl:pl-32'>
+          <div className='@container flex w-full max-w-[36.5rem] flex-col gap-10 max-md:max-w-none max-md:gap-[33px]'>
+            <div className='flex flex-col gap-6 max-md:gap-2'>
               <MotionPreset {...reveal} component='p' className='text-sm font-medium uppercase'>
                 Livro de memórias de família
               </MotionPreset>
-              {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto */}
+              {/* Duas linhas fixas no desktop: o tamanho acompanha a largura do bloco de texto.
+                  No celular o título corre em texto contínuo e centralizado */}
               <WordsReveal
                 text={'Tem coisas que só você sabe.\nConte antes que se percam.'}
                 delay={0.15}
-                lineClassName='lg:whitespace-nowrap'
-                className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] sm:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
+                lineClassName='max-md:inline lg:whitespace-nowrap'
+                className='font-heading text-[2.6rem] leading-[1.05] font-semibold tracking-[-0.01em] max-md:text-[2rem] max-md:leading-[1.14] md:text-5xl lg:text-[clamp(1.75rem,6.5cqw,2.5rem)] lg:leading-[1.1]'
               />
               <MotionPreset
                 {...reveal}
                 component='p'
                 delay={0.55}
-                className='text-foreground/80 max-w-xl text-base text-pretty lg:text-white'
+                className='text-foreground/80 max-w-xl text-base text-pretty max-md:text-foreground max-md:text-wrap lg:text-white'
               >
                 A infância, o primeiro amor, as escolhas difíceis. Deixe para seus filhos e netos as histórias que só
                 você pode contar, na sua voz.
@@ -48,8 +50,8 @@ const Hero = () => {
             </div>
 
             {/* Dois caminhos: começar agora ou descer para entender como funciona. Embaixo, o que o grátis cobre */}
-            <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3'>
-              <div className='flex flex-col gap-3 sm:flex-row'>
+            <MotionPreset {...reveal} delay={0.7} className='flex flex-col gap-3 max-md:gap-2 max-md:px-2'>
+              <div className='flex flex-col gap-3 max-md:gap-4 sm:flex-row'>
                 <Button
                   render={<Link href='/entrar?modo=criar' />}
                   nativeButton={false}
@@ -69,7 +71,7 @@ const Hero = () => {
                   Como funciona
                 </Button>
               </div>
-              <p className='text-foreground/70 text-sm text-pretty lg:text-white/90'>{TRIAL}.</p>
+              <p className='text-foreground/70 text-sm text-pretty max-md:text-foreground max-md:text-wrap lg:text-white/90'>{TRIAL}.</p>
             </MotionPreset>
           </div>
         </div>

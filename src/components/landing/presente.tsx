@@ -22,8 +22,8 @@ const Presente = () => {
 
   return (
     <section id='presente' className='scroll-mt-24'>
-      <div className='mx-auto grid max-w-7xl gap-16 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-16 lg:py-32'>
-        <MotionPreset {...reveal} className='flex flex-col gap-10 lg:col-span-6'>
+      <div className='mx-auto grid max-w-7xl gap-16 px-4 py-24 max-md:gap-10 max-md:py-16 sm:px-6 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-16 lg:py-32'>
+        <MotionPreset {...reveal} className='flex flex-col gap-10 max-md:text-center lg:col-span-6'>
           <div className='flex flex-col gap-4'>
             <p className='text-sm font-medium uppercase'>De presente</p>
             <WordsReveal

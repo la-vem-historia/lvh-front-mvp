@@ -189,8 +189,8 @@ const Duvidas = () => {
 
   return (
     <section id='duvidas' className='bg-paper scroll-mt-24'>
-      <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-16 lg:py-32'>
-        <MotionPreset {...reveal} className='flex flex-col gap-4 lg:sticky lg:top-28 lg:col-span-5 lg:self-start'>
+      <div className='mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 max-md:gap-10 max-md:py-16 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-16 lg:py-32'>
+        <MotionPreset {...reveal} className='flex flex-col gap-4 max-md:text-center lg:sticky lg:top-28 lg:col-span-5 lg:self-start'>
           <p className='text-sm font-medium uppercase'>Dúvidas frequentes</p>
           <WordsReveal
             as='h2'
@@ -206,15 +206,17 @@ const Duvidas = () => {
         <MotionPreset {...reveal} delay={0.1} className='flex flex-col lg:col-span-7 lg:col-start-6'>
           {questions.map(item => (
             <Collapsible key={item.question} className='border-foreground border-t'>
-              <CollapsibleTrigger className='group hover:text-earth flex w-full cursor-pointer items-center justify-between gap-6 py-6 text-left transition-colors'>
-                <span className='font-heading text-xl sm:text-2xl'>{item.question}</span>
+              <CollapsibleTrigger className='group hover:text-earth flex w-full cursor-pointer items-center justify-between gap-6 py-6 text-left transition-colors max-md:gap-3 max-md:text-center'>
+                {/* No celular a pergunta fica centralizada: um espaço do tamanho do + à esquerda equilibra o ícone */}
+                <span aria-hidden='true' className='size-5 shrink-0 md:hidden' />
+                <span className='font-heading text-xl max-md:flex-1 sm:text-2xl'>{item.question}</span>
                 <PlusIcon
                   aria-hidden='true'
                   className='size-5 shrink-0 transition-transform duration-300 group-data-[panel-open]:rotate-45'
                 />
               </CollapsibleTrigger>
               <CollapsibleContent className='h-(--collapsible-panel-height) overflow-hidden transition-[height] duration-300 ease-out data-[ending-style]:h-0 data-[starting-style]:h-0'>
-                <p className='text-muted-foreground max-w-2xl pb-6 text-base leading-relaxed text-pretty'>
+                <p className='text-muted-foreground max-w-2xl pb-6 text-base leading-relaxed text-pretty max-md:text-center'>
                   {item.answer}
                 </p>
               </CollapsibleContent>
@@ -222,7 +224,7 @@ const Duvidas = () => {
           ))}
 
           {/* Link discreto depois da última pergunta: abre o formulário de contato */}
-          <div className='border-foreground border-t pt-6'>
+          <div className='border-foreground border-t pt-6 max-md:flex max-md:justify-center'>
             <button
               type='button'
               onClick={() => setContactOpen(true)}
