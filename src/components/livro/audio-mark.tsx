@@ -42,7 +42,7 @@ const AudioMark = ({ audio, author }: { audio: AudioRecording; author: string })
   }
 
   return (
-    <div className='flex h-full items-center gap-3 border-y border-[#e5dccb] px-1'>
+    <div className='flex h-full items-center gap-3 border-y border-page-line px-1'>
       <button
         type='button'
         onClick={toggle}
@@ -56,7 +56,7 @@ const AudioMark = ({ audio, author }: { audio: AudioRecording; author: string })
         )}
       </button>
       <div className='flex min-w-0 flex-1 flex-col gap-1.5'>
-        <span className='font-heading text-[10.5px] italic text-[#6b6156]'>
+        <span className='font-heading text-[10.5px] italic text-page-muted'>
           A voz de {author} · {formatSeconds(audio.seconds)}
         </span>
         <span aria-hidden='true' className='flex h-5 items-center gap-[2px]'>

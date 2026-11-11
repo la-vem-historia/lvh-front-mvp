@@ -52,7 +52,7 @@ type Media = { path: string; code: string }
 
 export async function buildBookZip(book: Book, info: UserBook): Promise<{ blob: Blob; filename: string }> {
   const { zipSync, strToU8 } = await import('fflate')
-  const title = `Livro ${bookTitle(info).replace(/^Para/, 'para')}`
+  const title = bookTitle(info)
   const files: Record<string, Uint8Array> = {}
   const photos: Record<string, Media[]> = {}
   const audios: Record<number, Media> = {}
@@ -179,7 +179,7 @@ Cada foto e cada áudio tem um código, o mesmo que aparece impresso no livro:
 - P047-A é a voz da pergunta 47 (pasta "audios").
 Com o livro impresso na mão, procure o código ao lado do QR code ou embaixo da foto e abra o arquivo com o mesmo nome.
 
-Para imprimir, use "Baixar PDF" na página do livro em lavemhistoria.com.br, ou imprima o "Abrir o livro.html" pelo navegador.
+Para imprimir, use "Baixar", depois "PDF", na página do livro em lavemhistoria.com.br, ou imprima o "Abrir o livro.html" pelo navegador.
 `
 
   const root = title

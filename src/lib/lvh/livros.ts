@@ -18,9 +18,19 @@ export const recipientOf = (book: Pick<UserBook, 'role' | 'recipientName' | 'rec
   return `${book.recipientGender === 'menina' ? 'a' : 'o'} ${name}`
 }
 
-// Título curto do livro, usado no cabeçalho e na lista: "Para o Tom"
-export const bookTitle = (book: UserBook) =>
-  book.recipientName.trim() ? `Para ${recipientOf(book)}` : 'Para a família'
+// Nome curto do livro, o mesmo no cabeçalho, em Meus livros e no ZIP: "Livro do Tom", "Livro da Lara"
+export const bookTitle = (book: Pick<UserBook, 'recipientName' | 'recipientGender'>) => {
+  const name = book.recipientName.trim()
+
+  return name ? `Livro ${book.recipientGender === 'menina' ? 'da' : 'do'} ${name}` : 'Livro da família'
+}
+
+// O mesmo nome no meio de uma frase: "o livro da Lara está pronto"
+export const bookTitleInline = (book: Pick<UserBook, 'recipientName' | 'recipientGender'>) =>
+  bookTitle(book).replace(/^Livro/, 'livro')
+
+// Título da capa quando a pessoa ainda não escolheu um
+export const DEFAULT_COVER_TITLE = 'A minha história'
 
 export const formatPrice = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 

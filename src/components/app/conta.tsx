@@ -14,17 +14,16 @@ import Avatar from '@/components/app/avatar'
 import Section from '@/components/app/section'
 import { useUpdateUser, useUser } from '@/components/app/session'
 import { AppleIcon, FacebookIcon, GoogleIcon } from '@/components/app/social-icons'
+import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 import { changeProfile, countProfileOnlyAnswers, signOut, type LoginProvider } from '@/lib/lvh/api'
 import { resizeImage } from '@/lib/lvh/media'
 import { cn } from '@/lib/utils'
 
-const fieldClassName = 'bg-field h-12 px-5 text-base'
-
 // Papéis disponíveis, com a mesma cor do card escolhido no onboarding
 const roles = [
   { value: 'Pai', hint: 'As perguntas falam com você como pai.', card: 'bg-olive text-cream', topic: 'paternidade', grand: false },
-  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-ink', topic: 'maternidade', grand: false },
+  { value: 'Mãe', hint: 'As perguntas falam com você como mãe.', card: 'bg-lilac text-foreground', topic: 'maternidade', grand: false },
   { value: 'Avô', hint: 'As perguntas falam com você como avô.', card: 'bg-moss text-cream', topic: 'avós', grand: true },
   { value: 'Avó', hint: 'As perguntas falam com você como avó.', card: 'bg-clay text-cream', topic: 'avós', grand: true }
 ]
@@ -69,7 +68,7 @@ const Perfil = () => {
       <div className='flex items-center gap-5'>
         <Avatar user={user} className='size-20 text-2xl' />
         <div className='flex flex-col items-start gap-2'>
-          <Button type='button' variant='outline' className='h-10 px-5' onClick={() => fileInput.current?.click()}>
+          <Button type='button' variant='outline' size='md' onClick={() => fileInput.current?.click()}>
             {user.avatar ? 'Trocar foto' : 'Enviar foto'}
           </Button>
           {user.avatar && (
@@ -103,7 +102,7 @@ const Perfil = () => {
             value={name}
             onChange={event => setName(event.target.value)}
             required
-            className={cn(fieldClassName, 'min-w-0 flex-1')}
+            className='min-w-0 flex-1'
           />
           {/* O campo encolhe aos poucos para dar lugar ao botão; a folga em volta deixa a sombra inteira */}
           <AnimatePresence initial={false}>
@@ -115,7 +114,7 @@ const Perfil = () => {
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                 className='-my-6 -mr-4 shrink-0 overflow-hidden py-6 pr-4'
               >
-                <Button type='submit' variant='honey' className='ml-3 h-12 px-7 text-sm'>
+                <Button type='submit' variant='honey' size='lg' className='ml-3 px-7'>
                   Salvar
                 </Button>
               </motion.div>
@@ -176,14 +175,14 @@ const Papel = () => {
         <button
           type='button'
           onClick={() => setChoosing(true)}
-          className='text-muted-foreground hover:text-foreground w-fit cursor-pointer text-sm underline underline-offset-4'
+          className={cn(textLinkClassName, 'w-fit')}
         >
           Escolhi o papel errado. E agora?
         </button>
       )}
 
       {choosing && (
-        <div className='border-border flex flex-col gap-5 rounded-[1.5rem] border p-6'>
+        <div className='border-border flex flex-col gap-5 rounded-2xl border p-6'>
           <div className='flex flex-col gap-3'>
             <span className='text-sm font-medium'>Contar como</span>
             <div className='flex flex-wrap gap-2'>
@@ -239,16 +238,17 @@ const Papel = () => {
             <Button
               type='button'
               size='cta'
+              variant={lostCount > 0 ? 'destructive' : 'default'}
               disabled={!target || pending}
               onClick={confirm}
-              className={cn('w-fit', lostCount > 0 && 'bg-destructive hover:bg-destructive/90 text-white')}
+              className='w-fit'
             >
               {target ? `Trocar para ${target.toLowerCase()}` : 'Escolha um papel'}
             </Button>
             <button
               type='button'
               onClick={cancel}
-              className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+              className={textLinkClassName}
             >
               Cancelar
             </button>
@@ -281,13 +281,13 @@ const Login = () => {
     <div className='flex flex-col gap-8'>
       <div className='flex flex-col gap-2'>
         <Label htmlFor='conta-email'>E-mail</Label>
-        <Input id='conta-email' value={user.email} readOnly disabled className={fieldClassName} />
+        <Input id='conta-email' value={user.email} readOnly disabled />
         <p className='text-muted-foreground text-xs'>Você entra com um código que enviamos para este e-mail.</p>
       </div>
 
       <div className='flex flex-col gap-3'>
         <span className='text-sm font-medium'>Contas conectadas</span>
-        <ul className='border-border flex flex-col rounded-[1.5rem] border'>
+        <ul className='border-border flex flex-col rounded-2xl border'>
           {providers.map(({ provider, label, Icon }) => {
             const isConnected = connected.includes(provider)
 
@@ -304,7 +304,8 @@ const Login = () => {
                 <Button
                   type='button'
                   variant='outline'
-                  className={cn('h-9 px-4 text-xs', isConnected && 'border-border text-muted-foreground')}
+                  size='md'
+                  className={cn(isConnected && 'border-border text-muted-foreground')}
                   onClick={() => toggle(provider)}
                 >
                   {isConnected ? 'Desconectar' : 'Conectar'}
@@ -339,7 +340,7 @@ const SairDaConta = () => {
 // Capa, nome na capa e dedicatória ficam na página do livro, em Personalizar
 const MinhaConta = () => (
   <div className='mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:px-16 lg:py-16'>
-    <h1 className='text-sm font-medium uppercase'>Minha conta</h1>
+    <h1 className={pageTitleClassName}>Minha conta</h1>
 
     <Section title='Perfil' description='A sua foto e o seu nome, como aparecem no app.'>
       <Perfil />

@@ -7,9 +7,12 @@ import { TEAM_COOKIE } from '@/lib/lvh/pre-abertura'
 
 const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow' }
 
-// A landing, a tela de criar conta, a lista de interessados e o formulário de dúvidas ficam abertos: quem cria
-// conta antes da abertura deixa o e-mail na lista. O app continua fechado
-const PUBLIC_PATHS = ['/', '/entrar', '/api/leads', '/api/contato']
+// A landing, a tela de criar conta, a lista de interessados, o formulário de dúvidas e a compra de presente ficam
+// abertos: quem cria conta antes da abertura deixa o e-mail na lista. O app continua fechado
+const PUBLIC_PATHS = ['/', '/entrar', '/presente', '/api/leads', '/api/contato']
+// Links que o autor manda para a família (ler o livro, ouvir uma voz pelo QR code, responder junto) e as páginas
+// do presente (o cartão para imprimir e o resgate do código): quem recebe não tem a senha do site
+const PUBLIC_PREFIXES = ['/ler/', '/ouvir/', '/colaborar/', '/presente/']
 
 // Quem passou pela senha é da equipe: o cookie libera criar conta e entrar no app de verdade
 const asTeam = (response: NextResponse) => {
@@ -18,7 +21,11 @@ const asTeam = (response: NextResponse) => {
 }
 
 export function proxy(request: NextRequest) {
-  if (PUBLIC_PATHS.includes(request.nextUrl.pathname)) return NextResponse.next()
+  const path = request.nextUrl.pathname
+
+  if (PUBLIC_PATHS.includes(path) || PUBLIC_PREFIXES.some(prefix => path.startsWith(prefix))) {
+    return NextResponse.next()
+  }
 
   const user = process.env.SITE_USER
   const password = process.env.SITE_PASSWORD

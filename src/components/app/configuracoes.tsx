@@ -9,6 +9,8 @@ import Section from '@/components/app/section'
 import { useUpdateUser, useUser } from '@/components/app/session'
 import { collaboratorLink } from '@/components/app/colaboradores-pergunta'
 import PerguntaDaSemana from '@/components/app/pergunta-da-semana'
+import CopiaDeSeguranca from '@/components/app/copia-de-seguranca'
+import { pageTitleClassName } from '@/components/app/page-heading'
 
 import {
   getCollaborators,
@@ -193,38 +195,35 @@ const ExcluirConta = () => (
   <Button
     render={<Link href='/app/excluir-conta' />}
     nativeButton={false}
-    variant='outline'
+    variant='destructiveOutline'
     size='cta'
-    className='border-destructive/40 text-destructive hover:bg-destructive w-fit hover:text-white'
+    className='w-fit'
   >
     Excluir conta
   </Button>
 )
 
-// Traz de volta o card de primeiros passos da home, para quem marcou "Não ver novamente"
-const PrimeirosPassosConfig = () => {
+// Traz de volta as dicas da home, para quem as escondeu no X
+const DicasConfig = () => {
   const user = useUser()
   const updateUser = useUpdateUser()
 
   const show = () => {
-    try {
-      sessionStorage.removeItem('lvh:checklist-dispensado')
-    } catch {}
     updateUser({ checklistHidden: false })
   }
 
   if (!user.checklistHidden) {
     return (
       <p className='text-muted-foreground text-sm'>
-        O card aparece na home até você completar os passos. Você pode dispensá-lo por lá.
+        As dicas aparecem na home, uma por vez. Para esconder, use o X ao lado delas.
       </p>
     )
   }
 
   return (
     <div className='flex flex-col items-start gap-3'>
-      <p className='text-muted-foreground text-sm'>Você escolheu não ver o card de primeiros passos.</p>
-      <Button type='button' variant='outline' className='h-10 px-5' onClick={show}>
+      <p className='text-muted-foreground text-sm'>Você escondeu as dicas da home.</p>
+      <Button type='button' variant='outline' size='md' onClick={show}>
         Mostrar de novo na home
       </Button>
     </div>
@@ -233,7 +232,7 @@ const PrimeirosPassosConfig = () => {
 
 const Configuracoes = () => (
   <div className='mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:px-16 lg:py-16'>
-    <h1 className='text-sm font-medium uppercase'>Configurações</h1>
+    <h1 className={pageTitleClassName}>Configurações</h1>
 
     <Section
       id='pergunta-da-semana'
@@ -254,8 +253,16 @@ const Configuracoes = () => (
       <Leitores />
     </Section>
 
-    <Section title='Primeiros passos' description='O guia da home com os primeiros marcos da sua história.'>
-      <PrimeirosPassosConfig />
+    <Section title='Dicas' description='Sugestões curtas na home sobre o que dá para fazer no seu livro.'>
+      <DicasConfig />
+    </Section>
+
+    <Section
+      id='copia-de-seguranca'
+      title='Cópia de segurança'
+      description='Baixe tudo num arquivo e importe de volta quando quiser: em outro navegador, numa conta nova ou depois de algum imprevisto.'
+    >
+      <CopiaDeSeguranca />
     </Section>
 
     <Section

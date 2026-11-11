@@ -23,13 +23,41 @@ const paragraphs = (text: string) =>
     .map(line => `<p>${escapeXml(line)}</p>`)
     .join('\n')
 
-const slug = (text: string) =>
+// A pergunta nunca fica sozinha no pé da página: ela e o primeiro parágrafo da resposta vão num bloco que
+// não se divide, e o resto da resposta segue normal. O Kindle ignora o "break-after: avoid" do título,
+// mas respeita o "page-break-inside: avoid" de um bloco
+const questionStart = (question: string, answer: string) => {
+  const [first = '', ...rest] = paragraphs(answer).split('\n').filter(Boolean)
+
+  return `<div class="question-start">\n<h2>${escapeXml(question)}</h2>\n${first}\n</div>${rest.length ? `\n${rest.join('\n')}` : ''}`
+}
+
+// Nome do arquivo: "A minha história, de Moreno para Lara.epub". Alguns envios para o Kindle mostram o nome
+// do arquivo no lugar do título, e quem escreve mais de um livro precisa de um nome diferente para cada um.
+// Mantém acento e espaço; tira só o que algum sistema não aceita. Longo demais, corta pelo fim (o título fica)
+const MAX_FILENAME = 100
+
+const clean = (text: string) =>
   text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .normalize('NFC')
+    .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const epubFilename = (title: string, author: string, recipient: string) => {
+  const parts = [clean(title) || 'Livro']
+  const by = clean(author)
+  const to = clean(recipient)
+
+  if (by) parts.push(`, de ${by}`)
+  if (to) parts.push(`${by ? '' : ','} para ${to}`)
+
+  let name = parts.join('')
+
+  if (name.length > MAX_FILENAME) name = name.slice(0, MAX_FILENAME).replace(/[\s,]+\S*$/, '')
+
+  return `${name.replace(/^\.+|\.+$/g, '')}.epub`
+}
 
 // Lado maior das fotos: nítido numa tela de tablet, sem deixar o arquivo pesado
 const PHOTO_MAX = 1600
@@ -146,7 +174,7 @@ async function drawCover(book: Book) {
     context.font = `${size}px ${font}`
     lines = []
 
-    for (const word of book.author.split(/\s+/)) {
+    for (const word of book.title.split(/\s+/)) {
       const last = lines[lines.length - 1]
 
       if (last && context.measureText(`${last} ${word}`).width <= textWidth) lines[lines.length - 1] = `${last} ${word}`
@@ -156,7 +184,7 @@ async function drawCover(book: Book) {
     if (lines.length <= 3 && lines.every(line => context.measureText(line).width <= textWidth)) break
   }
 
-  // Foto, nome, fio e "para a minha família" formam um bloco centralizado entre a marca e o ano
+  // Foto, título, fio e o nome de quem escreveu formam um bloco centralizado entre a marca e o ano
   const lineHeight = size * 1.05
   const subtitleSize = 4.2 * cqw
   const nameBlock = lines.length * lineHeight + 3 * cqw + subtitleSize * 2.2
@@ -208,7 +236,7 @@ async function drawCover(book: Book) {
   context.fillRect(centerX - 5 * cqw, ruleY, 10 * cqw, 2)
   context.globalAlpha = 1
   context.font = `italic ${subtitleSize}px ${font}`
-  context.fillText('para a minha família', centerX, ruleY + subtitleSize * 1.4)
+  context.fillText(book.author, centerX, ruleY + subtitleSize * 1.4)
 
   spaced(String(book.year), 2.6 * cqw, height - 10.5 * cqw, 0.25)
 
@@ -229,11 +257,13 @@ ${body}
 </html>
 `
 
-// Pouco estilo de propósito: o leitor manda na fonte, no tamanho e no tema (claro, sépia, escuro)
+// Pouco estilo de propósito: o leitor manda na fonte, no tamanho e no tema (claro, sépia, escuro).
+// A pergunta se separa da resposta por negrito, tamanho e espaço, que sobrevivem a qualquer troca de fonte
 const STYLE = `body { margin: 0 5%; line-height: 1.5; }
 h1, h2, h3 { font-weight: normal; line-height: 1.2; page-break-after: avoid; break-after: avoid; }
 h1 { font-size: 1.9em; margin: 2em 0 0.3em; text-align: center; }
-h2 { font-size: 1.15em; font-style: italic; margin: 2.2em 0 0.6em; }
+h2 { font-size: 1.2em; font-weight: bold; line-height: 1.3; text-align: left; hyphens: none; -webkit-hyphens: none; margin: 2.6em 0 0.9em; }
+.question-start { page-break-inside: avoid; break-inside: avoid; }
 .number { display: block; font-size: 0.75em; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.6em; opacity: 0.6; }
 .chapter h1 { margin-bottom: 1.8em; }
 p { margin: 0 0 0.8em; text-indent: 0; }
@@ -260,7 +290,7 @@ export async function buildBookEpub(
   audioLinks: Record<number, string> = {}
 ): Promise<{ blob: Blob; filename: string }> {
   const { zipSync, strToU8 } = await import('fflate')
-  const title = `${book.author}, a minha história`
+  const title = book.title
   const id = `urn:lavemhistoria:${info.id}`
   const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 
@@ -296,8 +326,8 @@ export async function buildBookEpub(
     page(
       title,
       `<div class="title-page">
-<h1>${escapeXml(book.author)}</h1>
-<p class="by">para a minha família</p>
+<h1>${escapeXml(book.title)}</h1>
+<p class="by">${escapeXml(book.author)}</p>
 <p class="brand">Lá Vem História · ${book.year}</p>
 </div>`
     )
@@ -347,7 +377,7 @@ export async function buildBookEpub(
         .join('\n')
 
       sections.push(
-        `<section>\n<h2>${escapeXml(question.text)}</h2>\n${paragraphs(answer?.text ?? '')}\n${figures.join('\n')}\n${voice}\n${memories}\n</section>`
+        `<section>\n${questionStart(question.text, answer?.text ?? '')}\n${figures.join('\n')}\n${voice}\n${memories}\n</section>`
       )
     }
 
@@ -465,6 +495,6 @@ ${spine.join('\n')}
 
   return {
     blob: new Blob([zipped as BlobPart], { type: 'application/epub+zip' }),
-    filename: `${slug(title) || 'livro'}.epub`
+    filename: epubFilename(title, book.author, info.recipientName)
   }
 }

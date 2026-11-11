@@ -13,8 +13,6 @@ export type Role = 'Mãe' | 'Pai' | 'Avó' | 'Avô'
 
 export type RecipientGender = 'menino' | 'menina'
 
-export type PlanId = 'essencial' | 'completo'
-
 // Um livro é sempre de uma pessoa para outra: de Moreno, o pai, para o Tom
 export type UserBook = {
   id: string
@@ -23,6 +21,8 @@ export type UserBook = {
   recipientGender: RecipientGender
   // Só nos livros de avós: quem recebe é filho ou filha do seu filho ou da sua filha
   childOf?: 'filho' | 'filha'
+  // Título na capa ("A minha história") e quem assina o livro ("Maria", "Vó Lena")
+  coverTitle?: string
   bookName?: string
   dedication?: string
   coverColor?: CoverColor
@@ -47,6 +47,7 @@ export type UserBookChanges = Partial<
     | 'recipientName'
     | 'recipientGender'
     | 'childOf'
+    | 'coverTitle'
     | 'bookName'
     | 'dedication'
     | 'coverColor'
@@ -56,10 +57,11 @@ export type UserBookChanges = Partial<
   >
 >
 
-// Cobrança mensal: o plano dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
+// Cobrança mensal: a assinatura dá uma vaga de livro em andamento; cada vaga a mais soma um valor menor.
 // Livros concluídos não ocupam vaga
 export type Billing = {
-  plan: PlanId
+  // Até quando a assinatura está paga por um presente (ISO)
+  giftUntil?: string
   base: number
   extraSlots: number
   extraPrice: number
@@ -82,11 +84,11 @@ export type User = {
   activeBookId?: string
   activeBook?: UserBook
   profile?: string
+  coverTitle?: string
   bookName?: string
   dedication?: string
   // Tem pelo menos um livro criado
   onboarded?: boolean
-  plan?: PlanId
   // Vagas pagas além da que vem no plano, para escrever mais de um livro ao mesmo tempo
   extraSlots?: number
   // A pessoa fechou o card de primeiros passos da home
@@ -99,6 +101,8 @@ export type User = {
   providers?: LoginProvider[]
   // E-mail semanal com a próxima pergunta
   emailReminder?: EmailReminder
+  // Meses ganhos de presente: a assinatura fica grátis até esta data (ISO)
+  giftUntil?: string
 }
 
 // Dia da semana (0 = domingo) e horário (HH:MM) em que a pergunta da semana chega por e-mail
@@ -113,6 +117,7 @@ export type UserChanges = Partial<
     User,
     | 'name'
     | 'profile'
+    | 'coverTitle'
     | 'bookName'
     | 'dedication'
     | 'onboarded'
@@ -122,8 +127,8 @@ export type UserChanges = Partial<
     | 'coverPhoto'
     | 'providers'
     | 'emailReminder'
-    | 'plan'
     | 'extraSlots'
+    | 'giftUntil'
   >
 >
 
@@ -171,6 +176,7 @@ export type BookChapter = {
 
 // O livro é montado só com as perguntas respondidas
 export type Book = {
+  title: string
   author: string
   dedication?: string
   coverColor: CoverColor

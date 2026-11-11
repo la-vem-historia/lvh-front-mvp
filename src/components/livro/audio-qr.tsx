@@ -54,18 +54,18 @@ const AudioQr = ({
     href={url}
     target='_blank'
     rel='noopener noreferrer'
-    className='flex h-full items-center gap-3.5 border-y border-[#e5dccb] px-1'
+    className='flex h-full items-center gap-3.5 border-y border-page-line px-1'
   >
     <QrSvg value={url} size={60} />
     <div className='flex min-w-0 flex-col gap-1'>
-      <span className='font-heading text-[11px] text-[#2a231c] italic'>
+      <span className='font-heading text-[11px] text-night italic'>
         A voz de {author} · {formatSeconds(audio.seconds)}
       </span>
-      <span className='text-[8.5px] leading-[1.45] text-[#8a7f72]'>
+      <span className='text-[8.5px] leading-[1.45] text-page-subtle'>
         Aponte a câmera do celular para o código e ouça esta resposta contada por quem viveu.
       </span>
       {/* O mesmo nome do arquivo de áudio no ZIP do livro, para quem tiver só a pasta */}
-      <span className='text-[8.5px] tracking-wide text-[#8a7f72]'>Arquivo de áudio {code}</span>
+      <span className='text-[8.5px] tracking-wide text-page-subtle'>Arquivo de áudio {code}</span>
     </div>
   </a>
 )
