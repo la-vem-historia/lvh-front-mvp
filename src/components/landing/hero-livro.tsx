@@ -51,9 +51,9 @@ const PlayMark = ({ className }: { className?: string }) => (
 
 // Foto revelada, com a borda clara e uma legenda à mão
 const Print = ({ src, caption }: { src: StaticImageData; caption: string }) => (
-  <div className='rounded-[1.5cqw] bg-[#fbf7ee] p-[5cqw] pb-[4cqw] shadow-[0_2cqw_5cqw_-1.5cqw_rgb(50_38_24/0.4)]'>
+  <div className='rounded-[1.5cqw] bg-page-photo p-[5cqw] pb-[4cqw] shadow-[0_2cqw_5cqw_-1.5cqw_rgb(50_38_24/0.4)]'>
     <Image src={src} alt='' sizes='12rem' className='aspect-[4/5] h-auto w-full object-cover' />
-    <p className='font-heading mt-[3cqw] text-center text-[7.5cqw] text-[#6b6156] italic'>{caption}</p>
+    <p className='font-heading mt-[3cqw] text-center text-[7.5cqw] text-page-muted italic'>{caption}</p>
   </div>
 )
 
@@ -106,7 +106,7 @@ const KEEPSAKES: Record<'voz' | 'triciclo' | 'amigos' | 'recado', Drift> = {
 const Page = ({ side, number, children }: { side: 'left' | 'right'; number: number; children: ReactNode }) => (
   <div
     className={cn(
-      '@container relative flex aspect-[440/622] w-full flex-col overflow-hidden px-[9cqw] pt-[10cqw] pb-[7cqw] text-[#2a231c]',
+      '@container relative flex aspect-[440/622] w-full flex-col overflow-hidden px-[9cqw] pt-[10cqw] pb-[7cqw] text-night',
       side === 'left' ? 'rounded-l-[3px]' : 'rounded-r-[3px]'
     )}
     style={PAPER_STYLE}
@@ -120,7 +120,7 @@ const Page = ({ side, number, children }: { side: 'left' | 'right'; number: numb
       }}
     />
     <div className='book-type relative flex flex-1 flex-col gap-[4cqw]'>{children}</div>
-    <span className='book-ink book-type font-heading relative text-center text-[4cqw] text-[#6b6156]'>{number}</span>
+    <span className='book-ink book-type font-heading relative text-center text-[4cqw] text-page-muted'>{number}</span>
   </div>
 )
 
@@ -168,7 +168,7 @@ const HeroLivro = () => {
         onPointerDown={event => (pointer.current = event.pointerType)}
         onClick={click}
         onKeyDown={key}
-        className='focus-visible:ring-ring/50 @container relative aspect-[10/11] w-full max-w-[36rem] lg:max-w-[calc((100svh-10rem)*10/11)] 2xl:max-w-[min(calc((100svh-10rem)*10/11),46rem)] cursor-pointer rounded-[1.5rem] outline-none select-none focus-visible:ring-3'
+        className='focus-visible:ring-ring/50 @container relative aspect-[10/11] w-full max-w-[36rem] lg:max-w-[calc((100svh-10rem)*10/11)] 2xl:max-w-[min(calc((100svh-10rem)*10/11),46rem)] cursor-pointer rounded-2xl outline-none select-none focus-visible:ring-3'
       >
         <Keepsake open={open} item={KEEPSAKES.voz}>
           <div
@@ -177,7 +177,7 @@ const HeroLivro = () => {
           >
             <PlayMark className='size-[13cqw]' />
             <div className='flex min-w-0 flex-1 flex-col gap-[2cqw]'>
-              <span className='font-heading text-[5.2cqw] text-[#6b6156] italic'>A voz de Maria · 1:24</span>
+              <span className='font-heading text-[5.2cqw] text-page-muted italic'>A voz de Maria · 1:24</span>
               <span className='h-[7cqw] text-[#b9ab8f]'>
                 <Waveform />
               </span>
@@ -199,7 +199,7 @@ const HeroLivro = () => {
             style={PAPER_STYLE}
           >
             {/* A assinatura fica no pé: é a parte do recado que aparece por baixo do livro */}
-            <p className='font-heading text-[6.4cqw] leading-[1.35] text-[#2a231c] italic'>
+            <p className='font-heading text-[6.4cqw] leading-[1.35] text-night italic'>
               “Vó, conta de novo a história do baile de carnaval?”
             </p>
             <span className='text-earth text-[3.6cqw] font-medium tracking-[0.2em] uppercase'>Recado da Lia</span>
@@ -225,10 +225,10 @@ const HeroLivro = () => {
                 Num baile de carnaval, em 1962. Ele pisou no meu pé duas vezes e, na terceira, pediu desculpas com um
                 sorriso que eu nunca esqueci.
               </AnswerText>
-              <div className='flex items-center gap-[3cqw] border-y border-[#e5dccb] py-[3cqw]'>
+              <div className='flex items-center gap-[3cqw] border-y border-page-line py-[3cqw]'>
                 <PlayMark className='size-[11cqw]' />
                 <div className='flex min-w-0 flex-1 flex-col gap-[1.5cqw]'>
-                  <span className='font-heading text-[4.2cqw] text-[#6b6156] italic'>A voz de Maria · 1:24</span>
+                  <span className='font-heading text-[4.2cqw] text-page-muted italic'>A voz de Maria · 1:24</span>
                   <span className='h-[5.5cqw] text-[#c9bda4]'>
                     <Waveform />
                   </span>
@@ -253,15 +253,15 @@ const HeroLivro = () => {
             <div className='absolute inset-0 shadow-[0_24px_44px_-24px_rgb(50_38_24/0.55)] [transform:rotateY(180deg)] [backface-visibility:hidden]'>
               <Page side='left' number={12}>
                 <span className='book-ink text-earth text-[3.8cqw] font-medium tracking-[0.2em] uppercase'>
-                  Capítulo 1 · Infância
+                  Capítulo 2 · Sua infância
                 </span>
                 <Question>Qual é a sua lembrança mais antiga?</Question>
                 <AnswerText>
                   O cheiro do pão no forno da minha avó. Eu ficava na ponta dos pés para ver a massa crescer.
                 </AnswerText>
-                <div className='mx-auto mt-[1cqw] w-[38cqw] -rotate-2 bg-[#fdfbf6] p-[2cqw] pb-[1.5cqw] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)]'>
+                <div className='mx-auto mt-[1cqw] w-[38cqw] -rotate-2 bg-page p-[2cqw] pb-[1.5cqw] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)]'>
                   <Image src={fotoIrmaos} alt='' sizes='10rem' className='aspect-[4/5] h-auto w-full object-cover' />
-                  <p className='font-heading mt-[1.5cqw] text-center text-[3.8cqw] text-[#6b6156] italic'>
+                  <p className='font-heading mt-[1.5cqw] text-center text-[3.8cqw] text-page-muted italic'>
                     Eu e o Zé, 1958
                   </p>
                 </div>

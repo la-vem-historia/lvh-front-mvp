@@ -11,7 +11,10 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MotionPreset } from '@/components/ui/motion-preset'
+import { Textarea } from '@/components/ui/textarea'
 import { WordsReveal } from '@/components/landing/motion'
+import { TRIAL_ANSWERS, TRIAL_DAYS } from '@/components/landing/teste-gratis'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 const reveal = {
   fade: true,
@@ -21,27 +24,37 @@ const reveal = {
 
 const CONTACT_EMAIL = 'oi@lavemhistoria.com.br'
 
-// Perguntas na ordem em que costumam aparecer: primeiro o medo de escrever, depois privacidade, livro e preço
+// Perguntas na ordem em que costumam aparecer: primeiro o medo de escrever, depois onde ler e quem lê, livro e preço
 const questions = [
   {
     question: 'Preciso saber escrever bem?',
     answer:
-      'Não. Cada pergunta puxa uma lembrança de cada vez, e você responde do seu jeito, como se estivesse contando para alguém. Se preferir falar, use o ditado ou grave a sua voz no plano Completo.'
+      'Não. Cada pergunta puxa uma lembrança de cada vez, e você responde do seu jeito, como se estivesse contando para alguém. Se preferir falar, use o ditado ou grave a sua voz.'
   },
   {
     question: 'Como funcionam as perguntas?',
     answer:
-      'São mais de 100 perguntas, organizadas em capítulos como Infância, Família e Origens, Amor, Trabalho e Lições para o Futuro. Você responde na ordem que quiser, pula as que não fazem sentido e marca as que quer deixar para depois.'
+      'São mais de 300 perguntas, na ordem de uma vida, em capítulos como De onde você vem, Sua infância, Seus amores, Seu trabalho e o que você ama e O que você quer me dizer. Você responde na ordem que quiser, pula as que não fazem sentido e marca as que quer deixar para depois.'
   },
   {
     question: 'Posso responder falando, em vez de escrever?',
     answer:
-      'Pode. No plano Completo, você dita e o texto aparece sozinho, ou grava a sua voz. A gravação fica junto da resposta e toca dentro do livro, para a família ouvir a história contada por você.'
+      'Pode. Você dita e o texto aparece sozinho, ou grava a sua voz. A gravação fica junto da resposta e toca dentro do livro, para a família ouvir a história contada por você.'
   },
   {
-    question: 'Quem consegue ler o meu livro?',
+    question: 'Onde dá para ler o livro?',
     answer:
-      'Só quem você convidar. Cada pessoa recebe um link pessoal, e você pode tirar o acesso de qualquer uma quando quiser.'
+      'Em vários lugares. Direto no navegador do celular, do tablet ou do computador, virando as páginas como num livro. Você também baixa o livro em EPUB, o formato dos livros digitais, e lê no Kindle, no app Livros do iPhone, iPad e Mac, no Google Play Livros ou no Kobo. E ainda tem o PDF para imprimir.'
+  },
+  {
+    question: 'Para quem posso mandar o livro?',
+    answer:
+      'Para quem você quiser, sem limite de leitores: filhos, netos, irmãos, amigos. O livro é fechado, então só lê quem você convidar, e você tira o acesso de qualquer pessoa quando quiser. Não precisa esperar terminar: a família já pode ler enquanto você escreve.'
+  },
+  {
+    question: 'Como a pessoa convidada lê o livro?',
+    answer:
+      'Ela recebe um link pessoal, confirma o e-mail com um código e abre o livro no navegador, sem senha e sem instalar nada. Cada resposta nova aparece no livro dela sozinha, e as gravações tocam ali mesmo. Se preferir, você manda o EPUB para ela ler no Kindle ou no celular.'
   },
   {
     question: 'A família pode ajudar a contar?',
@@ -51,17 +64,36 @@ const questions = [
   {
     question: 'Dá para ter o livro impresso?',
     answer:
-      'Dá. No plano Completo, você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz.'
+      'Dá. Você baixa um PDF no tamanho A5, com capa, sumário e capítulos, pronto para levar a uma gráfica. As respostas gravadas ganham um QR code: quem lê o livro impresso aponta o celular e ouve a sua voz. Também estamos testando com uma gráfica parceira um livro impresso e encadernado por nós. Ainda não tem data: ele só entra no site quando o papel, as cores e o acabamento estiverem à altura da história.'
   },
   {
-    question: 'Qual a diferença entre o Essencial e o Completo?',
+    question: 'Quanto custa?',
     answer:
-      'O Essencial é para quem quer contar a história escrevendo: todas as perguntas, o livro digital e a leitura para convidados. O Completo acrescenta fotos, gravação de voz, ditado, convidados respondendo junto e o PDF para imprimir.'
+      'No anual, R$ 24,90 por mês: R$ 298,80 cobrados de uma vez, o mesmo que ganhar dois meses. No mensal, R$ 29,90 por mês, sem fidelidade. A assinatura inclui um livro em andamento. Quando ele fica pronto, continua online para leitura, sem custo, e você pode começar o próximo. Para escrever mais de um ao mesmo tempo, cada livro a mais custa R$ 9,90 por mês.'
   },
   {
-    question: 'Posso trocar de plano ou cancelar?',
+    question: 'Como funciona o teste grátis?',
+    answer: `Você cria a conta e usa tudo, com voz, fotos e família respondendo junto, por ${TRIAL_DAYS} dias ou até ${TRIAL_ANSWERS} respostas, o que vier primeiro. Depois, assina para continuar. Nada do que você escreveu no teste se perde.`
+  },
+  {
+    question: 'Posso dar de presente?',
     answer:
-      'Pode trocar de plano quando quiser. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez.'
+      'Pode. Você compra um cartão-presente de 1, 3, 6 ou 12 meses, e quanto mais meses, menor o preço por mês. O cartão vai direto para o e-mail de quem ganha, ou chega para você em PDF, para imprimir e entregar em mãos. Quem ganha digita o código e usa tudo pelos meses do presente; a assinatura só é cobrada depois, se a pessoa quiser continuar.'
+  },
+  {
+    question: 'Terminei o livro. E agora?',
+    answer:
+      'Agora ele continua vivo. A vida não para, e sempre aparece uma história nova, uma lembrança que tinha ficado de fora ou um detalhe que vale corrigir. Enquanto a assinatura estiver ativa, a gente manda um lembrete de tempos em tempos e convida você a rever as suas respostas, revisitar as fotos e as gravações e acrescentar o que faltou, para o livro estar sempre em dia com a sua história.'
+  },
+  {
+    question: 'Posso cancelar?',
+    answer:
+      'Pode. No mensal não há fidelidade: você cancela e não é cobrado no mês seguinte. No anual, o valor dos 12 meses é cobrado de uma vez. Quando a assinatura termina, o livro fica fechado para edição.'
+  },
+  {
+    question: 'O que acontece se eu cancelar minha assinatura?',
+    answer:
+      'O livro fica fechado para edição: não dá mais para escrever, corrigir respostas, trocar fotos, gravar ou mudar a capa. Mas as histórias continuam suas. Você pode baixar tudo o que escreveu quando quiser, e as respostas, fotos e gravações só são apagadas se você decidir excluir a conta.'
   },
   {
     question: 'Funciona no celular?',
@@ -73,8 +105,6 @@ const questions = [
       'Elas são suas. Você pode baixar tudo o que escreveu quando quiser e, se decidir excluir a conta, as respostas, fotos e gravações são apagadas.'
   }
 ]
-
-const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 // Formulário de dúvidas: guarda a mensagem em /api/contato, e a equipe responde por e-mail
 const Contato = () => {
@@ -128,39 +158,16 @@ const Contato = () => {
       <div className='grid gap-4 sm:grid-cols-2'>
         <div className='flex flex-col gap-2'>
           <Label htmlFor='contato-nome'>Nome</Label>
-          <Input
-            id='contato-nome'
-            name='name'
-            autoComplete='name'
-            maxLength={120}
-            required
-            className={fieldClassName}
-          />
+          <Input id='contato-nome' name='name' autoComplete='name' maxLength={120} required />
         </div>
         <div className='flex flex-col gap-2'>
           <Label htmlFor='contato-email'>E-mail</Label>
-          <Input
-            id='contato-email'
-            name='email'
-            type='email'
-            autoComplete='email'
-            maxLength={254}
-            required
-            className={fieldClassName}
-          />
+          <Input id='contato-email' name='email' type='email' autoComplete='email' maxLength={254} required />
         </div>
       </div>
       <div className='flex flex-col gap-2'>
         <Label htmlFor='contato-mensagem'>Sua dúvida</Label>
-        <textarea
-          id='contato-mensagem'
-          name='message'
-          required
-          minLength={5}
-          maxLength={4000}
-          rows={4}
-          className='border-input bg-field placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none focus-visible:ring-3'
-        />
+        <Textarea id='contato-mensagem' name='message' required minLength={5} maxLength={4000} rows={4} />
       </div>
       {/* Isca para robôs: fica escondida e quem preenche é descartado em silêncio */}
       <input type='text' name='site' tabIndex={-1} autoComplete='off' aria-hidden='true' className='hidden' />
@@ -233,10 +240,10 @@ const Duvidas = () => {
       </div>
 
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-2xl p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
-            <DialogTitle className='font-heading text-2xl'>Ainda com dúvida?</DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogTitle className={overlayTitleClassName}>Ainda com dúvida?</DialogTitle>
+            <DialogDescription className={overlayDescriptionClassName}>
               Escreva para a gente e respondemos no seu e-mail. Se preferir, mande para{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className='text-foreground underline underline-offset-4'>
                 {CONTACT_EMAIL}

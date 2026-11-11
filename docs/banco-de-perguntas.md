@@ -3,6 +3,23 @@
 > Status: **os 4 papéis no site** (2026-11-07): Mãe 307, Pai 312, Avó 314 e Avô 318.
 > Fonte única: `src/lib/lvh/perguntas.ts`. Os docs [perguntas-mae.md](perguntas-mae.md), [perguntas-pai.md](perguntas-pai.md), [perguntas-avó.md](perguntas-avó.md) e [perguntas-avô.md](perguntas-avô.md) são a versão legível.
 > Referência: **Mãe**. Ela deve ser a principal usuária, então cada capítulo é desenhado primeiro para ela e depois adaptado para Pai, Avó e Avô.
+> Confluence: a página [Banco de Perguntas](https://lavemhistoria.atlassian.net/wiki/spaces/LVH/pages/2031617/Banco+de+Perguntas) e as 4 páginas filhas (uma por papel) espelham este banco. O código é a fonte da verdade: quando `perguntas.ts` mudar, atualize lá também.
+
+## Sincronização com o Confluence (2026-11-10)
+
+O Confluence ainda descrevia o plano de abril/2026 e foi reescrito a partir do código. O que estava diferente:
+
+| Onde | O que dizia | O que vale (código) |
+| --- | --- | --- |
+| Banco de Perguntas | 110 perguntas: 70 comuns + 10 por perfil; cada perfil vê 100 | 362 no banco; Mãe 307, Pai 312, Avó 314, Avô 318 (234 comuns + 73 a 84 do papel) |
+| Banco de Perguntas | Blocos temáticos (infância, família de origem, vida adulta, valores, memórias, mensagens) | 12 capítulos na ordem da vida |
+| Banco de Perguntas | Perguntas exclusivas intercaladas ao longo dos blocos | Perguntas do papel juntas nos capítulos 6 a 8 |
+| Banco de Perguntas | Perguntas que evocam trauma ficam fora | 7 perguntas sobre perdas e momentos difíceis, marcadas como opcionais |
+| Banco de Perguntas | Nada sobre a voz | Voz de quem recebe o livro |
+| Escopo do MVP (seção 3 e checklist) | Os mesmos 110 / 100 e "mínimo 100 perguntas organizadas por bloco" | Seção aponta para a página Banco de Perguntas |
+| Cópias no espaço pessoal (Banco de Perguntas, Escopo do MVP) | O mesmo conteúdo antigo | Banco de Perguntas virou um aviso apontando para o espaço LVH; Escopo corrigido igual ao do LVH |
+
+Não foi revisado: o fluxo de como as perguntas chegam à pessoa (primeira pergunta pelo perfil, uma por vez, navegação livre no plano pago, perguntas mensais e sazonais), que também estava na página antiga.
 
 ## Decisões
 

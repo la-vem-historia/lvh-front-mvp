@@ -55,7 +55,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
   if (question === undefined) return null
 
   return (
-    <div className='border-border overflow-hidden rounded-[1.5rem] border'>
+    <div className='border-border overflow-hidden rounded-2xl border'>
       <dl className='bg-sand text-muted-foreground grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-6 py-4 text-xs'>
         <dt>De</dt>
         <dd className='text-foreground'>Lá Vem História</dd>
@@ -75,7 +75,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
                 render={<Link href={`/app/pergunta/${question.id}`} />}
                 nativeButton={false}
                 variant='honey'
-                className='h-12 px-6'
+                size='lg'
               >
                 Responder esta pergunta
               </Button>
@@ -83,7 +83,7 @@ const EmailPreview = ({ user, reminder }: { user: User; reminder: EmailReminder 
                 render={<Link href={RANDOM_QUESTION_HREF} />}
                 nativeButton={false}
                 variant='outline'
-                className='h-12 px-6'
+                size='lg'
               >
                 Responder uma pergunta aleatória
               </Button>

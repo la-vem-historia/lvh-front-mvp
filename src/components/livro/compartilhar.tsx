@@ -2,15 +2,16 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 
+import { ForwardIcon } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { overlayDescriptionClassName, overlayTitleClassName } from '@/components/app/page-heading'
 
 import { addShare, getShares, removeShare } from '@/lib/lvh/api'
 import type { Share } from '@/lib/lvh/types'
-
-const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 const linkFor = (share: Share) => `${window.location.origin}/ler/${share.token}`
 
@@ -67,13 +68,14 @@ const Compartilhar = () => {
 
   return (
     <Sheet>
-      <SheetTrigger render={<Button variant='honey' size='cta' />}>
-        Compartilhar{shares.length > 0 && ` · ${shares.length}`}
+      <SheetTrigger render={<Button variant='outline' size='cta' className='gap-2' />}>
+        Compartilhar
+        <ForwardIcon className='size-5' />
       </SheetTrigger>
       <SheetContent className='bg-background w-full gap-0 overflow-y-auto sm:max-w-md'>
         <SheetHeader className='gap-3 p-6 pt-10'>
-          <SheetTitle className='font-heading text-display font-normal'>Quem pode ler</SheetTitle>
-          <SheetDescription className='text-base'>
+          <SheetTitle className={overlayTitleClassName}>Quem pode ler</SheetTitle>
+          <SheetDescription className={overlayDescriptionClassName}>
             O livro é fechado: só lê quem você convidar, pelo link pessoal. Você pode tirar o acesso quando quiser.
           </SheetDescription>
         </SheetHeader>
@@ -81,11 +83,11 @@ const Compartilhar = () => {
         <form onSubmit={handleSubmit} className='border-border flex flex-col gap-4 border-t p-6'>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='convite-nome'>Nome</Label>
-            <Input id='convite-nome' name='name' required className={fieldClassName} />
+            <Input id='convite-nome' name='name' required />
           </div>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='convite-email'>E-mail</Label>
-            <Input id='convite-email' name='email' type='email' required className={fieldClassName} />
+            <Input id='convite-email' name='email' type='email' required />
           </div>
           {error && <p className='text-destructive text-sm'>{error}</p>}
           <Button type='submit' variant='honey' size='cta' className='w-full'>

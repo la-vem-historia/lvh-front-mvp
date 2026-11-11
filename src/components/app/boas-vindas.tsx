@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import AvisePapeis from '@/components/app/avise-papeis'
-import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 import { useRefreshUser, useUser } from '@/components/app/session'
 
 import { countCopyableAnswers, createBook, getBilling, getBooks, setExtraSlots } from '@/lib/lvh/api'
-import { bookTitle, formatPrice } from '@/lib/lvh/livros'
+import { formatPrice, bookTitleInline } from '@/lib/lvh/livros'
 import type { Billing, RecipientGender, Role, UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -197,19 +197,19 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
 
   // Sem vaga livre: antes do formulário, as duas saídas. Concluir o livro atual ou pagar uma vaga a mais
   if (newBook && billing && billing.inProgress >= billing.slots) {
-    const current = inProgress.map(book => bookTitle(book).replace(/^Para/, 'para')).join(' e ')
+    const current = inProgress.map(book => bookTitleInline(book)).join(' e o ')
 
     return (
       <div className='mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 px-4 pt-30 pb-10 sm:px-6 lg:pt-36 lg:pb-16'>
         <div className='flex flex-col gap-3'>
           <span className={eyebrowClassName}>Novo livro</span>
-          <h1 className={pageTitleClassName}>Você já está escrevendo o livro {current}.</h1>
+          <h1 className={pageTitleClassName}>Você já está escrevendo o {current}.</h1>
           <p className='text-muted-foreground text-base text-pretty'>
             A assinatura inclui um livro em andamento por vez. Para começar outro agora, escolha um caminho.
           </p>
         </div>
         <div className='grid gap-4 sm:grid-cols-2'>
-          <div className='border-border flex flex-col justify-between gap-6 rounded-[1.5rem] border p-6'>
+          <div className='border-border flex flex-col justify-between gap-6 rounded-2xl border p-6'>
             <div className='flex flex-col gap-2'>
               <span className='font-heading text-2xl'>Concluir o atual</span>
               <span className='text-muted-foreground text-sm text-pretty'>
@@ -226,7 +226,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
               Ir para Meus livros
             </Button>
           </div>
-          <div className='border-border flex flex-col justify-between gap-6 rounded-[1.5rem] border p-6'>
+          <div className='border-border flex flex-col justify-between gap-6 rounded-2xl border p-6'>
             <div className='flex flex-col gap-2'>
               <span className='font-heading text-2xl'>Escrever dois ao mesmo tempo</span>
               <span className='text-muted-foreground text-sm text-pretty'>
@@ -246,7 +246,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
   const questions: Record<StepId, { title: string; hint?: string; content: ReactNode }> = {
     nome: {
       title: `Qual é o nome ${feminine ? 'dela' : 'dele'}?`,
-      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando.`,
+      hint: `Vai na capa e nas perguntas, como se ${feminine ? 'ela' : 'ele'} estivesse perguntando.\nÉ possível alterar depois em “Personalizar livro”.`,
       content: (
         <div className='flex flex-col gap-2'>
           <label htmlFor='livro-nome' className='text-sm font-medium'>
@@ -259,7 +259,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             placeholder={feminine ? 'Ex.: Ana' : 'Ex.: Tom'}
             autoComplete='off'
             autoFocus
-            className='bg-field h-12 max-w-sm px-5 text-base'
+            className='max-w-sm'
           />
         </div>
       )
@@ -320,15 +320,15 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
     },
     // Avós: as perguntas falam de "meu pai" ou "minha mãe" e precisam saber qual dos dois é seu filho
     pai: {
-      title: `${who} é ${chosen?.gender === 'menina' ? 'filha' : 'filho'} do seu…`,
+      title: `${who} é ${chosen?.gender === 'menina' ? 'filha' : 'filho'} de quem?`,
       hint: 'Assim as perguntas sabem se falam do pai ou da mãe.',
       content: (
         <div className='flex flex-wrap gap-3'>
           <Choice name='child-of' checked={childOf === 'filho'} onChange={() => setChildOf('filho')}>
-            Filho
+            Do meu filho
           </Choice>
           <Choice name='child-of' checked={childOf === 'filha'} onChange={() => setChildOf('filha')}>
-            Filha
+            Da minha filha
           </Choice>
         </div>
       )
@@ -343,7 +343,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
           </Choice>
           {copySources.map(book => (
             <Choice key={book.id} name='copy-from' checked={copyFrom === book.id} onChange={() => setCopyFrom(book.id)}>
-              Aproveitar do livro {bookTitle(book).replace(/^Para/, 'para')}
+              Aproveitar do {bookTitleInline(book)}
               <span className='opacity-70'>
                 · {copyable[book.id] ?? 0} {copyable[book.id] === 1 ? 'resposta' : 'respostas'}
               </span>
@@ -389,7 +389,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             <h1 id='passo-titulo' ref={heading} tabIndex={-1} className={cn(pageTitleClassName, 'outline-none')}>
               {question.title}
             </h1>
-            {question.hint && <p className='text-muted-foreground text-base text-pretty'>{question.hint}</p>}
+            {question.hint && <p className='text-muted-foreground text-base text-pretty whitespace-pre-line'>{question.hint}</p>}
           </div>
           {question.content}
         </fieldset>
@@ -411,7 +411,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
               <button
                 type='button'
                 onClick={() => setStepIndex(index - 1)}
-                className='text-muted-foreground hover:text-foreground cursor-pointer text-base underline underline-offset-4 transition-colors'
+                className={textLinkClassName}
               >
                 Voltar
               </button>
@@ -426,10 +426,10 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
       </form>
 
       <Dialog open={aboutMore} onOpenChange={setAboutMore}>
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-[1.5rem] p-6 sm:max-w-lg sm:p-8'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-6 overflow-y-auto rounded-2xl p-6 sm:max-w-lg sm:p-8'>
           <div className='flex flex-col gap-2 pr-8'>
-            <DialogTitle className='font-heading text-2xl'>Um livro para cada pessoa</DialogTitle>
-            <DialogDescription className='text-muted-foreground text-base text-pretty'>
+            <DialogTitle className={overlayTitleClassName}>Um livro para cada pessoa</DialogTitle>
+            <DialogDescription className={overlayDescriptionClassName}>
               Depois de começar este primeiro livro, você pode criar quantos quiser: um para cada filho ou neto, com
               respostas pensadas para cada um.
             </DialogDescription>
@@ -467,7 +467,7 @@ const BoasVindas = ({ newBook = false, copyFromId }: { newBook?: boolean; copyFr
             type='button'
             variant='honey'
             size='cta'
-            className='w-full sm:w-fit'
+            className='w-full sm:w-fit sm:self-center'
             onClick={() => setAboutMore(false)}
           >
             Entendi

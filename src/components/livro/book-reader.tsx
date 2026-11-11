@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button'
 import Lightbox from '@/components/app/lightbox'
 import AudioMark from '@/components/livro/audio-mark'
 import AudioQr from '@/components/livro/audio-qr'
+import IndiceLivro, { fold } from '@/components/livro/indice-livro'
 import BookCover, { BookBack, coverColors } from '@/components/livro/book-cover'
 import {
   PAGE_FORMATS,
@@ -79,7 +80,7 @@ const PhotoPrint = ({
         disabled={still}
         aria-label={`Ampliar a foto: ${block.alt}`}
         className={cn(
-          'inline-flex cursor-zoom-in flex-col disabled:cursor-default disabled:hover:scale-100 rounded-[2.5px] bg-[#fdfbf6] p-[7px] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)] transition-transform hover:scale-[1.02]',
+          'inline-flex cursor-zoom-in flex-col disabled:cursor-default disabled:hover:scale-100 rounded-[2.5px] bg-page p-[7px] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)] transition-transform hover:scale-[1.02]',
           block.caption || still ? 'pb-2' : 'pb-[7px]'
         )}
         style={{ transform: `rotate(${block.tilt * 1.2}deg)` }}
@@ -93,7 +94,7 @@ const PhotoPrint = ({
         />
         {/* Impresso, a foto leva o código do arquivo no ZIP: P047-F1 */}
         {(block.caption || still) && (
-          <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+          <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-page-subtle italic'>
             {still && <span className='font-sans not-italic tracking-wide'>{block.code}</span>}
             {still && block.caption && ' · '}
             {block.caption}
@@ -127,14 +128,14 @@ export const PhotoSlot = ({
         style={{ maxWidth, maxHeight }}
       />
       <div className='absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 text-center'>
-        <span className='text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'>Cole aqui a foto</span>
+        <span className='text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'>Cole aqui a foto</span>
         {/* Sem legenda embaixo, a pergunta da resposta diz qual foto vai aqui */}
         {!block.caption && (
-          <span className='font-heading line-clamp-2 text-[10px] text-[#8a7f72] italic'>{block.alt}</span>
+          <span className='font-heading line-clamp-2 text-[10px] text-page-subtle italic'>{block.alt}</span>
         )}
       </div>
     </div>
-    <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+    <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-page-subtle italic'>
       <span className='font-sans not-italic tracking-wide'>{block.code}</span>
       {block.caption && ` · ${block.caption}`}
     </span>
@@ -238,6 +239,7 @@ export const PageView = ({
   if (page.type === 'cover') {
     return (
       <BookCover
+        title={book.title}
         author={book.author}
         color={book.coverColor}
         photo={book.coverPhoto}
@@ -278,7 +280,7 @@ export const PageView = ({
     >
       {page.type === 'content' && (
         <span
-          className='book-ink absolute top-7 text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'
+          className='book-ink absolute top-7 text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'
           style={outer}
         >
           {verso ? book.author : page.chapterTitle}
@@ -294,11 +296,11 @@ export const PageView = ({
       {page.type === 'title' && (
         <div className='book-ink flex h-full flex-col items-center text-center'>
           <div className='flex flex-1 flex-col items-center justify-center gap-4'>
-            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.author}</span>
+            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.title}</span>
             <span aria-hidden='true' className='bg-earth h-px w-8' />
-            <span className='font-heading text-[15px] text-[#6b6156] italic'>para a minha família</span>
+            <span className='font-heading text-[16px] text-page-muted italic'>{book.author}</span>
           </div>
-          <span className='text-[7.5px] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>
+          <span className='text-[7.5px] font-medium tracking-[0.25em] text-page-faint uppercase'>
             Lá Vem História · {book.year}
           </span>
         </div>
@@ -356,7 +358,7 @@ export const PageView = ({
       )}
 
       {page.type === 'colophon' && (
-        <div className='book-ink flex h-full flex-col items-center justify-end gap-3 pb-6 text-center text-[10px] leading-[1.7] text-[#6b6156]'>
+        <div className='book-ink flex h-full flex-col items-center justify-end gap-3 pb-6 text-center text-[10px] leading-[1.7] text-page-muted'>
           <span aria-hidden='true' className='bg-earth mb-2 h-px w-8' />
           <p className='font-heading max-w-[250px] italic'>
             Este livro foi escrito por {book.author} em {book.year}, a partir das perguntas do Lá Vem História.
@@ -364,14 +366,14 @@ export const PageView = ({
           {book.contributors.length > 0 && (
             <p className='font-heading max-w-[250px] italic'>Com lembranças de {listNames(book.contributors)}.</p>
           )}
-          <p className='mt-2 text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'>
+          <p className='mt-2 text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'>
             Composto em Fraunces
           </p>
         </div>
       )}
 
       {showFolio && (
-        <span className='book-ink font-heading absolute bottom-7 text-[10px] text-[#9a8f80]' style={outer}>
+        <span className='book-ink font-heading absolute bottom-7 text-[10px] text-page-faint' style={outer}>
           {index + 1}
         </span>
       )}
@@ -444,7 +446,8 @@ const BookBody = ({
   height,
   before,
   after,
-  coverLeft = width
+  coverLeft = width,
+  pagesWide = 2
 }: {
   mode: 'open' | 'cover' | 'back'
   cloth: string
@@ -455,6 +458,8 @@ const BookBody = ({
   after: number
   // Onde a capa fechada fica: na metade direita do livro aberto, ou sozinha quando o leitor mostra uma página por vez
   coverLeft?: number
+  // Aberto com uma página só: a capa e as pilhas abraçam essa página
+  pagesWide?: 1 | 2
 }) => {
   const total = before + after
   const board = (left: number, boardWidth: number, offset = 0) => (
@@ -483,14 +488,20 @@ const BookBody = ({
             style={{
               left: -BOARD - STACK.x,
               top: -BOARD,
-              width: width * 2 + (BOARD + STACK.x) * 2,
+              width: width * pagesWide + (BOARD + STACK.x) * 2,
               height: height + BOARD * 2 + STACK.y,
               backgroundColor: cloth,
               boxShadow: BOARD_EDGE
             }}
           />
           <Sheets count={sheetCount(before, total)} side={-1} left={0} width={width} height={height} />
-          <Sheets count={sheetCount(after, total)} side={1} left={width} width={width} height={height} />
+          <Sheets
+            count={sheetCount(after, total)}
+            side={1}
+            left={width * (pagesWide - 1)}
+            width={width}
+            height={height}
+          />
         </>
       )}
       {/* Fechado: a capa por cima; por baixo, o miolo e a contracapa aparecem no canto e dão a grossura */}
@@ -513,6 +524,8 @@ const BookBody = ({
 // No modo de leitura sobra espaço para as setas dos lados e o número da página embaixo
 const IMMERSIVE_PAD_X = 112
 const IMMERSIVE_PAD_Y = 84
+// Largura do índice (22rem) mais as margens dele
+const INDEX_PANEL_SPACE = 400
 
 type BookReaderProps = {
   book: Book
@@ -525,6 +538,13 @@ type BookReaderProps = {
   onFlipStart?: () => void
   // Na página do livro: abre o modo de leitura (pelo "Abrir o livro" da capa e pelo botão de tela cheia)
   onOpenImmersive?: () => void
+  // Modo de leitura: mostrar uma página por vez, mesmo com espaço para duas
+  singlePage?: boolean
+  // Folha virando com animação; sem ela, a página só troca
+  animate?: boolean
+  // Índice do modo de leitura (capítulos e busca), aberto pelo botão da barra de cima
+  indexOpen?: boolean
+  onIndexOpenChange?: (open: boolean) => void
 }
 
 const BookReader = ({
@@ -533,12 +553,18 @@ const BookReader = ({
   controlsVisible = true,
   shadow = BOOK_SHADOW,
   onFlipStart,
-  onOpenImmersive
+  onOpenImmersive,
+  singlePage = false,
+  animate = true,
+  indexOpen = false,
+  onIndexOpenChange
 }: BookReaderProps) => {
   const [narrow, setNarrow] = useState(false)
   const [smallScreen, setSmallScreen] = useState(false)
   // No celular, o livro ocupa quase a tela toda: as setas descem para o rodapé
   const padX = immersive ? (narrow ? 12 : IMMERSIVE_PAD_X) : STAGE_PAD_X
+  // Com o índice aberto no computador, o livro abre espaço à esquerda para o painel não cobrir a página
+  const padLeft = immersive && indexOpen && !narrow ? INDEX_PANEL_SPACE : padX
   const padY = immersive ? (narrow ? 72 : IMMERSIVE_PAD_Y) : STAGE_PAD_Y
   const flipStartRef = useRef(onFlipStart)
 
@@ -556,6 +582,7 @@ const BookReader = ({
   const hostRef = useRef<HTMLDivElement>(null)
   const flipRef = useRef<PageFlip | null>(null)
   const currentRef = useRef(0)
+  const animateRef = useRef(animate)
   // Livro maior que o quadro (com zoom): dá para arrastar a vista com o mouse
   const [hasOverflow, setHasOverflow] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -651,7 +678,12 @@ const BookReader = ({
   }
 
   const pages = layout?.pages ?? []
-  const isSpread = frame.width >= 820
+  // Pré-visualização (página do livro e link de convidado fechado): só a capa, sem barra nem zoom.
+  // Folhear acontece no modo de leitura, aberto com um clique no próprio livro
+  const preview = !immersive && Boolean(onOpenImmersive)
+
+  // Na pré-visualização só aparece a capa: uma página por vez, para ela ocupar todo o espaço
+  const isSpread = frame.width >= 820 && !preview && !singlePage
 
   // Livro aberto: capa sozinha, depois páginas aos pares (esquerda ímpar, direita par)
   const lastIndex = pages.length - 1
@@ -677,7 +709,7 @@ const BookReader = ({
       0,
       Math.min(
         MAX_SCALE,
-        (frame.width - padX * 2) / (format.width * pagesWide),
+        (frame.width - padX - padLeft) / (format.width * pagesWide),
         (frame.height - padY * 2) / format.height
       )
     ) * zoom
@@ -689,6 +721,7 @@ const BookReader = ({
   const zoomOut = () => setZoom(ZOOM_STEPS[Math.max(0, zoomIndex - 1)])
 
   currentRef.current = current
+  animateRef.current = animate
 
   // A virada começa pelo canto de baixo: direito ao avançar, esquerdo ao voltar
   const goTo = useCallback((index: number) => {
@@ -696,17 +729,24 @@ const BookReader = ({
 
     if (!flip) return
     setCurrent(index)
-    flip.flip(index, 'bottom')
+    if (animateRef.current) flip.flip(index, 'bottom')
+    else flip.turnToPage(index)
   }, [])
   const previous = () => {
     if (!flipRef.current || spreadIndex === 0) return
-    setCurrent(spreads[spreadIndex - 1][0])
-    flipRef.current.flipPrev('bottom')
+    const target = spreads[spreadIndex - 1][0]
+
+    setCurrent(target)
+    if (animate) flipRef.current.flipPrev('bottom')
+    else flipRef.current.turnToPage(target)
   }
   const next = () => {
     if (!flipRef.current || spreadIndex >= spreads.length - 1) return
-    setCurrent(spreads[spreadIndex + 1][0])
-    flipRef.current.flipNext('bottom')
+    const target = spreads[spreadIndex + 1][0]
+
+    setCurrent(target)
+    if (animate) flipRef.current.flipNext('bottom')
+    else flipRef.current.turnToPage(target)
   }
 
   // Uma div por página, criada fora do React: a biblioteca de virada move essas divs pelo DOM,
@@ -735,7 +775,8 @@ const BookReader = ({
       usePortrait: !isSpread,
       // No modo de leitura dá para pegar o canto da folha e arrastar, ou deslizar o dedo; links e botões
       // dentro das páginas continuam recebendo o clique
-      useMouseEvents: immersive,
+      // Sem animação, não há folha para arrastar: as setas e o teclado trocam a página
+      useMouseEvents: immersive && animate,
       clickEventForward: true,
       mobileScrollSupport: false,
       swipeDistance: 30,
@@ -757,7 +798,7 @@ const BookReader = ({
       flipRef.current = null
       flip.destroy()
     }
-  }, [pageElements, format, isSpread, immersive])
+  }, [pageElements, format, isSpread, immersive, animate])
 
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
@@ -772,6 +813,60 @@ const BookReader = ({
 
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
+
+  // Pular para uma página (índice, busca, régua): sempre sem animação. Ver a folha virar e o livro
+  // aparecer 40 páginas depois parece defeito. Com um termo, ele fica marcado na página por uns segundos
+  const highlightTimer = useRef<number | undefined>(undefined)
+  const jumpTo = (index: number, term?: string) => {
+    const flip = flipRef.current
+
+    if (!flip) return
+    setCurrent(index)
+    flip.turnToPage(index)
+
+    if (!term || typeof CSS === 'undefined' || !('highlights' in CSS)) return
+
+    window.clearTimeout(highlightTimer.current)
+    // Espera a página aparecer e marca todas as ocorrências nas páginas à vista
+    window.setTimeout(() => {
+      const wanted = fold(term)
+      const ranges: Range[] = []
+      const targets = spreads.find(spread => spread.includes(index)) ?? [index]
+
+      targets.forEach(page => {
+        const element = pageElements[page]
+        const walker = element && document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+
+        while (walker?.nextNode()) {
+          const node = walker.currentNode as Text
+          const text = fold(node.data)
+          let at = text.indexOf(wanted)
+
+          while (at >= 0) {
+            const range = document.createRange()
+
+            range.setStart(node, at)
+            range.setEnd(node, at + wanted.length)
+            ranges.push(range)
+            at = text.indexOf(wanted, at + wanted.length)
+          }
+        }
+      })
+
+      CSS.highlights.set('lvh-busca', new Highlight(...ranges))
+      highlightTimer.current = window.setTimeout(() => CSS.highlights.delete('lvh-busca'), 5000)
+    }, 60)
+  }
+
+  // Capítulo da página aberta, para a régua dizer onde a pessoa está
+  const visiblePage = pages[visible[visible.length - 1] ?? 0]
+  const chapterLabel =
+    visiblePage?.type === 'content'
+      ? visiblePage.chapterTitle
+      : visiblePage?.type === 'chapter'
+        ? visiblePage.title
+        : ''
+  const [scrub, setScrub] = useState<number | null>(null)
 
   const pageLabel = `${
     isCover
@@ -789,7 +884,7 @@ const BookReader = ({
 
   return (
     // Sem fundo próprio: o livro fica aberto sobre o creme da página, como numa mesa
-    <div className={cn('flex min-h-0 flex-1 flex-col', immersive ? 'relative' : 'px-2 pb-24 sm:px-8')}>
+    <div className={cn('flex min-h-0 flex-1 flex-col', immersive || preview ? 'relative' : 'px-2 pb-24 sm:px-8')}>
       {/* Área invisível onde os blocos são medidos, com a mesma tinta das páginas */}
       <div
         ref={measureRef}
@@ -816,7 +911,7 @@ const BookReader = ({
         <div
           ref={stageRef}
           className='flex min-h-full w-max min-w-full items-center justify-center'
-          style={{ padding: `${padY}px ${padX}px` }}
+          style={{ padding: `${padY}px ${padX}px ${padY}px ${padLeft}px` }}
         >
           {layout && scale > 0 && (
             <div
@@ -831,7 +926,7 @@ const BookReader = ({
                 transition: `transform ${FLIP_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
               }}
             >
-              {(isSpread || isCover) && (
+              {(isSpread || isCover || (immersive && !narrow)) && (
                 <div
                   className='absolute top-0 left-0 origin-top-left'
                   style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
@@ -844,6 +939,7 @@ const BookReader = ({
                     before={Math.max(0, visible[0] ?? 0)}
                     after={Math.max(0, lastIndex - (visible[visible.length - 1] ?? 0))}
                     coverLeft={isSpread ? format.width : 0}
+                    pagesWide={isSpread ? 2 : 1}
                   />
                 </div>
               )}
@@ -852,10 +948,24 @@ const BookReader = ({
                 className='relative origin-top-left'
                 style={{ width: bookWidth, height: format.height, transform: `scale(${scale})` }}
               />
+              {preview && (
+                <button
+                  type='button'
+                  onClick={onOpenImmersive}
+                  aria-label='Abrir o livro em tela cheia'
+                  className='absolute inset-0 z-10 cursor-pointer rounded-[3px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
+                />
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {preview && layout && (
+        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>
+          Toque ou clique no livro para abrir em tela cheia.
+        </p>
+      )}
 
       {pageElements.map((element, index) =>
         createPortal(
@@ -938,20 +1048,59 @@ const BookReader = ({
           >
             <ChevronRightIcon className='size-6' />
           </button>
-          <span className='absolute bottom-7 left-1/2 -translate-x-1/2 rounded-full bg-black/35 px-4 py-2 text-xs font-medium text-white tabular-nums backdrop-blur-md'>
-            {pageLabel}
-          </span>
+          {/* Régua de páginas: arrastar leva direto para qualquer ponto do livro */}
+          <div className='pointer-events-auto absolute bottom-5 left-1/2 flex w-[min(26rem,calc(100vw-9.5rem))] -translate-x-1/2 flex-col gap-1.5 rounded-3xl bg-black/35 px-4 pt-2.5 pb-2 text-white backdrop-blur-md'>
+            <input
+              type='range'
+              min={0}
+              max={Math.max(0, spreads.length - 1)}
+              step={1}
+              value={scrub ?? spreadIndex}
+              disabled={!layout}
+              aria-label='Ir para a página'
+              aria-valuetext={pageLabel}
+              onChange={event => {
+                const target = Number(event.target.value)
+
+                setScrub(target)
+                jumpTo(spreads[target][0])
+              }}
+              onPointerUp={() => setScrub(null)}
+              onBlur={() => setScrub(null)}
+              className='h-4 w-full cursor-pointer accent-white'
+            />
+            <span className='flex items-baseline justify-between gap-3 text-xs'>
+              <span className='truncate text-white/70'>{chapterLabel}</span>
+              <span className='shrink-0 font-medium tabular-nums'>{pageLabel}</span>
+            </span>
+          </div>
         </div>
       )}
 
+      {immersive && indexOpen && layout && (
+        <IndiceLivro
+          pages={pages}
+          current={visible[0] ?? 0}
+          onJump={(page, term) => {
+            jumpTo(page, term)
+            // No celular o índice cobre o livro: fecha para mostrar a página
+            if (narrow) onIndexOpenChange?.(false)
+          }}
+          onClose={() => onIndexOpenChange?.(false)}
+        />
+      )}
+
+      {/* Palavra buscada, marcada como caneta marca-texto */}
+      {immersive && <style>{'::highlight(lvh-busca){background-color:rgb(245 190 78 / 0.6);color:inherit}'}</style>}
+
       {/* Barra fixa no rodapé, como na tela de pergunta: navegação e zoom sempre no mesmo lugar */}
-      {!immersive && (
+      {!immersive && !preview && (
         <nav aria-label='Páginas do livro' className='fixed inset-x-0 bottom-0 z-40'>
           <div className='mx-auto flex w-full max-w-3xl items-center justify-between gap-4 px-4 py-4 sm:px-6'>
             <Button
               id='livro-anterior'
               variant='outline'
-              className='h-12 gap-2 px-5'
+              size='lg'
               onClick={previous}
               disabled={!layout || flipping || spreadIndex === 0}
             >
@@ -1008,7 +1157,7 @@ const BookReader = ({
             <Button
               id='livro-proxima'
               variant='honey'
-              className='h-12 gap-2 px-5'
+              size='lg'
               // Na capa, "Abrir o livro" leva ao modo de leitura quando ele existe
               onClick={isCover && onOpenImmersive ? onOpenImmersive : next}
               disabled={!layout || flipping || spreadIndex >= spreads.length - 1}

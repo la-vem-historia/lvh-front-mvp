@@ -8,10 +8,11 @@ import { BookmarkIcon, ChevronDownIcon, CircleCheckIcon, ImageIcon, MicIcon, Use
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import PageHeading from '@/components/app/page-heading'
-import PrimeirosPassos from '@/components/app/primeiros-passos'
+import Dicas from '@/components/app/dicas'
 import { useUser } from '@/components/app/session'
 
 import { getAnswers, getBookmarks, getChapters, getCollaborators, isAnswered } from '@/lib/lvh/api'
+import { getSaudacao, type Saudacao } from '@/lib/lvh/saudacao'
 import type { Answer, Chapter, Question } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +24,7 @@ const Painel = () => {
   // Perguntas com convidado, para o ícone de convite na lista
   const [invitedQuestions, setInvitedQuestions] = useState<Set<number>>(new Set())
   const [bookmarks, setBookmarks] = useState<number[]>([])
+  const [saudacao, setSaudacao] = useState<Saudacao | null>(null)
 
   useEffect(() => {
     Promise.all([getChapters(user), getAnswers(), getCollaborators(), getBookmarks()]).then(
@@ -31,11 +33,17 @@ const Painel = () => {
         setAnswers(nextAnswers)
         setBookmarks(nextBookmarks)
         setInvitedQuestions(new Set(collaborators.flatMap(collaborator => collaborator.questionIds)))
+        // Sorteada uma vez, quando os dados chegam, para não trocar a cada nova renderização
+        const answeredCount = nextChapters
+          .flatMap(chapter => chapter.questions)
+          .filter(question => isAnswered(nextAnswers[question.id])).length
+
+        setSaudacao(getSaudacao(user.name, answeredCount))
       }
     )
   }, [user])
 
-  if (!chapters) return null
+  if (!chapters || !saudacao) return null
 
   const questions = chapters.flatMap(chapter => chapter.questions)
   const answered = questions.filter(question => isAnswered(answers[question.id])).length
@@ -102,15 +110,16 @@ const Painel = () => {
   return (
     <div className='mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 pt-8 pb-16 sm:px-6 lg:px-16 lg:pb-24'>
       <div className='grid gap-10 lg:grid-cols-12 lg:gap-8'>
-        <PageHeading eyebrow='O seu livro' title={`Olá, ${user.name}.`} className='lg:col-span-6'>
-          Responda no seu tempo, na ordem que quiser. Cada resposta vira um trecho do seu livro.
+        <PageHeading eyebrow='O seu livro' title={saudacao.title} className='lg:col-span-6'>
+          {saudacao.line}
         </PageHeading>
 
-        <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8'>
-          <div className='flex flex-col gap-3'>
+        {/* No computador, tudo encostado à direita, alinhado com o resto da página */}
+        <div className='flex flex-col justify-end gap-6 lg:col-span-5 lg:col-start-8 lg:items-end'>
+          <div className='flex w-full max-w-sm flex-col gap-3'>
             <div className='flex items-baseline justify-between text-sm'>
-              <span className='font-medium'>
-                {answered} de {questions.length} perguntas respondidas
+              <span>
+                <strong className='font-bold'>{answered}</strong> de {questions.length} perguntas respondidas
               </span>
               <span className='text-muted-foreground'>{progress}%</span>
             </div>
@@ -120,9 +129,10 @@ const Painel = () => {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label='Progresso da sua história'
-              className='bg-border h-0.5 w-full'
+              // Trilho em oliva bem claro, com contorno; o que já foi feito vai no oliva da etiqueta do perfil
+              className='border-olive/35 bg-olive/15 h-1.5 w-full overflow-hidden rounded-full border'
             >
-              <div className='bg-foreground h-full transition-all' style={{ width: `${progress}%` }} />
+              <div className='bg-olive h-full rounded-full transition-all' style={{ width: `${progress}%` }} />
             </div>
           </div>
           {next && (
@@ -139,7 +149,7 @@ const Painel = () => {
         </div>
       </div>
 
-      <PrimeirosPassos answers={answers} nextQuestionId={next?.id} />
+      <Dicas answers={answers} nextQuestionId={next?.id} />
 
       {/* Marcadas: mesmo visual de um capítulo, mas fora da lista deles. Começa sempre fechada */}
       <Collapsible className='border-foreground border-y'>
@@ -191,7 +201,7 @@ const Painel = () => {
                 <span className='text-clay text-sm font-bold'>{String(index + 1).padStart(2, '0')}</span>
                 <span className='font-heading text-xl sm:text-2xl'>{chapter.title}</span>
                 <span className='text-muted-foreground text-sm tabular-nums'>
-                  {done}/{chapter.questions.length}
+                  <strong className='text-foreground font-bold'>{done}</strong>/{chapter.questions.length}
                 </span>
                 <ChevronDownIcon className='size-4 transition-transform group-data-[panel-open]:rotate-180' />
               </CollapsibleTrigger>

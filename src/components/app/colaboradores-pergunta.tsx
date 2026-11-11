@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useUser } from '@/components/app/session'
+import { overlayDescriptionClassName, overlayTitleClassName, textLinkClassName } from '@/components/app/page-heading'
 
 import {
   deleteContribution,
@@ -18,8 +20,6 @@ import {
 } from '@/lib/lvh/api'
 import type { Collaborator, Contribution } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
-
-const fieldClassName = 'bg-field h-12 px-5 text-base'
 
 export const collaboratorLink = (collaborator: Collaborator) =>
   `${window.location.origin}/colaborar/${collaborator.token}`
@@ -154,12 +154,12 @@ const ColaboradoresPergunta = ({
     <>
       <Dialog open={inviting} onOpenChange={open => !open && closeInvite()}>
         {/* Título e botões ficam parados; só o meio rola, com uma barra fina que não encosta nos cantos */}
-        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-[1.5rem] p-0 sm:max-w-xl'>
+        <DialogContent className='bg-cream flex max-h-[calc(100svh-2rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-xl'>
           <div className='flex flex-col gap-2 px-6 pt-6 pr-14 pb-2 sm:px-8 sm:pt-8 sm:pr-14'>
-            <DialogTitle className='font-heading text-2xl'>
+            <DialogTitle className={overlayTitleClassName}>
               {people.length > 0 ? 'Outras lembranças' : 'Convidar para responder'}
             </DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogDescription className={overlayDescriptionClassName}>
               Convide alguém para contar a versão dele ou dela desta lembrança. A pessoa responde pelo próprio link e
               nunca vê a sua resposta.
             </DialogDescription>
@@ -205,7 +205,7 @@ const ColaboradoresPergunta = ({
                           <Button
                             type='button'
                             variant='honey'
-                            className='h-9 px-4 text-xs'
+                            size='md'
                             onClick={() => setContributionApproval(contribution.id, true).then(load)}
                           >
                             Aprovar e incluir no livro
@@ -313,7 +313,6 @@ const ColaboradoresPergunta = ({
                     value={guestName}
                     onChange={event => setGuestName(event.target.value)}
                     required
-                    className={fieldClassName}
                   />
                 </div>
                 <div className='flex flex-col gap-2'>
@@ -324,7 +323,6 @@ const ColaboradoresPergunta = ({
                     value={guestEmail}
                     onChange={event => setGuestEmail(event.target.value)}
                     required
-                    className={fieldClassName}
                   />
                 </div>
               </div>
@@ -335,18 +333,18 @@ const ColaboradoresPergunta = ({
                     <button
                       type='button'
                       onClick={() => setCustomMessage(null)}
-                      className='text-muted-foreground cursor-pointer text-xs underline underline-offset-4'
+                      className={textLinkClassName}
                     >
                       Voltar à mensagem padrão
                     </button>
                   )}
                 </div>
-                <textarea
+                <Textarea
                   id={`colaborador-mensagem-${questionId}`}
                   value={message}
                   onChange={event => setCustomMessage(event.target.value)}
                   required
-                  className='border-input bg-field focus-visible:border-ring field-sizing-content min-h-40 w-full resize-none rounded-2xl border p-4 text-base leading-relaxed outline-none'
+                  className='field-sizing-content min-h-40'
                 />
                 <p className='text-muted-foreground text-xs'>
                   Já escrevemos uma mensagem para você. Mude o que quiser.
@@ -366,14 +364,14 @@ const ColaboradoresPergunta = ({
               form={`convite-${questionId}`}
               variant='honey'
               disabled={!guestName.trim() || !isValidEmail(guestEmail)}
-              className='h-10 px-5'
+              size='md'
             >
               Enviar convite
             </Button>
             <button
               type='button'
               onClick={closeInvite}
-              className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+              className={textLinkClassName}
             >
               {people.length > 0 ? 'Fechar' : 'Cancelar'}
             </button>
