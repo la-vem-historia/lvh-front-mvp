@@ -21,8 +21,9 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import ColaboradoresPergunta from '@/components/app/colaboradores-pergunta'
 import Lightbox from '@/components/app/lightbox'
-import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-heading'
+import { eyebrowClassName, overlayDescriptionClassName, overlayTitleClassName, pageTitleClassName } from '@/components/app/page-heading'
 import { useUser } from '@/components/app/session'
+import { recipientOf } from '@/lib/lvh/livros'
 import { useDictation } from '@/components/app/use-dictation'
 import { useRecorder } from '@/components/app/use-recorder'
 
@@ -70,8 +71,8 @@ const ToolButton = ({
           aria-disabled={disabled}
           onClick={() => !disabled && onClick()}
           className={cn(
-            'flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-[1.375rem]',
-            pressed ? 'bg-ink text-cream' : 'hover:bg-background',
+            'flex size-10 cursor-pointer items-center justify-center rounded-full transition-colors [&_svg]:size-5',
+            pressed ? 'bg-foreground text-cream' : 'hover:bg-background',
             disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
             className
           )}
@@ -130,14 +131,14 @@ const VoiceNote = ({ audio, onRemove }: { audio: AudioRecording; onRemove: () =>
         type='button'
         onClick={toggle}
         aria-label={playing ? 'Pausar a sua voz' : 'Ouvir a sua voz'}
-        className='bg-honey text-ink flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-[#f0b43c]'
+        className='bg-honey text-foreground flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-honey-strong'
       >
         {playing ? <PauseIcon className='size-4 fill-current' /> : <PlayIcon className='ml-0.5 size-4 fill-current' />}
       </button>
       <div className='flex min-w-0 flex-1 flex-col gap-1.5'>
         <span className='text-sm font-medium'>Sua voz</span>
         <div className='bg-sand h-1 overflow-hidden rounded-full'>
-          <div className='bg-ink h-full rounded-full' style={{ width: `${progress * 100}%` }} />
+          <div className='bg-foreground h-full rounded-full' style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
       <span className='text-muted-foreground shrink-0 text-xs tabular-nums'>
@@ -354,7 +355,18 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
     event.target.value = ''
     if (!file || photos.length >= MAX_PHOTOS) return
 
-    const next = [...photos, await resizeImage(file)]
+    let resized: string
+
+    // Formato que o navegador não abre (HEIC no computador, arquivo corrompido): avisa em vez de não fazer nada
+    try {
+      resized = await resizeImage(file)
+    } catch {
+      setError('Não foi possível abrir esta foto. Tente uma em JPG ou PNG.')
+
+      return
+    }
+
+    const next = [...photos, resized]
     const nextCaptions = next.map((_, photoIndex) => captions[photoIndex] ?? '')
 
     setPhotos(next)
@@ -408,10 +420,22 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
           Ele está pronto e continua online para quem lê. Para mudar uma resposta, reabra o livro em Meus livros.
         </p>
         <div className='flex flex-wrap items-center gap-3'>
-          <Button render={<Link href='/app/livros' />} nativeButton={false} variant='honey' size='cta' className='w-fit'>
+          <Button
+            render={<Link href='/app/livros' />}
+            nativeButton={false}
+            variant='honey'
+            size='cta'
+            className='w-fit'
+          >
             Ir para Meus livros
           </Button>
-          <Button render={<Link href='/app/livro' />} nativeButton={false} variant='outline' size='cta' className='w-fit'>
+          <Button
+            render={<Link href='/app/livro' />}
+            nativeButton={false}
+            variant='outline'
+            size='cta'
+            className='w-fit'
+          >
             Ler o livro
           </Button>
         </div>
@@ -481,8 +505,8 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             value={text}
             onChange={event => updateText(event.target.value)}
             aria-label='Sua resposta'
-            placeholder='Conte como se estivesse falando com a sua família…'
-            className='placeholder:text-muted-foreground/70 min-h-0 w-full flex-1 resize-none overflow-y-auto bg-transparent px-6 pt-6 font-(family-name:--font-fell) text-xl leading-relaxed outline-none sm:px-8 sm:pt-8 sm:text-2xl'
+            placeholder={`Conte como se estivesse falando com ${user.activeBook ? recipientOf(user.activeBook) : 'a sua família'}…`}
+            className='placeholder:text-muted-foreground/70 min-h-0 w-full flex-1 scrollbar-musgo resize-none overflow-y-auto bg-transparent px-6 pt-6 font-(family-name:--font-fell) text-xl leading-relaxed outline-none sm:px-8 sm:pt-8 sm:text-2xl'
           />
 
           {/* Anexos ficam dentro do cartão, logo acima das ferramentas: quem grava ou adiciona uma foto
@@ -542,28 +566,23 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             <p className='text-destructive px-6 pt-3 text-sm sm:px-8'>{recorder.error ?? error}</p>
           )}
 
-          <div id='ferramentas' className='flex scroll-mt-40 items-center justify-between gap-3 p-4 sm:p-5'>
-            {dictation.supported ? (
-              <div className='flex min-w-0 items-center gap-3'>
+          {/* Todas as ferramentas à esquerda: o canto direito fica livre, onde a mão procura o "próxima" */}
+          <div id='ferramentas' className='flex scroll-mt-40 items-center gap-3 p-4 sm:p-5'>
+            {dictation.supported && (
+              <>
                 <ToolButton
                   label={dictation.listening ? 'Parar ditado' : 'Ditar: fale e o texto aparece'}
                   pressed={dictation.listening}
                   onClick={dictation.listening ? dictation.stop : dictation.start}
-                  className={cn(!dictation.listening && 'bg-sand hover:bg-stone/60')}
+                  className={cn('shrink-0', !dictation.listening && 'bg-sand hover:bg-stone/60')}
                 >
                   <MicIcon />
                 </ToolButton>
-                {dictation.listening && (
-                  <span role='status' className='text-muted-foreground truncate text-sm'>
-                    Ouvindo… o texto aparece no fim de cada frase.
-                  </span>
-                )}
-              </div>
-            ) : (
-              <span />
+                <span aria-hidden='true' className='bg-border h-6 w-px shrink-0' />
+              </>
             )}
 
-            <div className='bg-sand flex items-center gap-1 rounded-full p-1'>
+            <div className='bg-sand flex shrink-0 items-center gap-1 rounded-full p-1'>
               {recorder.supported && !audio && (
                 <ToolButton
                   label={recorder.recording ? 'Parar gravação' : 'Gravar sua voz'}
@@ -606,6 +625,11 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
                 )}
               </ToolButton>
             </div>
+            {dictation.listening && (
+              <span role='status' className='text-muted-foreground min-w-0 truncate text-sm'>
+                Ouvindo… o texto aparece no fim de cada frase.
+              </span>
+            )}
             <input
               ref={fileInput}
               type='file'
@@ -621,13 +645,13 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
       <Dialog open={removeOpen} onOpenChange={setRemoveOpen}>
         <DialogContent
           showCloseButton={false}
-          className='bg-cream flex flex-col gap-6 rounded-[1.5rem] p-6 sm:max-w-sm sm:p-8'
+          className='bg-cream flex flex-col gap-6 rounded-2xl p-6 sm:max-w-sm sm:p-8'
         >
           <div className='flex flex-col gap-2'>
-            <DialogTitle className='font-heading text-2xl'>
+            <DialogTitle className={overlayTitleClassName}>
               {confirmRemove?.kind === 'audio' ? 'Remover a gravação?' : 'Remover a foto?'}
             </DialogTitle>
-            <DialogDescription className='text-muted-foreground text-sm text-pretty'>
+            <DialogDescription className={overlayDescriptionClassName}>
               {confirmRemove?.kind === 'audio'
                 ? 'A sua voz sai desta resposta e do livro. Não dá para desfazer.'
                 : 'A foto e a legenda saem desta resposta e do livro. Não dá para desfazer.'}
@@ -637,14 +661,16 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
             <Button
               type='button'
               variant='ghost'
-              className='hover:bg-sand h-11 px-5'
+              size='lg'
+              className='hover:bg-sand'
               onClick={() => setRemoveOpen(false)}
             >
               Cancelar
             </Button>
             <Button
               type='button'
-              className='bg-destructive hover:bg-destructive/90 h-11 px-5 text-white'
+              variant='destructive'
+              size='lg'
               onClick={() => {
                 if (confirmRemove?.kind === 'audio') removeAudio()
                 if (confirmRemove?.kind === 'photo') removePhoto(confirmRemove.index)
@@ -677,7 +703,8 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               render={<Link href={`/app/pergunta/${previous.id}`} />}
               nativeButton={false}
               variant='ghost'
-              className='hover:bg-sand h-12 gap-2 px-4'
+              size='lg'
+              className='hover:bg-sand px-4'
             >
               <ArrowLeftIcon />
               Anterior
@@ -693,7 +720,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               render={<Link href={`/app/pergunta/${next.id}`} />}
               nativeButton={false}
               variant='honey'
-              className='h-12 gap-2 px-5'
+              size='lg'
             >
               <span className='flex gap-1 pointer-coarse:hidden max-sm:hidden'>
                 <Kbd>{modifier}</Kbd>
@@ -703,7 +730,7 @@ const Pergunta = ({ questionId }: { questionId: number }) => {
               <ArrowRightIcon />
             </Button>
           ) : (
-            <Button render={<Link href='/app' />} nativeButton={false} variant='honey' className='h-12 px-5'>
+            <Button render={<Link href='/app' />} nativeButton={false} variant='honey' size='lg'>
               Voltar aos capítulos
             </Button>
           )}

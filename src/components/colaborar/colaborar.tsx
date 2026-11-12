@@ -50,7 +50,7 @@ const ContributionField = ({ token, question, initial }: { token: string; questi
   return (
     <article className='border-border flex flex-col gap-4 border-t pt-8'>
       <div className='flex items-start justify-between gap-6'>
-        <h2 className='font-heading text-display text-balance'>{question.text}</h2>
+        <h2 className={pageTitleClassName}>{question.text}</h2>
         <span role='status' className='text-muted-foreground shrink-0 pt-3 text-xs'>
           {statusLabel[status]}
         </span>
@@ -102,9 +102,9 @@ const Colaborar = ({ token }: { token: string }) => {
               <p className={eyebrowClassName}>Um convite de {view.ownerName}</p>
               <h1 className={pageTitleClassName}>Conte o que você lembra, do seu jeito.</h1>
               <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-                {view.ownerName} está escrevendo um livro de histórias da família e quer a sua versão destas lembranças. Só{' '}
-                {view.ownerName} lê o que você escreve aqui, e você não vê as respostas de {view.ownerName}. Tudo é
-                salvo sozinho.
+                {view.ownerName} está escrevendo um livro de histórias da família e quer a sua versão destas lembranças.{' '}
+                {view.ownerName} lê primeiro e escolhe o que entra no livro. Você não vê as respostas de{' '}
+                {view.ownerName}. Tudo é salvo sozinho.
               </p>
             </div>
 

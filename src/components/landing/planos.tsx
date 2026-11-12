@@ -2,13 +2,25 @@
 
 import { useState } from 'react'
 
-import { CheckIcon, MinusIcon } from 'lucide-react'
+import {
+  AudioLinesIcon,
+  BookOpenIcon,
+  ImageIcon,
+  MessageCircleQuestionMarkIcon,
+  MicIcon,
+  PrinterIcon,
+  Share2Icon,
+  TabletSmartphoneIcon,
+  UsersIcon
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { MotionPreset } from '@/components/ui/motion-preset'
 import { WordsReveal } from '@/components/landing/motion'
+import { TRIAL } from '@/components/landing/teste-gratis'
 
 import { cn } from '@/lib/utils'
 
@@ -21,46 +33,27 @@ const reveal = {
 const formatPrice = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 })
 
-// No anual, a pessoa paga 10 meses e leva 12: dois meses grátis
-const ANNUAL_MONTHS = 10
-
 type Billing = 'mensal' | 'anual'
 
-// O Essencial é só texto; o Completo libera fotos, voz e ditado. Os itens fora do plano aparecem riscados
-const plans = [
-  {
-    name: 'Essencial',
-    description: 'Para quem quer contar a história só escrevendo.',
-    price: 9.9,
-    card: 'bg-lilac text-ink',
-    line: 'border-ink/20',
-    button: 'default' as const,
-    features: [
-      { label: 'Todas as perguntas guiadas', included: true },
-      { label: 'Livro digital com capa, sumário e capítulos', included: true },
-      { label: 'Leitura só para quem você convidar', included: true },
-      { label: 'Fotos nas respostas', included: false },
-      { label: 'Gravação de voz', included: false },
-      { label: 'Ditado: fale e o texto aparece', included: false }
-    ]
-  },
-  {
-    name: 'Completo',
-    description: 'Tudo para contar do seu jeito, com imagem e voz.',
-    price: 29.9,
-    card: 'bg-olive text-cream',
-    line: 'border-cream/25',
-    button: 'inverse' as const,
-    badge: 'Recomendado',
-    features: [
-      { label: 'Tudo do Essencial', included: true },
-      { label: 'Fotos ilimitadas ao lado das histórias', included: true },
-      { label: 'Gravação de voz que toca dentro do livro', included: true },
-      { label: 'Ditado: fale e o texto aparece', included: true },
-      { label: 'Convide a família para responder junto', included: true },
-      { label: 'PDF pronto para imprimir', included: true }
-    ]
-  }
+// Um plano só, com tudo: a voz, as fotos e a família contando junto são o que faz o livro valer,
+// então ninguém fica sem eles. Mais de um livro ao mesmo tempo é uma vaga a mais, dentro do app
+// O mensal é mais caro de propósito, para o anual valer a pena: R$ 24,90 por mês, pagos de uma vez,
+// economiza R$ 60 no ano, o mesmo que dois meses grátis
+const MONTHLY = 29.9
+const ANNUAL_PER_MONTH = 24.9
+const ANNUAL = Math.round(ANNUAL_PER_MONTH * 12 * 100) / 100
+
+// Cada item com o ícone do que ele faz, em vez do mesmo check repetido
+const features: { label: string; Icon: LucideIcon }[] = [
+  { label: 'Mais de 300 perguntas guiadas', Icon: MessageCircleQuestionMarkIcon },
+  { label: 'Livro digital com capa, sumário e capítulos', Icon: BookOpenIcon },
+  { label: 'Fotos ilimitadas ao lado das histórias', Icon: ImageIcon },
+  { label: 'Gravação de voz que toca dentro do livro', Icon: MicIcon },
+  { label: 'Ditado: fale e o texto aparece', Icon: AudioLinesIcon },
+  { label: 'Convide a família para responder junto', Icon: UsersIcon },
+  { label: 'Leitura para quantas pessoas você quiser', Icon: Share2Icon },
+  { label: 'EPUB para Kindle e outros leitores', Icon: TabletSmartphoneIcon },
+  { label: 'PDF pronto para imprimir', Icon: PrinterIcon }
 ]
 
 const Planos = () => {
@@ -80,9 +73,7 @@ const Planos = () => {
               className='font-heading text-display text-balance'
             />
           </div>
-          <p className='text-muted-foreground max-w-xl text-base text-pretty'>
-            Dois planos, sem fidelidade. Você cria a conta grátis e escolhe o plano quando quiser.
-          </p>
+          <p className='text-muted-foreground max-w-xl text-base text-pretty'>{TRIAL}. Depois, sem fidelidade.</p>
         </MotionPreset>
 
         <div className='flex flex-col items-center gap-10'>
@@ -97,7 +88,7 @@ const Planos = () => {
                 onClick={() => setBilling(option)}
                 className={cn(
                   'flex h-11 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-medium transition-colors',
-                  billing === option ? 'bg-ink text-cream' : 'text-foreground hover:bg-stone/60'
+                  billing === option ? 'bg-moss text-cream' : 'text-foreground hover:bg-stone/60'
                 )}
               >
                 {option === 'mensal' ? 'Mensal' : 'Anual'}
@@ -105,7 +96,7 @@ const Planos = () => {
                   <span
                     className={cn(
                       'rounded-full px-2 py-0.5 text-xs font-semibold',
-                      billing === option ? 'bg-honey text-ink' : 'bg-moss text-cream'
+                      billing === option ? 'bg-honey text-foreground' : 'bg-moss text-cream'
                     )}
                   >
                     2 meses grátis
@@ -115,81 +106,55 @@ const Planos = () => {
             ))}
           </div>
 
-          <div className='mx-auto grid w-full max-w-4xl gap-8 md:grid-cols-2'>
-            {plans.map((plan, index) => (
-              <MotionPreset
-                key={plan.name}
-                {...reveal}
-                delay={0.1 * (index + 1)}
-                className={`${plan.card} flex flex-col gap-8 rounded-[1.5rem] p-8 transition-[translate,box-shadow] duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgb(34_34_34/0.6)] sm:p-10`}
+          <MotionPreset
+            {...reveal}
+            delay={0.1}
+            className='bg-moss text-cream mx-auto grid w-full max-w-5xl gap-10 rounded-2xl p-8 sm:p-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:p-12'
+          >
+            <div className='flex flex-col gap-8'>
+              <div className='flex flex-col gap-2'>
+                <h3 className='font-heading text-display'>Lá Vem História</h3>
+                <p className='text-base text-pretty'>
+                  A história contada do seu jeito, com imagem, voz e a família junto.
+                </p>
+              </div>
+
+              {/* No anual, o preço por mês já com desconto, o mensal riscado e o total do ano */}
+              <div className='flex flex-col gap-1'>
+                <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
+                  <span className='font-heading text-display-lg tabular-nums'>
+                    {formatPrice(annual ? ANNUAL_PER_MONTH : MONTHLY)}
+                  </span>
+                  <span className='text-sm'>/ mês</span>
+                  {annual && <s className='text-sm opacity-60'>{formatPrice(MONTHLY)}</s>}
+                </p>
+                <p className='text-sm opacity-80'>
+                  {annual
+                    ? `${formatPrice(ANNUAL)} por ano, cobrados de uma vez.`
+                    : 'Cobrado todo mês. Cancele quando quiser.'}
+                </p>
+              </div>
+
+              <Button
+                render={<Link href='/entrar?modo=criar' />}
+                nativeButton={false}
+                variant='inverse'
+                size='cta'
+                className='mt-auto w-full'
               >
-                <div className='flex flex-col gap-2'>
-                  <div className='flex items-center justify-between gap-4'>
-                    <h3 className='font-heading text-display'>{plan.name}</h3>
-                    {plan.badge && (
-                      <span className='bg-cream text-ink rounded-full px-3 py-1 text-xs font-medium'>{plan.badge}</span>
-                    )}
-                  </div>
-                  <p className='text-base'>{plan.description}</p>
-                </div>
+                Testar grátis
+              </Button>
+            </div>
 
-                {/* No anual, o preço por mês já com desconto, o mensal riscado e o total do ano */}
-                <div className='flex flex-col gap-1'>
-                  <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
-                    <span className='font-heading text-display-lg tabular-nums'>
-                      {formatPrice(annual ? Math.round((plan.price * ANNUAL_MONTHS * 100) / 12) / 100 : plan.price)}
-                    </span>
-                    <span className='text-sm'>/ mês</span>
-                    {annual && <s className='text-sm opacity-60'>{formatPrice(plan.price)}</s>}
-                  </p>
-                  <p className='text-sm opacity-80'>
-                    {annual
-                      ? `${formatPrice(plan.price * ANNUAL_MONTHS)} por ano, cobrados de uma vez.`
-                      : 'Cobrado todo mês. Cancele quando quiser.'}
-                  </p>
-                </div>
-
-                <ul className='flex flex-1 flex-col'>
-                  {plan.features.map(feature => (
-                    <li
-                      key={feature.label}
-                      className={cn(
-                        plan.line,
-                        'flex items-center gap-3 border-t py-3 text-sm',
-                        !feature.included && 'opacity-55'
-                      )}
-                    >
-                      {feature.included ? (
-                        <CheckIcon aria-hidden='true' className='size-4 shrink-0' />
-                      ) : (
-                        <MinusIcon aria-hidden='true' className='size-4 shrink-0' />
-                      )}
-                      <span className={cn(!feature.included && 'line-through')}>
-                        {feature.label}
-                        {!feature.included && <span className='sr-only'> (não incluso)</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  render={<Link href='/entrar?modo=criar' />}
-                  nativeButton={false}
-                  variant={plan.button}
-                  size='cta'
-                  // O botão escuro do Essencial usa a mesma sombra do botão claro do Completo,
-                  // para a elevação no hover aparecer junto com a do card
-                  className={
-                    plan.button === 'default'
-                      ? 'bg-ink hover:bg-[#2c2c2c] hover:shadow-[0_12px_24px_-10px_rgb(0_0_0/0.75)]!'
-                      : undefined
-                  }
-                >
-                  Cadastre-se grátis
-                </Button>
-              </MotionPreset>
-            ))}
-          </div>
+            <ul className='grid content-start sm:grid-cols-2 sm:gap-x-8'>
+              {features.map(({ label, Icon }) => (
+                <li key={label} className='border-cream/25 flex items-start gap-3 border-t py-3 text-sm'>
+                  <Icon aria-hidden='true' className='mt-0.5 size-4 shrink-0' strokeWidth={1.75} />
+                  <span className='text-pretty'>{label}</span>
+                </li>
+              ))}
+            </ul>
+          </MotionPreset>
         </div>
       </div>
     </section>

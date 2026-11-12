@@ -29,7 +29,7 @@ export default async function EntrarPage({ searchParams }: PageProps<'/entrar'>)
       </div>
 
       <div className='flex items-center py-10 pr-8 max-lg:hidden'>
-        <div className='bg-sand relative aspect-[649/708] w-full overflow-hidden rounded-[1.5rem]'>
+        <div className='bg-sand relative aspect-[649/708] w-full overflow-hidden rounded-2xl'>
           <Image
             src={heroImage}
             alt='Mãos segurando o livro Lá Vem História, com a capa “Maria Oliveira, a minha história” e fotos antigas de família'

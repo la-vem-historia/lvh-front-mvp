@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/components/app/session'
+import { textLinkClassName } from '@/components/app/page-heading'
 
 import { getRoleRequest, requestRole } from '@/lib/lvh/api'
 import { cn } from '@/lib/utils'
@@ -104,13 +105,13 @@ const AvisePapeis = () => {
       {error && <p className='text-destructive text-sm'>{error}</p>}
 
       <div className='flex items-center gap-4'>
-        <Button type='button' variant='honey' className='h-10 px-5' disabled={!choice} onClick={confirm}>
+        <Button type='button' variant='honey' size='md' disabled={!choice} onClick={confirm}>
           Avisar quando chegar
         </Button>
         <button
           type='button'
           onClick={() => setOpen(false)}
-          className='text-muted-foreground cursor-pointer text-sm underline underline-offset-4'
+          className={textLinkClassName}
         >
           Agora não
         </button>

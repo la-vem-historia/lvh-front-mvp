@@ -80,7 +80,7 @@ const PhotoPrint = ({
         disabled={still}
         aria-label={`Ampliar a foto: ${block.alt}`}
         className={cn(
-          'inline-flex cursor-zoom-in flex-col disabled:cursor-default disabled:hover:scale-100 rounded-[2.5px] bg-[#fdfbf6] p-[7px] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)] transition-transform hover:scale-[1.02]',
+          'inline-flex cursor-zoom-in flex-col disabled:cursor-default disabled:hover:scale-100 rounded-[2.5px] bg-page p-[7px] shadow-[0_1px_2px_rgb(60_45_30/0.12),0_3px_10px_rgb(60_45_30/0.16)] transition-transform hover:scale-[1.02]',
           block.caption || still ? 'pb-2' : 'pb-[7px]'
         )}
         style={{ transform: `rotate(${block.tilt * 1.2}deg)` }}
@@ -94,7 +94,7 @@ const PhotoPrint = ({
         />
         {/* Impresso, a foto leva o código do arquivo no ZIP: P047-F1 */}
         {(block.caption || still) && (
-          <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+          <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-page-subtle italic'>
             {still && <span className='font-sans not-italic tracking-wide'>{block.code}</span>}
             {still && block.caption && ' · '}
             {block.caption}
@@ -128,14 +128,14 @@ export const PhotoSlot = ({
         style={{ maxWidth, maxHeight }}
       />
       <div className='absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-6 text-center'>
-        <span className='text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'>Cole aqui a foto</span>
+        <span className='text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'>Cole aqui a foto</span>
         {/* Sem legenda embaixo, a pergunta da resposta diz qual foto vai aqui */}
         {!block.caption && (
-          <span className='font-heading line-clamp-2 text-[10px] text-[#8a7f72] italic'>{block.alt}</span>
+          <span className='font-heading line-clamp-2 text-[10px] text-page-subtle italic'>{block.alt}</span>
         )}
       </div>
     </div>
-    <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-[#8a7f72] italic'>
+    <span className='font-heading mt-2 w-0 min-w-full truncate text-center text-[9.5px] text-page-subtle italic'>
       <span className='font-sans not-italic tracking-wide'>{block.code}</span>
       {block.caption && ` · ${block.caption}`}
     </span>
@@ -239,6 +239,7 @@ export const PageView = ({
   if (page.type === 'cover') {
     return (
       <BookCover
+        title={book.title}
         author={book.author}
         color={book.coverColor}
         photo={book.coverPhoto}
@@ -279,7 +280,7 @@ export const PageView = ({
     >
       {page.type === 'content' && (
         <span
-          className='book-ink absolute top-7 text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'
+          className='book-ink absolute top-7 text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'
           style={outer}
         >
           {verso ? book.author : page.chapterTitle}
@@ -295,11 +296,11 @@ export const PageView = ({
       {page.type === 'title' && (
         <div className='book-ink flex h-full flex-col items-center text-center'>
           <div className='flex flex-1 flex-col items-center justify-center gap-4'>
-            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.author}</span>
+            <span className='font-heading text-[30px] leading-[1.1] text-balance'>{book.title}</span>
             <span aria-hidden='true' className='bg-earth h-px w-8' />
-            <span className='font-heading text-[15px] text-[#6b6156] italic'>para a minha família</span>
+            <span className='font-heading text-[16px] text-page-muted italic'>{book.author}</span>
           </div>
-          <span className='text-[7.5px] font-medium tracking-[0.25em] text-[#9a8f80] uppercase'>
+          <span className='text-[7.5px] font-medium tracking-[0.25em] text-page-faint uppercase'>
             Lá Vem História · {book.year}
           </span>
         </div>
@@ -357,7 +358,7 @@ export const PageView = ({
       )}
 
       {page.type === 'colophon' && (
-        <div className='book-ink flex h-full flex-col items-center justify-end gap-3 pb-6 text-center text-[10px] leading-[1.7] text-[#6b6156]'>
+        <div className='book-ink flex h-full flex-col items-center justify-end gap-3 pb-6 text-center text-[10px] leading-[1.7] text-page-muted'>
           <span aria-hidden='true' className='bg-earth mb-2 h-px w-8' />
           <p className='font-heading max-w-[250px] italic'>
             Este livro foi escrito por {book.author} em {book.year}, a partir das perguntas do Lá Vem História.
@@ -365,14 +366,14 @@ export const PageView = ({
           {book.contributors.length > 0 && (
             <p className='font-heading max-w-[250px] italic'>Com lembranças de {listNames(book.contributors)}.</p>
           )}
-          <p className='mt-2 text-[7.5px] font-medium tracking-[0.22em] text-[#9a8f80] uppercase'>
+          <p className='mt-2 text-[7.5px] font-medium tracking-[0.22em] text-page-faint uppercase'>
             Composto em Fraunces
           </p>
         </div>
       )}
 
       {showFolio && (
-        <span className='book-ink font-heading absolute bottom-7 text-[10px] text-[#9a8f80]' style={outer}>
+        <span className='book-ink font-heading absolute bottom-7 text-[10px] text-page-faint' style={outer}>
           {index + 1}
         </span>
       )}
@@ -961,7 +962,9 @@ const BookReader = ({
       </div>
 
       {preview && layout && (
-        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>Clique no livro para abrir em tela cheia.</p>
+        <p className='text-muted-foreground pt-2 pb-6 text-center text-sm'>
+          Toque ou clique no livro para abrir em tela cheia.
+        </p>
       )}
 
       {pageElements.map((element, index) =>
@@ -1097,7 +1100,7 @@ const BookReader = ({
             <Button
               id='livro-anterior'
               variant='outline'
-              className='h-12 gap-2 px-5'
+              size='lg'
               onClick={previous}
               disabled={!layout || flipping || spreadIndex === 0}
             >
@@ -1154,7 +1157,7 @@ const BookReader = ({
             <Button
               id='livro-proxima'
               variant='honey'
-              className='h-12 gap-2 px-5'
+              size='lg'
               // Na capa, "Abrir o livro" leva ao modo de leitura quando ele existe
               onClick={isCover && onOpenImmersive ? onOpenImmersive : next}
               disabled={!layout || flipping || spreadIndex >= spreads.length - 1}
