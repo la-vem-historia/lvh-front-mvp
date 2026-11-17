@@ -22,7 +22,7 @@ const reveal = {
   transition: { duration: 0.6, ease: 'easeOut' as const }
 }
 
-const CONTACT_EMAIL = 'oi@lavemhistoria.com.br'
+const CONTACT_EMAIL = 'ola@lavemhistoria.com.br'
 
 // Perguntas na ordem em que costumam aparecer: primeiro o medo de escrever, depois onde ler e quem lê, livro e preço
 const questions = [

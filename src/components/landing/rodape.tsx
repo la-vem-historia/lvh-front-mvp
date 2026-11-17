@@ -5,7 +5,7 @@ import { useState } from 'react'
 import Logo from '@/components/shadcn-studio/logo'
 import Simbolo from '@/components/landing/simbolo'
 
-const email = 'oi@lavemhistoria.com.br'
+const email = 'ola@lavemhistoria.com.br'
 
 const Rodape = () => {
   const [copied, setCopied] = useState(false)
