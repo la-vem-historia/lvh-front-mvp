@@ -2,7 +2,7 @@
 // NEXT_PUBLIC_API_URL está definida; livros, respostas e o resto ainda ficam no localStorage do
 // navegador e vão migrando para o backend aos poucos, só trocando o miolo destas funções.
 
-import { ApiError, apiFetch, hasBackend, type ApiUser } from './backend'
+import { API_URL, ApiError, apiFetch, hasBackend, type ApiUser } from './backend'
 import { bookTitle, DEFAULT_COVER_TITLE } from './livros'
 import { chaptersFor } from './perguntas'
 import type {
@@ -256,14 +256,28 @@ export async function verifyLoginCode(email: string, code: string): Promise<Logi
   return { user: withActiveBook(user), isNew: !existing }
 }
 
-// Contas de exemplo no lugar do OAuth de cada serviço, que entra junto com o backend
+// Contas de exemplo no lugar do OAuth de cada serviço (só no modo protótipo, sem backend)
 const providerProfiles: Record<LoginProvider, { email: string; name: string }> = {
   google: { email: 'maria.oliveira@gmail.com', name: 'Maria' },
   apple: { email: 'maria.oliveira@icloud.com', name: 'Maria' },
   facebook: { email: 'maria.oliveira@facebook.com', name: 'Maria' }
 }
 
-export async function signInWithProvider(provider: LoginProvider): Promise<LoginResult> {
+const providerNames: Record<LoginProvider, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook' }
+
+// Com backend, entrar com Google sai do site: a API leva ao Google e, na volta, abre a sessão no
+// cookie e devolve a pessoa para returnTo. A promessa não resolve porque a página é trocada
+export async function signInWithProvider(provider: LoginProvider, returnTo = '/app'): Promise<LoginResult> {
+  if (hasBackend) {
+    if (provider !== 'google') {
+      throw new Error(`Entrar com ${providerNames[provider]} chega em breve. Use o Google ou o código por e-mail.`)
+    }
+
+    window.location.assign(`${API_URL}/auth/google/start?returnTo=${encodeURIComponent(returnTo)}`)
+
+    return new Promise<LoginResult>(() => {})
+  }
+
   const profile = providerProfiles[provider]
   const existing = findAccount(profile.email)
   const user = { ...(existing ?? profile), providers: [...new Set([...(existing?.providers ?? []), provider])] }

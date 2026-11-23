@@ -14,8 +14,9 @@ export const metadata: Metadata = {
 // Mesma composição do hero da landing: 60% para o formulário, centralizado, e 40% para a foto
 // em moldura arredondada
 // ?modo=criar abre direto em Criar conta (vindo dos botões de cadastro da landing)
+// ?erro=google... vem da API quando o login social não dá certo (a mensagem fica no formulário)
 export default async function EntrarPage({ searchParams }: PageProps<'/entrar'>) {
-  const { modo } = await searchParams
+  const { modo, erro } = await searchParams
 
   return (
     <div className='grid min-h-svh lg:grid-cols-[3fr_2fr]'>
@@ -24,7 +25,10 @@ export default async function EntrarPage({ searchParams }: PageProps<'/entrar'>)
           <Logo className='[&_svg]:h-[2.125rem]' />
         </Link>
         <div className='flex flex-1 items-center justify-center py-16'>
-          <EntrarForm initialMode={modo === 'criar' ? 'criar' : 'entrar'} />
+          <EntrarForm
+            initialMode={modo === 'criar' ? 'criar' : 'entrar'}
+            initialError={typeof erro === 'string' ? erro : undefined}
+          />
         </div>
       </div>
 

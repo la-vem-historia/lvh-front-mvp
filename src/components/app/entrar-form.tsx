@@ -65,14 +65,22 @@ const socialProviders = [
 
 // Login sem senha: a pessoa informa o e-mail (ou usa Google, Apple, Facebook) e recebe um código.
 // Nós decidimos se é conta nova ou existente; conta nova só pede o nome depois do código
-const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
+// Motivos que a API devolve em /entrar?erro=... quando o login social não dá certo
+const socialErrors: Record<string, string> = {
+  google: 'Não conseguimos entrar com o Google. Tente de novo.',
+  'google-cancelado': 'O login com o Google foi cancelado.',
+  'google-email': 'Não conseguimos confirmar o e-mail da sua conta Google. Entre com o código por e-mail.',
+  'google-indisponivel': 'Entrar com o Google ainda não está disponível. Use o código por e-mail.'
+}
+
+const EntrarForm = ({ initialMode = 'entrar', initialError }: { initialMode?: Mode; initialError?: string }) => {
   const router = useRouter()
   const emailInput = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [pending, setPending] = useState<'email' | 'codigo' | 'nome' | LoginProvider | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(initialError ? (socialErrors[initialError] ?? null) : null)
   const [resendIn, setResendIn] = useState(0)
   // Só a equipe (quem passou pela senha do site) cria conta e entra de verdade por enquanto
   // O cookie só existe no navegador: no servidor a página sai como para o público
@@ -95,6 +103,16 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
 
     return (await response.json()) as LeadResult
   }
+
+  // Aviso de erro do login social já mostrado: tira o ?erro= da barra para não reaparecer ao recarregar
+  useEffect(() => {
+    if (!initialError) return
+
+    const url = new URL(window.location.href)
+
+    url.searchParams.delete('erro')
+    window.history.replaceState(null, '', url)
+  }, [initialError])
 
   // E-mail digitado no cadastro da landing: preenche o campo uma vez e é descartado
   useEffect(() => {
@@ -195,11 +213,17 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
     }
 
     setPending(provider)
+    setError(null)
 
     // A conta do Google, Apple ou Facebook já traz o nome, então não passa pela etapa do nome;
-    // conta nova cai no onboarding pelo próprio /app
-    await signInWithProvider(provider)
-    router.push('/app')
+    // conta nova cai no onboarding pelo próprio /app. Com backend, a página sai para o Google
+    try {
+      await signInWithProvider(provider)
+      router.push('/app')
+    } catch (reason) {
+      setError((reason as Error).message)
+      setPending(null)
+    }
   }
 
   const handleName = async (event: FormEvent<HTMLFormElement>) => {
@@ -427,7 +451,7 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
         {team && (
           <PrototypeNote>
             {hasBackend
-              ? 'Protótipo: Google, Apple e Facebook ainda entram com uma conta de exemplo.'
+              ? 'Apple e Facebook chegam em breve. Por enquanto, entre com o Google ou com o código por e-mail.'
               : 'Protótipo: nada sai do seu navegador, e Google, Apple e Facebook entram com uma conta de exemplo.'}
           </PrototypeNote>
         )}
