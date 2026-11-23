@@ -11,8 +11,9 @@ const NOINDEX = { 'X-Robots-Tag': 'noindex, nofollow' }
 // abertos: quem cria conta antes da abertura deixa o e-mail na lista. O app continua fechado
 const PUBLIC_PATHS = ['/', '/entrar', '/presente', '/api/leads', '/api/contato']
 // Links que o autor manda para a família (ler o livro, ouvir uma voz pelo QR code, responder junto) e as páginas
-// do presente (o cartão para imprimir e o resgate do código): quem recebe não tem a senha do site
-const PUBLIC_PREFIXES = ['/ler/', '/ouvir/', '/colaborar/', '/presente/']
+// do presente (o cartão para imprimir e o resgate do código): quem recebe não tem a senha do site.
+// /email/ guarda as imagens dos e-mails (logo): a caixa de entrada não passa pela senha
+const PUBLIC_PREFIXES = ['/ler/', '/ouvir/', '/colaborar/', '/presente/', '/email/']
 
 // Quem passou pela senha é da equipe: o cookie libera criar conta e entrar no app de verdade
 const asTeam = (response: NextResponse) => {

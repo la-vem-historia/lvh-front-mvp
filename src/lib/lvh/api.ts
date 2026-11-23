@@ -1,6 +1,8 @@
-// Camada de dados do app. Por enquanto tudo é simulado e fica no localStorage do
-// navegador; quando o backend existir, só o miolo destas funções muda.
+// Camada de dados do app. A conta (login, sessão, nome) já vem do backend quando
+// NEXT_PUBLIC_API_URL está definida; livros, respostas e o resto ainda ficam no localStorage do
+// navegador e vão migrando para o backend aos poucos, só trocando o miolo destas funções.
 
+import { ApiError, apiFetch, hasBackend, type ApiUser } from './backend'
 import { bookTitle, DEFAULT_COVER_TITLE } from './livros'
 import { chaptersFor } from './perguntas'
 import type {
@@ -201,15 +203,49 @@ const findAccount = (email: string) => {
 
 export type LoginResult = { user: User; isNew: boolean }
 
+// Junta a conta que veio da API com o que este navegador já guarda dela (livros, preferências).
+// E-mail e nome valem os do servidor
+const adoptRemoteUser = (remote: ApiUser): User => {
+  const local = findAccount(remote.email)
+  const user: User = {
+    ...local,
+    email: remote.email,
+    name: remote.name ?? local?.name ?? nameFromEmail(remote.email),
+    providers: remote.providers.length ? remote.providers : local?.providers
+  }
+
+  saveUser(user)
+
+  return withActiveBook(user)
+}
+
+const forgetSession = () => {
+  try {
+    window.localStorage.removeItem(USER_KEY)
+  } catch {}
+}
+
 // Login sem senha: a pessoa só informa o e-mail e nós decidimos se é conta nova ou existente.
-// Hoje nenhum e-mail sai daqui; com o backend, esta função envia o código de verdade
+// A resposta do servidor é a mesma exista a conta ou não (ninguém descobre quem é cliente), então
+// isNew aqui é só um palpite pelo que este navegador conhece
 export async function sendLoginCode(email: string): Promise<{ isNew: boolean }> {
+  if (hasBackend) await apiFetch('/auth/email/start', { method: 'POST', body: { email } })
+
   return { isNew: !findAccount(normalizeEmail(email)) }
 }
 
-// Protótipo: qualquer código de 6 números vale
+// Sem backend (protótipo), qualquer código de 6 números vale
 export async function verifyLoginCode(email: string, code: string): Promise<LoginResult> {
   if (!/^\d{6}$/.test(code)) throw new Error('O código tem 6 números. Confira o e-mail que enviamos.')
+
+  if (hasBackend) {
+    const { user, isNew } = await apiFetch<{ user: ApiUser; isNew: boolean }>('/auth/email/verify', {
+      method: 'POST',
+      body: { email, code }
+    })
+
+    return { user: adoptRemoteUser(user), isNew }
+  }
 
   const address = normalizeEmail(email)
   const existing = findAccount(address)
@@ -272,9 +308,31 @@ export async function changeProfile(profile: string): Promise<User> {
 }
 
 export async function signOut() {
+  // Encerra a sessão no servidor (o cookie para de valer); se a rede falhar, sai do mesmo jeito
+  if (hasBackend) await apiFetch('/auth/logout', { method: 'POST' }).catch(() => {})
+
+  forgetSession()
+}
+
+// Confere com o servidor se a sessão ainda vale (o cookie é HttpOnly, só a API sabe) e traz a conta
+// atualizada. Sessão vencida ou encerrada em outro aparelho: devolve null e quem chamou manda
+// para /entrar. Sem conexão: segue com o que o navegador já tem
+export async function syncSession(): Promise<User | null> {
+  if (!hasBackend) return getCurrentUser()
+
   try {
-    window.localStorage.removeItem(USER_KEY)
-  } catch {}
+    const { user } = await apiFetch<{ user: ApiUser }>('/me')
+
+    return adoptRemoteUser(user)
+  } catch (reason) {
+    if (reason instanceof ApiError && reason.status === 401) {
+      forgetSession()
+
+      return null
+    }
+
+    return getCurrentUser()
+  }
 }
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -293,6 +351,16 @@ export async function updateUser(changes: UserChanges): Promise<User> {
 
   // Ter livro é o que conta como onboarding feito; não é um campo da conta
   delete accountChanges.onboarded
+
+  // O nome é da conta no servidor; o resto da conta ainda fica só no navegador
+  if (hasBackend && typeof accountChanges.name === 'string' && accountChanges.name.trim()) {
+    const { user: remote } = await apiFetch<{ user: ApiUser }>('/me', {
+      method: 'PATCH',
+      body: { name: accountChanges.name.trim() }
+    })
+
+    accountChanges.name = remote.name ?? accountChanges.name
+  }
   const bookChanges: UserBookChanges = {
     ...('profile' in changes && { role: profile as Role }),
     ...('coverTitle' in changes && { coverTitle }),
@@ -1047,6 +1115,9 @@ export async function restoreBackup(backup: Backup, mode: 'juntar' | 'substituir
 
 // Exclusão definitiva: conta, respostas, convites e links somem juntos
 export async function deleteAccount() {
+  // Apaga a conta e encerra todas as sessões no servidor antes de limpar o navegador
+  if (hasBackend) await apiFetch('/me', { method: 'DELETE' })
+
   try {
     Object.keys(window.localStorage)
       .filter(key => key.startsWith('lvh:'))

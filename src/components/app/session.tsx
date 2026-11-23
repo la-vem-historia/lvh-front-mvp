@@ -4,7 +4,7 @@ import { createContext, use, useEffect, useState, type ReactNode } from 'react'
 
 import { usePathname, useRouter } from 'next/navigation'
 
-import { getCurrentUser, updateUser } from '@/lib/lvh/api'
+import { getCurrentUser, syncSession, updateUser } from '@/lib/lvh/api'
 import { redeemPendingGift } from '@/lib/lvh/presente'
 import type { User, UserChanges } from '@/lib/lvh/types'
 
@@ -29,7 +29,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     let active = true
 
     const load = async () => {
-      let current = await getCurrentUser()
+      // Confere a sessão no servidor uma vez ao abrir o app; depois lê do navegador
+      let current = await syncSession()
 
       // Código de presente digitado antes de ter conta: vale assim que a pessoa entra
       if (current && (await redeemPendingGift())) current = await getCurrentUser()

@@ -21,6 +21,7 @@ import { eyebrowClassName, pageTitleClassName } from '@/components/app/page-head
 import { AppleIcon, FacebookIcon, GoogleIcon } from '@/components/app/social-icons'
 
 import { sendLoginCode, signInWithProvider, updateUser, verifyLoginCode, type LoginProvider } from '@/lib/lvh/api'
+import { hasBackend } from '@/lib/lvh/backend'
 import { CADASTRO_EMAIL_KEY } from '@/lib/lvh/cadastro'
 import { isTeam, type LeadResult } from '@/lib/lvh/pre-abertura'
 import { cn } from '@/lib/utils'
@@ -147,7 +148,15 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
       return
     }
 
-    await requestCode(address)
+    try {
+      await requestCode(address)
+    } catch (reason) {
+      // Ex.: e-mail inválido, muitos pedidos seguidos, servidor fora do ar
+      setError((reason as Error).message)
+      setPending(null)
+      return
+    }
+
     setEmail(address)
     setCode('')
     setError(null)
@@ -196,7 +205,15 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
   const handleName = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPending('nome')
-    await updateUser({ name: String(new FormData(event.currentTarget).get('name') ?? '').trim() })
+
+    try {
+      await updateUser({ name: String(new FormData(event.currentTarget).get('name') ?? '').trim() })
+    } catch (reason) {
+      setError((reason as Error).message)
+      setPending(null)
+      return
+    }
+
     router.push('/app')
   }
 
@@ -294,7 +311,12 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
             <button
               type='button'
               disabled={resendIn > 0}
-              onClick={() => requestCode(email)}
+              onClick={() =>
+                requestCode(email).then(
+                  () => setError(null),
+                  reason => setError((reason as Error).message)
+                )
+              }
               className='text-foreground cursor-pointer underline underline-offset-4 disabled:cursor-default disabled:no-underline disabled:opacity-60'
             >
               {resendIn > 0 ? `Reenviar código em ${resendIn}s` : 'Reenviar código'}
@@ -307,7 +329,9 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
               Usar outro e-mail
             </button>
           </div>
-          <PrototypeNote>Protótipo: nenhum e-mail é enviado, e qualquer código de 6 números funciona.</PrototypeNote>
+          {!hasBackend && (
+            <PrototypeNote>Protótipo: nenhum e-mail é enviado, e qualquer código de 6 números funciona.</PrototypeNote>
+          )}
         </div>
       </MotionPreset>
     )
@@ -329,8 +353,10 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
               autoComplete='given-name'
               autoFocus
               required
+              maxLength={80}
             />
           </div>
+          {error && <p className='text-destructive text-sm'>{error}</p>}
           <Button type='submit' variant='honey' size='cta' disabled={pending === 'nome'} className='mt-2 w-full'>
             Começar a minha história
           </Button>
@@ -400,7 +426,9 @@ const EntrarForm = ({ initialMode = 'entrar' }: { initialMode?: Mode }) => {
         </p>
         {team && (
           <PrototypeNote>
-            Protótipo: nada sai do seu navegador, e Google, Apple e Facebook entram com uma conta de exemplo.
+            {hasBackend
+              ? 'Protótipo: Google, Apple e Facebook ainda entram com uma conta de exemplo.'
+              : 'Protótipo: nada sai do seu navegador, e Google, Apple e Facebook entram com uma conta de exemplo.'}
           </PrototypeNote>
         )}
       </div>
