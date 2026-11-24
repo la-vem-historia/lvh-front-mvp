@@ -353,9 +353,15 @@ const MinhaConta = () => (
       <Papel />
     </Section>
 
-    <Section title='Meus livros' description='Os livros que você escreve, um para cada pessoa, e o pagamento.'>
+    <Section title='Meus livros' description='Os livros que você escreve, um para cada pessoa.'>
       <Link href='/app/livros' className='w-fit text-base underline underline-offset-4'>
-        Ver meus livros e a mensalidade
+        Ver meus livros
+      </Link>
+    </Section>
+
+    <Section title='Assinatura' description='O seu plano, as vagas para mais livros, o presente e o cartão.'>
+      <Link href='/app/assinatura' className='w-fit text-base underline underline-offset-4'>
+        Ver assinatura
       </Link>
     </Section>
 

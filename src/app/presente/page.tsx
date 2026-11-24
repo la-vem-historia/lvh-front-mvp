@@ -9,15 +9,19 @@ export const metadata: Metadata = {
   title: 'Dar de presente | Lá Vem História'
 }
 
-// ?meses=3, 6 ou 12 chega da escolha feita na landing
+// ?meses=3, 6 ou 12 chega da escolha feita na landing; ?checkout=<id> na volta da página de pagamento
 export default async function PresentePage({ searchParams }: PageProps<'/presente'>) {
-  const { meses } = await searchParams
+  const { meses, checkout, cancelado } = await searchParams
 
   return (
     <div className='flex min-h-svh flex-col'>
       <PresenteHeader />
       <main className='mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 lg:px-8'>
-        <ComprarPresente initialMonths={parseGiftMonths(meses)} />
+        <ComprarPresente
+          initialMonths={parseGiftMonths(meses)}
+          checkoutId={typeof checkout === 'string' ? checkout : undefined}
+          checkoutCanceled={cancelado === '1'}
+        />
       </main>
     </div>
   )
