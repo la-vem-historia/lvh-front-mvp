@@ -5,6 +5,7 @@
 import { TRIAL_ANSWERS, TRIAL_DAYS } from '@/components/landing/teste-gratis'
 
 import { countAnsweredByBook, getCurrentUser } from './api'
+import { readFiscalData, saveFiscalCpf } from './nota-fiscal'
 import { checkoutUrl, createCheckoutSession, settleSession, takeDueEvents, type CheckoutSession } from './pagamento'
 
 export type PlanInterval = 'mensal' | 'anual'
@@ -308,6 +309,7 @@ export async function startSubscriptionCheckout(interval: PlanInterval): Promise
     },
     // Mensal é recorrente: só cartão. O anual pago hoje também aceita Pix
     methods: interval === 'anual' && !later ? ['cartao', 'pix'] : ['cartao'],
+    cpf: readFiscalData(user.email).cpf,
     returnPath: '/app/assinatura'
   })
 
@@ -328,6 +330,7 @@ export async function startCardUpdate(): Promise<string> {
     amountToday: priceOf(interval),
     nextCharge: { amount: priceOf(interval), date: addMonths(new Date(), periodOf(interval)).toISOString() },
     methods: ['cartao'],
+    cpf: readFiscalData(user.email).cpf,
     returnPath: '/app/assinatura'
   })
 
@@ -351,6 +354,9 @@ const receiveProviderEvents = (
   let next = settle(subscription, now)
 
   for (const { session } of events) {
+    // O CPF confirmado no checkout vira o da conta: é para ele que sai a nota fiscal
+    if (session.cpf) saveFiscalCpf(email, session.cpf)
+
     const card = session.method === 'pix' ? undefined : DEMO_CARD
 
     if (session.item.kind === 'assinatura') {

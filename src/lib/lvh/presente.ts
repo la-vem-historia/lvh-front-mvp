@@ -54,6 +54,8 @@ export type GiftCard = {
   message?: string
   buyerName: string
   buyerEmail: string
+  // CPF de quem comprou, confirmado no checkout: a nota fiscal do presente sai para quem pagou
+  buyerCpf?: string
   // E-mail de quem ganha: o cartão vai direto para ele. No PDF, o cartão vai para quem comprou
   delivery: GiftDelivery
   recipientEmail?: string
@@ -181,7 +183,7 @@ export async function receiveGiftPayment(checkoutId: string): Promise<GiftCard |
   if (session.result) return getGiftCard(session.result)
   if (!takeDueEvents(item => item.id === checkoutId).length) return null
 
-  const gift = await createGiftCard(session.item.gift)
+  const gift = await createGiftCard({ ...session.item.gift, buyerCpf: session.cpf })
 
   settleSession(checkoutId, gift.code)
 

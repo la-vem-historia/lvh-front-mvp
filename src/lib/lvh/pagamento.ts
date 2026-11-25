@@ -12,6 +12,7 @@
 
 import type { GiftDelivery, GiftMonths } from './presente'
 import type { PlanInterval } from './assinatura'
+import { cpfDigits, isValidCpf } from './cpf'
 
 export type GiftInput = {
   months: GiftMonths
@@ -49,6 +50,10 @@ export type CheckoutSession = {
   cancelUrl: string
   status: 'aberta' | 'paga' | 'cancelada'
   method?: PaymentMethod
+  // CPF de quem paga, para a nota fiscal. O app manda o que já tem (o campo vem preenchido) e o provedor
+  // devolve, no webhook, o que a pessoa confirmou. No Stripe é o tax_id_collection; Pagar.me e Mercado Pago
+  // já pedem o CPF no checkout deles
+  cpf?: string
   createdAt: string
   // Quando o webhook desta sessão foi processado pelo app
   settledAt?: string
@@ -120,17 +125,19 @@ export async function getCheckoutSession(id: string): Promise<CheckoutSession | 
 export async function payCheckoutSession(
   id: string,
   method: PaymentMethod,
-  outcome: 'aprovado' | 'recusado'
+  outcome: 'aprovado' | 'recusado',
+  cpf: string
 ): Promise<{ ok: true; returnUrl: string } | { ok: false; error: string }> {
   const session = readSessions()[id]
 
   if (!session || session.status !== 'aberta') return { ok: false, error: 'Esta sessão de pagamento expirou.' }
+  if (!isValidCpf(cpf)) return { ok: false, error: 'Confira o CPF: ele vai na nota fiscal.' }
 
   if (outcome === 'recusado') {
     return { ok: false, error: 'O banco recusou o cartão. Tente outro cartão ou pague com Pix, quando disponível.' }
   }
 
-  saveSession({ ...session, status: 'paga', method })
+  saveSession({ ...session, status: 'paga', method, cpf: cpfDigits(cpf) })
 
   const events = readJson<ProviderEvent[]>(EVENTS_KEY, [])
   const event: ProviderEvent = {

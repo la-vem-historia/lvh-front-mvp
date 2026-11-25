@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ArrowLeftIcon, CreditCardIcon, LockIcon, QrCodeIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/lvh/livros'
+import { formatCpf, isValidCpf } from '@/lib/lvh/cpf'
 import {
   cancelCheckoutSession,
   getCheckoutSession,
@@ -29,12 +30,19 @@ const CheckoutProvedor = ({ id }: { id: string }) => {
   const [method, setMethod] = useState<PaymentMethod>('cartao')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // O CPF vem preenchido quando a conta já tem um; a pessoa confirma ou corrige
+  const [cpf, setCpf] = useState('')
+  const [cpfTouched, setCpfTouched] = useState(false)
+  const cpfRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     let active = true
 
     getCheckoutSession(id).then(value => {
-      if (active) setSession(value)
+      if (!active) return
+
+      setSession(value)
+      setCpf(formatCpf(value?.cpf ?? ''))
     })
 
     return () => {
@@ -55,11 +63,23 @@ const CheckoutProvedor = ({ id }: { id: string }) => {
     )
   }
 
+  const cpfValid = isValidCpf(cpf)
+  const cpfError = cpfTouched && !cpfValid
+  // Para onde vai a nota: a conta que assina ou, no presente, quem compra
+  const invoiceEmail = session.email ?? (session.item.kind === 'presente' ? session.item.gift.buyerEmail : undefined)
+
   const pay = async (outcome: 'aprovado' | 'recusado') => {
+    if (!cpfValid) {
+      setCpfTouched(true)
+      cpfRef.current?.focus()
+
+      return
+    }
+
     setPending(true)
     setError(null)
 
-    const result = await payCheckoutSession(session.id, method, outcome)
+    const result = await payCheckoutSession(session.id, method, outcome, cpf)
 
     if (result.ok) {
       window.location.assign(result.returnUrl)
@@ -124,6 +144,38 @@ const CheckoutProvedor = ({ id }: { id: string }) => {
         </div>
 
         <div className='flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-sm md:p-8'>
+          <div className='flex flex-col gap-2'>
+            <label htmlFor='cpf' className='text-base font-medium'>
+              CPF
+            </label>
+            <input
+              ref={cpfRef}
+              id='cpf'
+              name='cpf'
+              inputMode='numeric'
+              autoComplete='off'
+              placeholder='000.000.000-00'
+              value={cpf}
+              onChange={event => setCpf(formatCpf(event.target.value))}
+              onBlur={() => setCpfTouched(cpf.length > 0)}
+              aria-invalid={cpfError}
+              aria-describedby='cpf-ajuda'
+              className={cn(
+                'h-11 rounded-lg border px-3 text-base tabular-nums outline-none focus:ring-1',
+                cpfError
+                  ? 'border-red-600 focus:ring-red-600'
+                  : 'border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900'
+              )}
+            />
+            <p id='cpf-ajuda' className={cn('text-xs text-pretty', cpfError ? 'text-red-700' : 'text-neutral-500')}>
+              {cpfError
+                ? cpf
+                  ? 'Confira o CPF: os números não batem.'
+                  : 'Informe o CPF para a nota fiscal.'
+                : `Para a nota fiscal${invoiceEmail ? `, que vai para ${invoiceEmail}` : ''}.`}
+            </p>
+          </div>
+
           <span className='text-base font-medium'>Forma de pagamento</span>
 
           <div role='radiogroup' aria-label='Forma de pagamento' className='flex flex-col gap-2'>

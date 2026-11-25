@@ -8,6 +8,7 @@ import { pageTitleClassName, textLinkClassName } from '@/components/app/page-hea
 import ResgatarPresente from '@/components/app/resgatar-presente'
 import { useAccess, useAssinaturaActions, type AssinaturaActions } from '@/components/app/assinatura/acesso'
 import CartaoAssinatura from '@/components/app/assinatura/cartao-assinatura'
+import NotaFiscal from '@/components/app/assinatura/nota-fiscal'
 import { Assinar } from '@/components/app/assinatura/paywall'
 import RetornoCheckout from '@/components/app/assinatura/retorno-checkout'
 
@@ -163,6 +164,14 @@ const Assinatura = ({ checkoutId, checkoutCanceled }: { checkoutId?: string; che
 
       <Section id='valores' title='Valores' description='Quanto você paga por mês, com as vagas e o presente.'>
         <Valores billing={billing} access={access} />
+      </Section>
+
+      <Section
+        id='nota-fiscal'
+        title='Nota fiscal'
+        description='A nota de cada cobrança sai no seu CPF e chega por e-mail.'
+      >
+        <NotaFiscal />
       </Section>
     </div>
   )

@@ -80,6 +80,11 @@ const ResumoPagamento = () => (
         <Item label='Checkout hospedado'>
           O cartão é digitado na página do provedor e nunca passa pelo nosso servidor. Quase nada de PCI do nosso lado.
         </Item>
+        <Item label='CPF para a nota fiscal'>
+          Pedido no checkout, obrigatório, com os dígitos conferidos. Volta no webhook e fica na conta: o próximo
+          checkout vem preenchido e dá para corrigir em Assinatura. No presente, a nota sai para quem comprou. No
+          Stripe, ligar o tax_id_collection; Pagar.me e Mercado Pago já pedem.
+        </Item>
         <Item label='Pix e boleto'>
           Pix serve para o que é pago de uma vez (anual, presente). O mensal recorrente fica no cartão, a menos que o
           provedor tenha Pix Automático.
