@@ -22,10 +22,10 @@ const Rodape = () => {
 
   return (
     <footer className='bg-stone'>
-      <div className='mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-16'>
+      <div className='mx-auto flex max-w-7xl flex-col gap-8 px-4 py-12 max-sm:items-center max-sm:gap-6 max-sm:text-center sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-16'>
         <Logo />
         <Simbolo className='size-7 max-sm:hidden' />
-        <div className='flex flex-col gap-1 text-sm sm:items-end'>
+        <div className='flex flex-col gap-1 text-sm max-sm:items-center sm:items-end'>
           <button
             type='button'
             onClick={copyEmail}

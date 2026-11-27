@@ -54,12 +54,13 @@ const steps: { title: string; text: string; image: StaticImageData; alt: string;
 
 // Leitores do livro que aparecem flutuando em volta da janela no passo de compartilhar.
 // Posição em % da janela do navegador, para acompanhar qualquer largura
+// No carrossel do celular (janela curta) ficam só três: um à esquerda e dois à direita
 const readers = [
-  { image: voImage, position: '-left-[6%] top-[62%]', delay: '0s' },
+  { image: voImage, position: '-left-[6%] top-[62%]', delay: '0s', celular: true },
   { image: vovoImage, position: 'left-[3%] top-[84%]', delay: '1.2s' },
   { image: maeImage, position: 'left-[16%] top-[94%]', delay: '0.6s' },
-  { image: jovemImage, position: 'right-[8%] top-[90%]', delay: '1.8s' },
-  { image: paiImage, position: '-right-[5%] top-[70%]', delay: '0.9s' }
+  { image: jovemImage, position: 'right-[8%] top-[90%]', delay: '1.8s', celular: true },
+  { image: paiImage, position: '-right-[5%] top-[70%]', delay: '0.9s', celular: true }
 ]
 
 // O passo em que os leitores aparecem
@@ -67,9 +68,17 @@ const SHARE_STEP = 2
 
 // A janela do navegador com a tela do passo; as três telas ficam empilhadas e trocam com um fade.
 // Sem moldura em volta: só a janela, com uma sombra longa e suave, como um objeto sobre a página
-const Janela = ({ active }: { active: number }) => (
+// curta: no carrossel do celular a sombra longa seria cortada pela borda do trilho, então fica só a de perto
+const Janela = ({ active, curta = false }: { active: number; curta?: boolean }) => (
   <div className='relative'>
-    <div className='bg-cream overflow-hidden rounded-xl shadow-[0_60px_120px_-40px_rgb(50_38_24/0.45),0_24px_48px_-24px_rgb(50_38_24/0.3)] ring-1 ring-black/5'>
+    <div
+      className={cn(
+        'bg-cream overflow-hidden rounded-xl ring-1 ring-black/5',
+        curta
+          ? 'shadow-[0_24px_48px_-24px_rgb(50_38_24/0.3)]'
+          : 'shadow-[0_60px_120px_-40px_rgb(50_38_24/0.45),0_24px_48px_-24px_rgb(50_38_24/0.3)]'
+      )}
+    >
       {/* Barra do navegador, de enfeite, para a imagem ler como uma tela e não como botões */}
       <div aria-hidden='true' className='bg-stone/70 flex items-center gap-4 px-4 py-2.5'>
         <span className='flex gap-1.5'>
@@ -102,7 +111,7 @@ const Janela = ({ active }: { active: number }) => (
     </div>
 
     {/* Quem lê o livro: entram um a um quando o passo de compartilhar está na tela e ficam flutuando */}
-    {readers.map((reader, index) => (
+    {readers.filter(reader => !curta || reader.celular).map((reader, index) => (
       <span
         key={reader.position}
         aria-hidden='true'
@@ -125,6 +134,86 @@ const Janela = ({ active }: { active: number }) => (
     ))}
   </div>
 )
+
+// Celular: os três passos num carrossel de deslizar para o lado, com só 32px do próximo espiando na borda.
+// 24px de margem e de espaço entre os cards, como no carrossel de Onde ler.
+// A tela (a mesma janela do desktop) vem em cima e o texto embaixo, para as telas ficarem alinhadas;
+// os pontinhos mostram o passo e levam até ele
+const PassosCarrossel = () => {
+  const trilho = useRef<HTMLDivElement>(null)
+  const [atual, setAtual] = useState(0)
+
+  const slideWidth = () => {
+    const el = trilho.current
+    const first = el?.firstElementChild as HTMLElement | null
+
+    return first ? first.offsetWidth + parseFloat(getComputedStyle(el!).columnGap || '0') : 1
+  }
+
+  const onScroll = () => {
+    const el = trilho.current
+
+    if (el) setAtual(Math.min(steps.length - 1, Math.round(el.scrollLeft / slideWidth())))
+  }
+
+  const irPara = (index: number) => trilho.current?.scrollTo({ left: index * slideWidth(), behavior: 'smooth' })
+
+  return (
+    <div className='flex flex-col gap-6 pt-10 pb-16 md:hidden'>
+      <div
+        ref={trilho}
+        onScroll={onScroll}
+        role='region'
+        aria-roledescription='carrossel'
+        aria-label='Passos do Lá Vem História'
+        className='flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto px-6 pt-2 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+      >
+        {steps.map((step, index) => (
+          <div
+            key={step.title}
+            role='group'
+            aria-roledescription='slide'
+            aria-label={`Passo ${index + 1} de ${steps.length}`}
+            className='flex w-[calc(100%-2rem)] shrink-0 snap-start flex-col gap-5'
+          >
+            <Janela active={index} curta />
+            <div className='flex flex-col gap-2 text-center'>
+              <span className='text-muted-foreground text-sm tabular-nums'>
+                {String(index + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+              </span>
+              <h3 className='font-heading text-2xl'>{step.title}</h3>
+              <p className='text-foreground text-base'>{step.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className='flex justify-center gap-1.5'>
+        {steps.map((step, index) => (
+          <button
+            key={step.title}
+            type='button'
+            aria-label={`Ir para o passo ${index + 1}: ${step.title}`}
+            aria-current={index === atual ? 'step' : undefined}
+            onClick={() => irPara(index)}
+            className='cursor-pointer py-2'
+          >
+            <span
+              className={cn(
+                'block h-1.5 rounded-full transition-[width,background-color] duration-300 ease-out',
+                index === atual ? 'bg-foreground w-6' : 'bg-foreground/25 w-1.5'
+              )}
+            />
+          </button>
+        ))}
+      </div>
+
+      <div className='px-4'>
+        <Cta>Responder a primeira pergunta</Cta>
+      </div>
+    </div>
+  )
+}
 
 // Como funciona, contado com o scroll: no desktop a seção fica presa na tela e cada passo ocupa um trecho da rolagem,
 // com o texto à esquerda e a tela à direita. A roda do mouse avança um passo por vez e segura um instante em cada um,
@@ -215,16 +304,16 @@ const ComoFunciona = () => {
   }, [])
 
   return (
-    <section id='como-funciona' className='scroll-mt-24 overflow-x-clip'>
-      <div className='mx-auto flex max-w-7xl flex-col gap-4 px-4 pt-24 sm:px-6 lg:px-16 lg:pt-32'>
-        <MotionPreset {...reveal} className='flex max-w-2xl flex-col gap-4'>
+    <section id='como-funciona' className='scroll-mt-24 overflow-x-clip max-md:bg-sand'>
+      <div className='mx-auto flex max-w-7xl flex-col gap-4 px-4 pt-24 max-md:pt-16 sm:px-6 lg:px-16 lg:pt-32'>
+        <MotionPreset {...reveal} className='flex max-w-2xl flex-col gap-4 max-md:items-center max-md:text-center'>
           <p className='text-sm font-medium uppercase'>Como funciona</p>
           <WordsReveal
             as='h2'
             text='Da primeira pergunta ao livro nas mãos.'
-            className='font-heading text-display text-balance'
+            className='font-heading text-display text-balance max-md:leading-[1.146]'
           />
-          <p className='text-muted-foreground text-base text-pretty'>
+          <p className='text-muted-foreground text-base text-pretty max-md:text-wrap'>
             Três passos simples. Alguns minutos por semana, pensando em quem vai ler.
           </p>
         </MotionPreset>
@@ -285,8 +374,8 @@ const ComoFunciona = () => {
         <Cta>Responder a primeira pergunta</Cta>
       </div>
 
-      {/* Celular e tablet: os três passos empilhados, cada um com a sua tela */}
-      <div className='mx-auto flex max-w-2xl flex-col gap-16 px-4 pt-12 pb-24 sm:px-6 lg:hidden'>
+      {/* Tablet: os três passos empilhados, cada um com a sua tela */}
+      <div className='mx-auto flex max-w-2xl flex-col gap-16 px-4 pt-12 pb-24 max-md:hidden sm:px-6 lg:hidden'>
         {steps.map((step, index) => (
           <MotionPreset key={step.title} {...reveal} className='flex flex-col gap-6'>
             <div className='flex flex-col gap-2'>
@@ -301,6 +390,9 @@ const ComoFunciona = () => {
         ))}
         <Cta>Responder a primeira pergunta</Cta>
       </div>
+
+      {/* Celular */}
+      <PassosCarrossel />
     </section>
   )
 }

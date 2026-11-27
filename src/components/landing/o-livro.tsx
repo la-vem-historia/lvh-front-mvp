@@ -30,10 +30,10 @@ const details = [
 const OLivro = () => {
   return (
     <section id='o-livro' className='bg-paper scroll-mt-24'>
-      <div className='mx-auto grid max-w-7xl gap-16 px-4 py-24 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-16 lg:py-32'>
+      <div className='mx-auto grid max-w-7xl gap-16 px-4 py-24 max-md:gap-10 max-md:py-16 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-16 lg:py-32'>
         {/* O mesmo livro no papel, no iPad e no celular, visto de cima numa mesa: num card, como o hero */}
         <MotionPreset {...reveal} className='flex items-center lg:col-span-6'>
-          <div className='relative aspect-square w-full overflow-hidden rounded-2xl'>
+          <div className='relative aspect-square w-full overflow-hidden rounded-2xl max-md:aspect-[4/3]'>
             <Image
               src={livroTelas}
               alt='Vista de cima de uma mesa de madeira com o livro de capa terracota “Minha vida, muitas histórias”, um iPad e um iPhone mostrando a mesma capa, e uma xícara de café'
@@ -44,7 +44,7 @@ const OLivro = () => {
           </div>
         </MotionPreset>
 
-        <div className='flex flex-col gap-12 lg:col-span-5 lg:col-start-8 lg:justify-center'>
+        <div className='flex flex-col gap-12 max-md:gap-8 max-md:text-center lg:col-span-5 lg:col-start-8 lg:justify-center'>
           <MotionPreset {...reveal} delay={0.1} className='flex flex-col gap-4'>
             <p className='text-sm font-medium uppercase'>O livro</p>
             <WordsReveal
@@ -64,7 +64,7 @@ const OLivro = () => {
                 key={detail.title}
                 {...reveal}
                 delay={0.1 * (index + 2)}
-                className='relative flex flex-col gap-4 py-8'
+                className='relative flex flex-col gap-4 py-8 max-md:gap-3 max-md:py-6'
               >
                 <DrawLine className='bg-foreground absolute inset-x-0 top-0' delay={0.12 * index} />
                 <dt className='text-sm font-bold uppercase'>{detail.title}</dt>

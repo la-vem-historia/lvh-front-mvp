@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 
+import Link from 'next/link'
 import { useMedia } from 'react-use'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -173,14 +174,19 @@ const HeroNavigation02 = ({ navigationData, className }: { navigationData: Navig
 const HeroNavigation02SmallScreen = ({
   navigationData,
   triggerClassName,
-  screenSize = 1023
+  screenSize = 1023,
+  cta
 }: {
   navigationData: Navigation[]
   triggerClassName?: string
   screenSize?: number
+  // Chamada para cadastro no pé da gaveta; só aparece no celular, onde o header não tem espaço para ela
+  cta?: { title: string; href: string }
 }) => {
   const [open, setOpen] = useState(false)
   const isMobile = useMedia(`(max-width: ${screenSize}px)`, false)
+  // No celular a gaveta sai do mesmo lado do botão que a abre; no tablet continua pela esquerda
+  const isPhone = useMedia('(max-width: 767px)', false)
 
   const handleLinkClick = () => {
     setOpen(false)
@@ -203,7 +209,7 @@ const HeroNavigation02SmallScreen = ({
           </Button>
         }
       />
-      <SheetContent side='left' className='w-75 gap-0 p-0'>
+      <SheetContent side={isPhone ? 'right' : 'left'} className='w-75 gap-0 p-0'>
         <SheetHeader className='p-4'>
           <SheetTitle hidden />
           <SheetDescription hidden />
@@ -218,7 +224,7 @@ const HeroNavigation02SmallScreen = ({
                 <a
                   key={navItem.title}
                   href={navItem.href}
-                  className='hover:bg-accent flex items-center gap-2 rounded-sm px-3 py-2 text-sm'
+                  className='hover:bg-accent flex items-center gap-2 rounded-sm px-3 py-2 text-sm max-md:py-3 max-md:text-lg'
                   onClick={handleLinkClick}
                 >
                   {navItem.title}
@@ -253,6 +259,20 @@ const HeroNavigation02SmallScreen = ({
             )
           })}
         </div>
+
+        {cta && (
+          <div className='mt-auto p-4 md:hidden'>
+            <Button
+              variant='honey'
+              size='cta'
+              className='w-full min-w-0'
+              render={<Link href={cta.href} onClick={handleLinkClick} />}
+              nativeButton={false}
+            >
+              {cta.title}
+            </Button>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   )
