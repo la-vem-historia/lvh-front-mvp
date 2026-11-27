@@ -8,6 +8,8 @@ const root = process.cwd();
 const nextConfig: NextConfig = {
   turbopack: { root },
   outputFileTracingRoot: root,
+  // Só em dev: deixa abrir o servidor pelo IP da rede local (ex.: no celular, no mesmo Wi-Fi)
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
   images: {
     remotePatterns: [
       // Imagens usadas pelos blocks do shadcn/studio

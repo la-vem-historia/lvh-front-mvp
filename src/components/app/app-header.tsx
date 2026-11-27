@@ -8,6 +8,7 @@ import {
   BookOpenIcon,
   CheckIcon,
   ChevronDownIcon,
+  CreditCardIcon,
   HouseIcon,
   LibraryIcon,
   LogOutIcon,
@@ -125,6 +126,10 @@ const AccountMenu = ({ active }: { active: boolean }) => {
           <UserIcon className='size-4' aria-hidden='true' />
           Minha conta
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/app/assinatura')} className={itemClassName}>
+          <CreditCardIcon className='size-4' aria-hidden='true' />
+          Assinatura
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push('/app/configuracoes')} className={itemClassName}>
           <SettingsIcon className='size-4' aria-hidden='true' />
           Configurações
@@ -195,7 +200,7 @@ const AppHeader = () => {
 
   // Escrevendo, o cabeçalho vira modo foco: só as duas visões, sem logo, livro nem conta
   const focus = pathname.startsWith('/app/pergunta')
-  const account = pathname === '/app/conta' || pathname === '/app/configuracoes'
+  const account = pathname === '/app/conta' || pathname === '/app/configuracoes' || pathname === '/app/assinatura'
 
   // No onboarding (conta nova e novo livro) não há cabeçalho: nada ali é clicável ainda, e o foco fica nos passos
   if (pathname === '/app/boas-vindas' || pathname === '/app/livros/novo') return null

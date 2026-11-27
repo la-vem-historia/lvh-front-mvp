@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
 import Link from 'next/link'
-import { CircleCheckIcon, MailIcon, PrinterIcon } from 'lucide-react'
+import { CircleCheckIcon, LoaderCircleIcon, MailIcon, PrinterIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,9 +14,11 @@ import CartaoDuplo from '@/components/presente/cartao-duplo'
 import SeloMaisEscolhido from '@/components/presente/selo-mais-escolhido'
 
 import { formatPrice } from '@/lib/lvh/livros'
+import { getCheckoutSession } from '@/lib/lvh/pagamento'
 import {
-  createGiftCard,
   FEATURED_MONTHS,
+  receiveGiftPayment,
+  startGiftCheckout,
   GIFT_OPTIONS,
   monthsLabel,
   pricePerMonth,
@@ -95,7 +97,16 @@ const PASSOS = [
 
 // Compra do cartão-presente, um passo de cada vez: quantos meses, para quem, como entregar e quem está dando.
 // A prévia do cartão fica ao lado o tempo todo e acompanha o que a pessoa preenche
-const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
+const ComprarPresente = ({
+  initialMonths,
+  checkoutId,
+  checkoutCanceled
+}: {
+  initialMonths: GiftMonths
+  // Na volta da página do provedor: ?checkout=<id>, e &cancelado=1 quando a pessoa desistiu lá
+  checkoutId?: string
+  checkoutCanceled?: boolean
+}) => {
   const [step, setStep] = useState(0)
   const [months, setMonths] = useState<GiftMonths>(initialMonths)
   const [recipientName, setRecipientName] = useState('')
@@ -107,6 +118,60 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [gift, setGift] = useState<GiftCard | null>(null)
+  // Voltou do provedor com o pagamento feito: espera o webhook criar o cartão
+  const [confirming, setConfirming] = useState(Boolean(checkoutId && !checkoutCanceled))
+
+  useEffect(() => {
+    if (!checkoutId) return
+
+    let active = true
+    let timer: number | undefined
+
+    // Desistiu no provedor: volta ao último passo com tudo preenchido, para não digitar de novo
+    if (checkoutCanceled) {
+      getCheckoutSession(checkoutId).then(session => {
+        if (!active || session?.item.kind !== 'presente') return
+
+        const input = session.item.gift
+
+        setMonths(input.months)
+        setRecipientName(input.recipientName)
+        setMessage(input.message ?? '')
+        setDelivery(input.delivery)
+        setRecipientEmail(input.recipientEmail ?? '')
+        setBuyerName(input.buyerName)
+        setBuyerEmail(input.buyerEmail)
+        setStep(PASSOS.length - 1)
+        setError('Pagamento não concluído. Nada foi cobrado.')
+      })
+
+      return () => {
+        active = false
+      }
+    }
+
+    const check = async () => {
+      const created = await receiveGiftPayment(checkoutId)
+
+      if (!active) return
+
+      if (created) {
+        setGift(created)
+        setConfirming(false)
+
+        return
+      }
+
+      timer = window.setTimeout(check, 1000)
+    }
+
+    check()
+
+    return () => {
+      active = false
+      window.clearTimeout(timer)
+    }
+  }, [checkoutId, checkoutCanceled])
 
   const option = GIFT_OPTIONS.find(item => item.months === months)!
   const last = step === PASSOS.length - 1
@@ -124,27 +189,35 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
 
     setPending(true)
 
+    // O pagamento acontece na página do provedor; o cartão é criado quando ele confirma
     try {
-      const created = await createGiftCard({
-        months,
-        recipientName,
-        message,
-        delivery,
-        recipientEmail,
-        buyerName,
-        buyerEmail
-      })
-
-      setGift(created)
-      window.scrollTo({ top: 0 })
+      window.location.assign(
+        await startGiftCheckout({
+          months,
+          recipientName,
+          message,
+          delivery,
+          recipientEmail,
+          buyerName,
+          buyerEmail
+        })
+      )
     } catch (reason) {
       setError((reason as Error).message)
+      setPending(false)
     }
-
-    setPending(false)
   }
 
   if (gift) return <Comprado gift={gift} />
+
+  if (confirming) {
+    return (
+      <p role='status' className='bg-sand mx-auto mt-16 flex max-w-xl items-center gap-3 rounded-2xl p-5 text-sm'>
+        <LoaderCircleIcon aria-hidden='true' className='size-4 shrink-0 animate-spin' />
+        Confirmando o pagamento com o provedor…
+      </p>
+    )
+  }
 
   const passo = PASSOS[step]
 
@@ -340,7 +413,7 @@ const ComprarPresente = ({ initialMonths }: { initialMonths: GiftMonths }) => {
               </Button>
             )}
             <Button type='submit' variant={last ? 'honey' : 'moss'} size='cta' disabled={pending}>
-              {last ? (pending ? 'Finalizando…' : `Pagar ${formatPrice(option.price)}`) : 'Continuar'}
+              {last ? (pending ? 'Indo para o pagamento…' : `Ir para o pagamento · ${formatPrice(option.price)}`) : 'Continuar'}
             </Button>
           </div>
           {last && (

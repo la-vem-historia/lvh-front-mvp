@@ -70,7 +70,8 @@ const HeroFotos = ({ className }: { className?: string }) => {
           placeholder='blur'
           sizes='100vw'
           className={cn(
-            'absolute inset-0 size-full object-cover object-[78%_50%] transition-opacity duration-[1500ms] ease-in-out',
+            // No celular a foto vem mais fechada na família, ancorada embaixo à direita, como no Figma
+            'absolute inset-0 size-full object-cover object-[78%_50%] transition-opacity duration-[1500ms] ease-in-out max-md:origin-[89%_100%] max-md:scale-[1.29] max-md:object-[89%_100%]',
             index === active ? 'opacity-100' : 'opacity-0'
           )}
         />

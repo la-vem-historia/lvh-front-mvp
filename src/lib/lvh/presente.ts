@@ -3,6 +3,14 @@
 // e nenhum e-mail é enviado; com o backend, a compra e o resgate passam a ser de verdade
 
 import { getCurrentUser, updateUser } from './api'
+import {
+  checkoutUrl,
+  createCheckoutSession,
+  getCheckoutSession,
+  settleSession,
+  takeDueEvents,
+  type GiftInput
+} from './pagamento'
 
 const GIFTS_KEY = 'lvh:presentes'
 // Código digitado antes de a pessoa ter conta: é aplicado assim que ela entra no app
@@ -46,6 +54,8 @@ export type GiftCard = {
   message?: string
   buyerName: string
   buyerEmail: string
+  // CPF de quem comprou, confirmado no checkout: a nota fiscal do presente sai para quem pagou
+  buyerCpf?: string
   // E-mail de quem ganha: o cartão vai direto para ele. No PDF, o cartão vai para quem comprou
   delivery: GiftDelivery
   recipientEmail?: string
@@ -144,6 +154,40 @@ export async function redeemGiftCard(code: string): Promise<{ gift: GiftCard; un
   write({ ...gifts, [gift.code]: { ...gift, redeemedAt: now.toISOString() } })
 
   return { gift, until }
+}
+
+// Comprar: o pagamento é único e acontece na página do provedor (aceita cartão e Pix).
+// O cartão-presente só é criado quando o webhook confirma o pagamento
+export async function startGiftCheckout(input: GiftInput): Promise<string> {
+  const option = GIFT_OPTIONS.find(item => item.months === input.months)
+
+  if (!option) throw new Error('Escolha 1, 3, 6 ou 12 meses.')
+
+  const session = await createCheckoutSession({
+    item: { kind: 'presente', gift: input },
+    description: `Cartão-presente · ${monthsLabel(input.months)} de Lá Vem História`,
+    amountToday: option.price,
+    methods: ['cartao', 'pix'],
+    returnPath: '/presente'
+  })
+
+  return checkoutUrl(session)
+}
+
+// O webhook do presente: cria o cartão quando o pagamento da sessão chega. Uma vez só: recarregar a página
+// devolve o mesmo cartão
+export async function receiveGiftPayment(checkoutId: string): Promise<GiftCard | null> {
+  const session = await getCheckoutSession(checkoutId)
+
+  if (!session || session.item.kind !== 'presente') return null
+  if (session.result) return getGiftCard(session.result)
+  if (!takeDueEvents(item => item.id === checkoutId).length) return null
+
+  const gift = await createGiftCard({ ...session.item.gift, buyerCpf: session.cpf })
+
+  settleSession(checkoutId, gift.code)
+
+  return gift
 }
 
 // Guarda o código de quem ainda vai criar a conta

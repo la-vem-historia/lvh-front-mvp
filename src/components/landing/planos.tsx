@@ -63,7 +63,7 @@ const Planos = () => {
 
   return (
     <section id='planos' className='scroll-mt-24'>
-      <div className='mx-auto flex max-w-7xl flex-col gap-16 px-4 py-24 sm:px-6 lg:gap-20 lg:px-16 lg:py-32'>
+      <div className='mx-auto flex max-w-7xl flex-col gap-16 px-4 py-24 max-md:gap-10 max-md:py-16 sm:px-6 lg:gap-20 lg:px-16 lg:py-32'>
         <MotionPreset {...reveal} className='flex flex-col items-center gap-6 text-center'>
           <div className='flex flex-col items-center gap-4'>
             <p className='text-sm font-medium uppercase'>Planos</p>
@@ -76,7 +76,7 @@ const Planos = () => {
           <p className='text-muted-foreground max-w-xl text-base text-pretty'>{TRIAL}. Depois, sem fidelidade.</p>
         </MotionPreset>
 
-        <div className='flex flex-col items-center gap-10'>
+        <div className='flex flex-col items-center gap-10 max-md:gap-8'>
           {/* Mensal ou anual: o anual vem marcado com o desconto */}
           <div role='radiogroup' aria-label='Forma de pagamento' className='bg-sand flex rounded-full p-1'>
             {(['mensal', 'anual'] as const).map(option => (
@@ -111,7 +111,7 @@ const Planos = () => {
             delay={0.1}
             className='bg-moss text-cream mx-auto grid w-full max-w-5xl gap-10 rounded-2xl p-8 sm:p-10 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:p-12'
           >
-            <div className='flex flex-col gap-8'>
+            <div className='flex flex-col gap-8 max-md:text-center'>
               <div className='flex flex-col gap-2'>
                 <h3 className='font-heading text-display'>Lá Vem História</h3>
                 <p className='text-base text-pretty'>
@@ -121,7 +121,7 @@ const Planos = () => {
 
               {/* No anual, o preço por mês já com desconto, o mensal riscado e o total do ano */}
               <div className='flex flex-col gap-1'>
-                <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1'>
+                <p className='flex flex-wrap items-baseline gap-x-3 gap-y-1 max-md:justify-center'>
                   <span className='font-heading text-display-lg tabular-nums'>
                     {formatPrice(annual ? ANNUAL_PER_MONTH : MONTHLY)}
                   </span>
@@ -148,8 +148,9 @@ const Planos = () => {
 
             <ul className='grid content-start sm:grid-cols-2 sm:gap-x-8'>
               {features.map(({ label, Icon }) => (
-                <li key={label} className='border-cream/25 flex items-start gap-3 border-t py-3 text-sm'>
-                  <Icon aria-hidden='true' className='mt-0.5 size-4 shrink-0' strokeWidth={1.75} />
+                // No celular o ícone vai junto do texto, na mesma linha, para o par ficar centralizado mesmo quando quebra
+                <li key={label} className='border-cream/25 flex items-start gap-3 border-t py-3 text-sm max-md:block max-md:text-center'>
+                  <Icon aria-hidden='true' className='mt-0.5 size-4 shrink-0 max-md:mt-0 max-md:mr-2 max-md:inline max-md:align-[-3px]' strokeWidth={1.75} />
                   <span className='text-pretty'>{label}</span>
                 </li>
               ))}

@@ -36,7 +36,7 @@ const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (m
               aria-checked={selected}
               onClick={() => onChange(option.months)}
               className={cn(
-                'relative flex cursor-pointer flex-col gap-1 rounded-2xl border p-5 text-left transition-colors',
+                'relative flex cursor-pointer flex-col gap-1 rounded-2xl border p-5 text-left transition-colors max-md:items-center max-md:text-center',
                 selected
                   ? 'border-moss bg-moss/5 ring-moss ring-1'
                   : 'bg-sand hover:border-foreground/30 border-transparent'
@@ -54,8 +54,14 @@ const PresenteOpcoes = ({ months, onChange }: { months: GiftMonths; onChange: (m
         })}
       </div>
 
-      <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
-        <Button render={<Link href={`/presente?meses=${months}`} />} nativeButton={false} variant='honey' size='cta'>
+      <div className='flex flex-col items-start gap-4 max-md:items-center sm:flex-row sm:items-center'>
+        <Button
+          render={<Link href={`/presente?meses=${months}`} />}
+          nativeButton={false}
+          variant='honey'
+          size='cta'
+          className='max-md:w-full'
+        >
           Dar {monthsLabel(months)} de presente
         </Button>
         <Link
