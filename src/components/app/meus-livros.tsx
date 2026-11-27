@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import Section from '@/components/app/section'
 import { useRefreshUser, useUser } from '@/components/app/session'
 import { pageTitleClassName, textLinkClassName } from '@/components/app/page-heading'
-import ResgatarPresente from '@/components/app/resgatar-presente'
 
 import {
   concludeBook,
@@ -20,11 +19,9 @@ import {
   getBilling,
   getBooks,
   reopenBook,
-  setActiveBook,
-  setExtraSlots
+  setActiveBook
 } from '@/lib/lvh/api'
-import { bookTitle, formatPrice, relationOf, bookTitleInline } from '@/lib/lvh/livros'
-import { formatGiftDate } from '@/lib/lvh/presente'
+import { bookTitle, relationOf, bookTitleInline } from '@/lib/lvh/livros'
 import type { Billing, UserBook } from '@/lib/lvh/types'
 import { cn } from '@/lib/utils'
 
@@ -300,93 +297,14 @@ const Livros = ({
         <PlusIcon aria-hidden='true' />
         Novo livro
       </Button>
-    </div>
-  )
-}
-
-const Cobranca = ({ billing, onChange }: { billing: Billing; onChange: () => void }) => {
-  const [error, setError] = useState<string | null>(null)
-  const freeSlots = billing.slots - billing.inProgress
-
-  const changeSlots = async (extraSlots: number) => {
-    try {
-      setError(null)
-      await setExtraSlots(extraSlots)
-      onChange()
-    } catch (reason) {
-      setError((reason as Error).message)
-    }
-  }
-
-  return (
-    <div className='flex flex-col gap-8'>
-      <div className='flex flex-col gap-3'>
-        <span className='text-sm font-medium'>Livros ao mesmo tempo</span>
-        <p className='text-base'>
-          {plural(billing.inProgress, 'livro em andamento', 'livros em andamento')} de{' '}
-          {plural(billing.slots, 'vaga', 'vagas')}
-        </p>
-        <div className='flex flex-wrap items-center gap-4'>
-          <Button
-            type='button'
-            variant='outline'
-            size='md'
-            onClick={() => changeSlots(billing.extraSlots + 1)}
-          >
-            Adicionar vaga · +{formatPrice(billing.extraPrice)}/mês
-          </Button>
-          {billing.extraSlots > 0 && freeSlots > 0 && (
-            <button type='button' onClick={() => changeSlots(billing.extraSlots - 1)} className={textLinkClassName}>
-              Tirar uma vaga livre
-            </button>
-          )}
-        </div>
-        {error && (
-          <p role='alert' className='text-destructive text-sm'>
-            {error}
-          </p>
-        )}
-      </div>
-
-      <ResgatarPresente giftUntil={billing.giftUntil} onChange={onChange} />
-
-      <div className='flex flex-col gap-3'>
-        <span className='text-sm font-medium'>Sua mensalidade</span>
-        <ul className='border-border flex flex-col rounded-2xl border'>
-          <li className='flex items-center justify-between gap-4 px-5 py-4 text-sm'>
-            <span>
-              Assinatura
-              <span className='text-muted-foreground'> · inclui 1 livro em andamento</span>
-            </span>
-            <span className='tabular-nums'>{formatPrice(billing.base)}</span>
-          </li>
-          {billing.extraSlots > 0 && (
-            <li className='border-border flex items-center justify-between gap-4 border-t px-5 py-4 text-sm'>
-              <span>
-                {plural(billing.extraSlots, 'vaga a mais', 'vagas a mais')}
-                <span className='text-muted-foreground'> · {formatPrice(billing.extraPrice)} cada</span>
-              </span>
-              <span className='tabular-nums'>{formatPrice(billing.extraSlots * billing.extraPrice)}</span>
-            </li>
-          )}
-          {billing.giftUntil && (
-            <li className='border-border flex items-center justify-between gap-4 border-t px-5 py-4 text-sm'>
-              <span>
-                Presente
-                <span className='text-muted-foreground'> · até {formatGiftDate(billing.giftUntil)}</span>
-              </span>
-              <span className='tabular-nums'>−{formatPrice(billing.base)}</span>
-            </li>
-          )}
-          <li className='border-foreground flex items-center justify-between gap-4 border-t px-5 py-4 text-base font-medium'>
-            <span>Total por mês</span>
-            <span className='tabular-nums'>
-              {formatPrice(billing.giftUntil ? billing.total - billing.base : billing.total)}
-            </span>
-          </li>
-        </ul>
-        <p className='text-muted-foreground text-xs'>Protótipo: nenhuma cobrança é feita.</p>
-      </div>
+      {/* As vagas são da assinatura: aqui só o uso, e o caminho para adicionar mais */}
+      <p className='text-muted-foreground text-sm'>
+        {plural(billing.inProgress, 'livro em andamento', 'livros em andamento')} de{' '}
+        {plural(billing.slots, 'vaga', 'vagas')}.{' '}
+        <Link href='/app/assinatura#vagas' className='underline underline-offset-4'>
+          {freeSlot ? 'Ver vagas na assinatura' : 'Adicionar vaga'}
+        </Link>
+      </p>
     </div>
   )
 }
@@ -417,13 +335,6 @@ const MeusLivros = () => {
         description='Cada livro é seu para uma pessoa. Escreva um por vez; ao concluir, ele fica pronto e libera a vaga para o próximo.'
       >
         <Livros books={books} answered={answered} billing={billing} onChange={load} />
-      </Section>
-
-      <Section
-        title='Pagamento'
-        description='A assinatura cobre o livro que você está escrevendo. Quer escrever dois ao mesmo tempo? Adicione uma vaga.'
-      >
-        <Cobranca billing={billing} onChange={load} />
       </Section>
     </div>
   )

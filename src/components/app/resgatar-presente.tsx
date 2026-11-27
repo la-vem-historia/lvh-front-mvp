@@ -43,8 +43,8 @@ const ResgatarPresente = ({ giftUntil, onChange }: { giftUntil?: string; onChang
   }
 
   return (
+    // O título "Presente" vem da seção da página Assinatura
     <div className='flex flex-col gap-3'>
-      <span className='text-sm font-medium'>Presente</span>
 
       {giftUntil && (
         <div className='bg-sand flex items-start gap-3 rounded-2xl p-4'>
